@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<robot name="drone_simple">
+	<material name="black">
+		<color rgba="0 0 0 1"/>
+	</material>
+
+	<material name="grey">
+		<color rgba="0.5 0.5 0.5 1"/>
+	</material>
+
+	<material name="red">
+		<color rgba="1 0 0 1"/>
+	</material>
+
+	<material name="green">
+		<color rgba="0 1 0 1"/>
+	</material>
+
+	<link name="chasis">
+		<inertial>
+    		<origin rpy="0 0 0" xyz="0 0 0"/>
+    		<mass value="0.027"/>
+    		<inertia ixx="2.3951e-5" ixy="0.0" ixz="0.0" iyy="2.3951e-5" iyz="0.0" izz="3.2347e-5"/>
+    	</inertial>
+		<visual>
+			<geometry>
+				<box size="0.2 0.3 0.1" />
+			</geometry>
+			<material name="grey"/>
+		</visual>
+		<visual name="fr_arm">
+			<geometry>
+				<box size="0.05 0.3 0.05"/>
+			</geometry>
+			<origin rpy="0 0 -0.7" xyz="0.15 0.15 0"/>
+		</visual>
+		<visual name="fl_arm">
+			<geometry>
+				<box size="0.05 0.3 0.05"/>
+			</geometry>
+			<origin rpy="0 0 0.7" xyz="-0.15 0.15 0"/>
+		</visual>
+		<visual name="br_arm">
+			<geometry>
+				<box size="0.05 0.3 0.05"/>
+			</geometry>
+			<origin rpy="0 0 0.7" xyz="0.15 -0.15 0"/>
+		</visual>
+		<visual name="bl_arm">
+			<geometry>
+				<box size="0.05 0.3 0.05"/>
+			</geometry>
+			<origin rpy="0 0 -0.7" xyz="-0.15 -0.15 0"/>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.15" radius="1"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<link name="fr_rotor">
+    	<inertial>
+    		<origin rpy="0 0 0" xyz="0.29 0.29 0"/>
+    		<mass value="0"/>
+    		<inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    	</inertial>
+    	<visual>
+			<geometry>
+				<cylinder length="0.1" radius="0.05"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0.29 0.29 0"/>
+			<material name="green"/>
+		</visual>
+  	</link>
+	<joint name="fr_rotor_to_chasis" type="fixed">
+		<parent link="chasis"/>
+		<child link="fr_rotor"/>
+	</joint>
+
+	<link name="fl_rotor">
+    	<inertial>
+    		<origin rpy="0 0 0" xyz="-0.29 0.29 0"/>
+    		<mass value="0"/>
+    		<inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    	</inertial>
+    	<visual>
+			<geometry>
+				<cylinder length="0.1" radius="0.05"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="-0.29 0.29 0"/>
+			<material name="green"/>
+		</visual>
+  	</link>
+	<joint name="fl_rotor_to_chasis" type="fixed">
+		<parent link="chasis"/>
+		<child link="fl_rotor"/>
+	</joint>
+
+	<link name="br_rotor">
+    	<inertial>
+    		<origin rpy="0 0 0" xyz="0.29 -0.29 0"/>
+    		<mass value="0"/>
+    		<inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    	</inertial>
+    	<visual>
+			<geometry>
+				<cylinder length="0.1" radius="0.05"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0.29 -0.29 0"/>
+			<material name="red"/>
+		</visual>
+  	</link>
+	<joint name="br_rotor_to_chasis" type="fixed">
+		<parent link="chasis"/>
+		<child link="br_rotor"/>
+	</joint>
+
+	<link name="bl_rotor">
+    	<inertial>
+    		<origin rpy="0 0 0" xyz="-0.29 -0.29 0"/>
+    		<mass value="0"/>
+    		<inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    	</inertial>
+    	<visual>
+			<geometry>
+				<cylinder length="0.1" radius="0.05"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="-0.29 -0.29 0"/>
+			<material name="red"/>
+		</visual>
+  	</link>
+	<joint name="bl_rotor_to_chasis" type="fixed">
+		<parent link="chasis"/>
+		<child link="bl_rotor"/>
+	</joint>
+
+</robot>
