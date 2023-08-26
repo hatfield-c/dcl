@@ -20,43 +20,8 @@ drone = SimpleDrone.SimpleDrone(
 	position = startPos
 )
 
-force0 = 0.5
-
-#links 7 to 10
 for i in range (10000):
-	
-	if i > 85:
-		pb.applyExternalForce(
-			drone.pb_id,
-			0,
-			forceObj=[0, 0, force0],
-			posObj=[0, 0, 0],
-			flags=pb.LINK_FRAME
-		)
-		pb.applyExternalForce(
-			drone.pb_id,
-			1,
-			forceObj=[0, 0, force0],
-			posObj=[0, 0, 0],
-			flags=pb.LINK_FRAME
-		)
-		pb.applyExternalForce(
-			drone.pb_id,
-			2,
-			forceObj=[0, 0, force0],
-			posObj=[0, 0, 0],
-			flags=pb.LINK_FRAME
-		)
-		pb.applyExternalForce(
-			drone.pb_id,
-			3,
-			forceObj=[0, 0, force0],
-			posObj=[0, 0, 0],
-			flags=pb.LINK_FRAME
-		)
-	
-	if i > 100:
-		force0 = 0.067
+	drone.TakeAction()
 	
 	pb.stepSimulation()
 	time.sleep(1./240.)
