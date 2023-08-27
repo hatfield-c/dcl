@@ -1,11 +1,11 @@
 import numpy as np
 import pybullet as pb
 
-import EntityInterface
+import AgentInterface
 import SimpleDroneActuator
 import AltimeterSensor
 
-class SimpleDrone(EntityInterface.EntityInterface):
+class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
 			self,
 			urdf_name,
@@ -37,11 +37,11 @@ class SimpleDrone(EntityInterface.EntityInterface):
 		altitude = self.altimeter.ReadSensor(sensor_control)
 		
 		force = 0
-		if altitude < 0.5:
-			force = 0.5
+		if altitude < 0.8:
+			force = 0.2
 		
-		if altitude > 1:
-			force = 0.067
+		if altitude > 0.8:
+			force = 0.06
 		
 		rotor_control = {
 			"pb_id": self.pb_id,

@@ -1,0 +1,10 @@
+
+class ScenarioInterface:
+	def __init__(self):
+		pass
+	
+	def InstantiateEntities(self):
+		raise NotImplementedError()
+		
+	def UpdateAgents(self):
+		raise NotImplementedError()
