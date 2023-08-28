@@ -5,3 +5,6 @@ class AgentInterface:
 	
 	def TakeAction(self):
 		raise NotImplementedError()
+		
+	def GetSensors(self):
+		raise NotImplementedError()
