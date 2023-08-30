@@ -11,8 +11,14 @@ def Main():
 	scenario.InstantiateEntities()
 	
 	for i in range (10000):
+		if i % 100 == 0:
+			scenario.event_queue.AddEvent("simple_time", "[Simulation Step: " + str(i) + "]")
+		
 		scenario.UpdateAgents()
+		scenario.ProcessEvents()
+		
 		pb.stepSimulation()
+		
 		time.sleep(1./240.)
 		
 	pb.disconnect()

@@ -5,6 +5,8 @@ import scenarios.ScenarioInterface as ScenarioInterface
 import entities.agents.drones.SimpleDrone as SimpleDrone
 import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
+import events.EventQueue as EventQueue
+import events.SimpleTimeConsumer as SimpleTimeConsumer
 
 class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -18,6 +20,10 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.agents = {}
 		self.dynamic_objects = {}
 		self.static_objects = {}
+		
+		self.time_consumer = SimpleTimeConsumer.SimpleTimeConsumer()
+		self.event_queue = EventQueue.EventQueue()
+		self.event_queue.RegisterConsumer(self.time_consumer)
 		
 	def InstantiateEntities(self):
 		
@@ -40,4 +46,5 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 			
 			agent.TakeAction()
 	
-	
+	def ProcessEvents(self):
+		self.event_queue.ProcessQueue()
