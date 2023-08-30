@@ -1,5 +1,5 @@
 
-import PlannerInterface
+import planners.PlannerInterface as PlannerInterface
 
 class SimplePlanner(PlannerInterface.PlannerInterface):
 	def __init__(self):

@@ -1,10 +1,10 @@
 
 import pybullet as pb
 
-import ScenarioInterface
-import SimpleDrone
-import StaticObject
-import DynamicObject
+import scenarios.ScenarioInterface as ScenarioInterface
+import entities.agents.drones.SimpleDrone as SimpleDrone
+import entities.StaticObject as StaticObject
+import entities.DynamicObject as DynamicObject
 
 class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -39,3 +39,5 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 			agent = self.agents[agent_id]
 			
 			agent.TakeAction()
+	
+	

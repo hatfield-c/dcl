@@ -1,6 +1,6 @@
 import pybullet as pb
 
-import ActuatorInterface
+import actuators.ActuatorInterface as ActuatorInterface
 
 class SimpleDroneActuator(ActuatorInterface.ActuatorInterface):
 	def __init__(self):

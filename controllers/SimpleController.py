@@ -1,5 +1,5 @@
 
-import ControllerInterface
+import controllers.ControllerInterface as ControllerInterface
 
 class SimpleController(ControllerInterface.ControllerInterface):
 	def __init__(self):

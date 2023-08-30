@@ -1,5 +1,6 @@
 import pybullet as pb
-import SensorInterface
+
+import sensors.SensorInterface as SensorInterface
 
 class AltimeterSensor(SensorInterface.SensorInterface):
 	def __init__(self):

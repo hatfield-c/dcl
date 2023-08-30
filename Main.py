@@ -2,7 +2,7 @@ import pybullet as pb
 import time
 import pybullet_data
 
-import SimpleScenario
+import scenarios.SimpleScenario as SimpleScenario
 
 def Main():
 	pb_client = pb.connect(pb.GUI)

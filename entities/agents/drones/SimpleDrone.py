@@ -1,11 +1,11 @@
 import numpy as np
 import pybullet as pb
 
-import AgentInterface
-import SimpleController
-import SimplePlanner
-import SimpleDroneActuator
-import AltimeterSensor
+import entities.agents.AgentInterface as AgentInterface
+import controllers.SimpleController as SimpleController
+import planners.SimplePlanner as SimplePlanner
+import actuators.SimpleDroneActuator as SimpleDroneActuator
+import sensors.AltimeterSensor as AltimeterSensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
