@@ -6,7 +6,7 @@ import entities.agents.drones.SimpleDrone as SimpleDrone
 import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
 import events.EventQueue as EventQueue
-import events.SimpleTimeConsumer as SimpleTimeConsumer
+import events.ChannelLogger as ChannelLogger
 
 class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -21,9 +21,9 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.dynamic_objects = {}
 		self.static_objects = {}
 		
-		self.time_consumer = SimpleTimeConsumer.SimpleTimeConsumer()
+		self.time_channel_logger = ChannelLogger.ChannelLogger("data/out.txt", "simple_time")
 		self.event_queue = EventQueue.EventQueue()
-		self.event_queue.RegisterConsumer(self.time_consumer)
+		self.event_queue.RegisterConsumer(self.time_channel_logger)
 		
 	def InstantiateEntities(self):
 		
