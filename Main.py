@@ -1,6 +1,5 @@
 import pybullet as pb
 import time
-import pybullet_data
 
 import scenarios.SimpleScenario as SimpleScenario
 
@@ -11,14 +10,13 @@ def Main():
 	scenario.InstantiateEntities()
 	
 	for i in range (10000):
-		if i % 100 == 0:
-			scenario.event_queue.AddEvent("simple_time", "[Simulation Step: " + str(i) + "]")
-		
 		scenario.UpdateAgents()
+		scenario.UpdateObservers()
 		scenario.ProcessEvents()
 		
 		pb.stepSimulation()
 		
+		scenario.UpdateTime()
 		time.sleep(1./240.)
 		
 	pb.disconnect()

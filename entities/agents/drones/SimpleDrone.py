@@ -61,3 +61,30 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		
 	def GetSensors(self):
 		return self.sensors
+	
+	def GetBulletId(self):
+		return self.pb_id
+	
+	def GetUrdf(self):
+		return self.urdf_name
+	
+	def GetPositionRotation(self):
+		position, rotation = pb.getBasePositionAndOrientation(self.pb_id)
+		rotation = pb.getEulerFromQuaternion(rotation)
+		
+		position = np.array(position)
+		rotation = np.array(rotation)
+		
+		return position, rotation
+		
+	def GetPosition(self):
+		position, rotation = self.GetPositionRotation()
+		
+		return position
+	
+	def GetRotation(self):
+		position, rotation = self.GetPositionRotation()
+		
+		return rotation
+	
+	

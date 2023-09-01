@@ -1,5 +1,7 @@
 
-class AgentInterface:
+import entities.EntityInterface as EntityInterface
+
+class AgentInterface(EntityInterface.EntityInterface):
 	def __init__(self):
 		pass
 	
