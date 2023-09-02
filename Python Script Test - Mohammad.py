@@ -1,3 +1,4 @@
+
 msg1 = "Hello everyone!"
 msg2 = "My name is Mohammad."
 
