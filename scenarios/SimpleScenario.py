@@ -7,6 +7,12 @@ import entities.agents.drones.SimpleDrone as SimpleDrone
 import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
 
+import actuators.SimpleDroneActuator as SimpleDroneActuator
+import controllers.PidController as PidController
+import planners.PidWaypointPlanner as PidWaypointPlanner
+import controllers.SimpleController as SimpleController
+import planners.SimplePlanner as SimplePlanner
+
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
@@ -35,14 +41,30 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 		self.observers["entity_observer"] = self.entity_observer
 		
-	def InstantiateEntities(self):
-		
-		startPos = [0,0,1]
+	def InstantiateDrone(self, start_pos):
 		drone_urdf = "entity_files/drone_simple.urdf"
+		
+		actuator = SimpleDroneActuator.SimpleDroneActuator()
+	
+		#planner = PidWaypointPlanner.PidWaypointPlanner()	
+		#controller = PidController.PidController()
+		planner = SimplePlanner.SimplePlanner()	
+		controller = SimpleController.SimpleController()
+		
 		drone = SimpleDrone.SimpleDrone(
 			urdf_name = drone_urdf,
-			position = startPos
+			position = start_pos,
+			actuator = actuator,
+			planner = planner,
+			controller = controller
 		)
+		
+		return drone
+		
+	def InstantiateEntities(self):
+		
+		start_pos = [0,0,1]
+		drone = self.InstantiateDrone(start_pos)
 		
 		self.agents["simple_drone"] = drone
 		

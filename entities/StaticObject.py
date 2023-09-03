@@ -42,3 +42,7 @@ class StaticObject(EntityInterface.EntityInterface):
 		
 		return rotation
 	
+	def GetQuaternion(self):
+		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
+		
+		return quaternion

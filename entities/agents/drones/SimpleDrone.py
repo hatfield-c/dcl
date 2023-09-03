@@ -2,10 +2,10 @@ import numpy as np
 import pybullet as pb
 
 import entities.agents.AgentInterface as AgentInterface
-import controllers.SimpleController as SimpleController
-import planners.SimplePlanner as SimplePlanner
-import actuators.SimpleDroneActuator as SimpleDroneActuator
+
 import sensors.AltimeterSensor as AltimeterSensor
+import sensors.GpsSensor as GpsSensor
+import sensors.QuatSensor as QuatSensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
@@ -30,19 +30,14 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.planner = planner
 		self.controller = controller
 		
-		if actuator is None:
-			self.actuator = SimpleDroneActuator.SimpleDroneActuator()
-		
-		if self.planner is None:
-			self.planner = SimplePlanner.SimplePlanner()
-			
-		if self.controller is None:
-			self.controller = SimpleController.SimpleController()
-		
 		self.altimeter = AltimeterSensor.AltimeterSensor()
+		self.gps = GpsSensor.GpsSensor(self)
+		self.quat = QuatSensor.QuatSensor(self)
 		
 		self.sensors = {
-			"altimeter": self.altimeter
+			"altimeter": self.altimeter,
+			"gps": self.gps,
+			"quat": self.quat
 		}
 		
 		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
@@ -87,4 +82,8 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		
 		return rotation
 	
+	def GetQuaternion(self):
+		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
+		
+		return quaternion
 	

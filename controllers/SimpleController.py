@@ -23,7 +23,8 @@ class SimpleController(ControllerInterface.ControllerInterface):
 			"fr_rotor_force": force,
 			"fl_rotor_force": force,
 			"br_rotor_force": force,
-			"bl_rotor_force": force
+			"bl_rotor_force": force,
+			"torque": 0
 		}
 		
 		return rotor_control

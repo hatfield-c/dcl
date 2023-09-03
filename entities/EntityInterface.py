@@ -6,6 +6,12 @@ class EntityInterface:
 	def GetBulletId(self):
 		raise NotImplementedError()
 	
+	def GetPositionRotation(self):
+		raise NotImplementedError()
+	
+	def GetQuaternion(self):
+		raise NotImplementedError()
+	
 	def GetUrdf(self):
 		raise NotImplementedError()
 	
