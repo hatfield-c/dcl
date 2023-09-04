@@ -1,5 +1,6 @@
 
 import pybullet as pb
+import numpy as np
 
 import scenarios.ScenarioInterface as ScenarioInterface
 
@@ -8,7 +9,7 @@ import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
 
 import actuators.SimpleDroneActuator as SimpleDroneActuator
-import controllers.PidController as PidController
+import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
 import controllers.SimpleController as SimpleController
 import planners.SimplePlanner as SimplePlanner
@@ -44,12 +45,17 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateDrone(self, start_pos):
 		drone_urdf = "entity_files/drone_simple.urdf"
 		
+		waypoints = [
+			np.array([0, 10, 1]),
+			np.array([10, 10, 1])
+		]
+		
 		actuator = SimpleDroneActuator.SimpleDroneActuator()
 	
-		#planner = PidWaypointPlanner.PidWaypointPlanner()	
-		#controller = PidController.PidController()
-		planner = SimplePlanner.SimplePlanner()	
-		controller = SimpleController.SimpleController()
+		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints)	
+		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+		#planner = SimplePlanner.SimplePlanner()	
+		#controller = SimpleController.SimpleController()
 		
 		drone = SimpleDrone.SimpleDrone(
 			urdf_name = drone_urdf,

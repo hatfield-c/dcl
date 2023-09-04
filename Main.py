@@ -1,6 +1,7 @@
 import pybullet as pb
 import time
 
+import CONFIG
 import scenarios.SimpleScenario as SimpleScenario
 
 def Main():
@@ -17,7 +18,7 @@ def Main():
 		pb.stepSimulation()
 		
 		scenario.UpdateTime()
-		time.sleep(1./240.)
+		time.sleep(CONFIG.timestep)
 		
 	pb.disconnect()
 

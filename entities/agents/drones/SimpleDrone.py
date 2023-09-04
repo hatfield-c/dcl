@@ -6,6 +6,7 @@ import entities.agents.AgentInterface as AgentInterface
 import sensors.AltimeterSensor as AltimeterSensor
 import sensors.GpsSensor as GpsSensor
 import sensors.QuatSensor as QuatSensor
+import sensors.GyroSensor as GyroSensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
@@ -30,14 +31,16 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.planner = planner
 		self.controller = controller
 		
-		self.altimeter = AltimeterSensor.AltimeterSensor()
+		self.altimeter = AltimeterSensor.AltimeterSensor(self)
 		self.gps = GpsSensor.GpsSensor(self)
 		self.quat = QuatSensor.QuatSensor(self)
+		self.gyro = GyroSensor.GyroSensor(self)
 		
 		self.sensors = {
 			"altimeter": self.altimeter,
 			"gps": self.gps,
-			"quat": self.quat
+			"quat": self.quat,
+			"gyro": self.gyro
 		}
 		
 		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
@@ -51,6 +54,8 @@ class SimpleDrone(AgentInterface.AgentInterface):
 	def TakeAction(self):
 		plan = self.planner.GetPlan(self.sensors, self.metadata)
 		rotor_control = self.controller.GetControlSignal(plan, self.metadata)
+		
+		rotor_control["pb_id"] = self.pb_id
 		
 		self.actuator.Actuate(rotor_control)
 		

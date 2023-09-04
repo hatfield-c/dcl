@@ -2,15 +2,13 @@
 import planners.PlannerInterface as PlannerInterface
 
 class SimplePlanner(PlannerInterface.PlannerInterface):
-	def __init__(self):
-		pass
+	def __init__(self, drone):
+		self.drone = drone
 	
 	def GetPlan(self, sensors, metadata):
-		
-		sensor_control = { "pb_id": metadata["pb_id"] }
 		altimeter = sensors["altimeter"]
 		
-		altitude = altimeter.ReadSensor(sensor_control)
+		altitude = altimeter.ReadSensor(None)
 		
 		current_state = { "altitude": altitude }
 		next_state = { "altitude": 1 }
