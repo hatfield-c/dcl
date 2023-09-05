@@ -1,2 +1,2 @@
-print("Hello all!")
+print("Hello everyone!")
 print("My name is Enkang.")
