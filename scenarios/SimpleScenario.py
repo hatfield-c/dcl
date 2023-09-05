@@ -1,4 +1,5 @@
 
+import math
 import pybullet as pb
 import numpy as np
 
@@ -42,7 +43,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 		self.observers["entity_observer"] = self.entity_observer
 		
-	def InstantiateDrone(self, start_pos):
+	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
 		
 		waypoints = [
@@ -60,6 +61,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		drone = SimpleDrone.SimpleDrone(
 			urdf_name = drone_urdf,
 			position = start_pos,
+			rotation = start_rotation,
 			actuator = actuator,
 			planner = planner,
 			controller = controller
@@ -69,8 +71,9 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 	def InstantiateEntities(self):
 		
-		start_pos = [0,0,1]
-		drone = self.InstantiateDrone(start_pos)
+		start_pos = [0, 0 ,1]
+		start_rot = [0, 0, 0]
+		drone = self.InstantiateDrone(start_pos, start_rot)
 		
 		self.agents["simple_drone"] = drone
 		

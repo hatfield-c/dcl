@@ -27,7 +27,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 		rotation = gyro.ReadSensor(None)
 		forward_direction = self.RotationToDirection(rotation)
-		
+
 		current_state = { "direction": forward_direction, "distance": distance }
 		next_state = { "direction":  desired_direction, "distance": 0}
 		
@@ -50,8 +50,8 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		return current_position
 
 	def RotationToDirection(self, rotation):
-		x = np.cos(rotation[2]) * np.cos(rotation[0])
-		y = np.sin(rotation[2]) * np.cos(rotation[0])
+		x = -np.sin(rotation[2]) * np.cos(rotation[0])
+		y = np.cos(rotation[2]) * np.cos(rotation[0])
 		z = np.sin(rotation[0])
 		
 		direction = np.array([x, y, z])
