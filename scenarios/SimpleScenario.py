@@ -20,10 +20,7 @@ import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
 
 class SimpleScenario(ScenarioInterface.ScenarioInterface):
-	def __init__(
-		self,
-		pb_client
-	):
+	def __init__(self, pb_client):
 		self.pb_client = pb_client
 		self.time_step = 0
 		
@@ -42,6 +39,18 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
 		
 		self.observers["entity_observer"] = self.entity_observer
+
+		self.unified_entities = {}
+		for agent_id in self.agents:
+			agent = self.agents[agent_id]
+			self.unified_entities[agent.GetBulletId()] = agent
+		for dynamic_obj_id in self.dynamic_objects:
+			dynamic_object = self.dynamic_objects[dynamic_obj_id]
+			self.unified_entities[dynamic_object.GetBulletId()] = dynamic_object
+		for static_obj_id in self.static_objects:
+			static_object = self.static_objects[static_obj_id]
+			self.unified_entities[static_object.GetBulletId()] = static_object
+		
 		
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
