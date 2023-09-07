@@ -9,6 +9,9 @@ class EntityInterface:
 	def GetPositionRotation(self):
 		raise NotImplementedError()
 	
+	def GetAngularAndLinearVelocity(self):
+		raise NotImplementedError()
+	
 	def GetQuaternion(self):
 		raise NotImplementedError()
 	
@@ -19,4 +22,10 @@ class EntityInterface:
 		raise NotImplementedError()
 		
 	def GetRotation(self):
+		raise NotImplementedError()
+		
+	def GetVelocity(self):
+		raise NotImplementedError()
+		
+	def GetAngularVeclotiy():
 		raise NotImplementedError()

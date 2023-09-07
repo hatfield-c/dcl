@@ -7,6 +7,8 @@ import sensors.AltimeterSensor as AltimeterSensor
 import sensors.GpsSensor as GpsSensor
 import sensors.QuatSensor as QuatSensor
 import sensors.GyroSensor as GyroSensor
+import sensors.VelocitySensor as VelocitySensor
+import sensors.AccelerometerSensor as AccelerometerSensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
@@ -35,12 +37,16 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.gps = GpsSensor.GpsSensor(self)
 		self.quat = QuatSensor.QuatSensor(self)
 		self.gyro = GyroSensor.GyroSensor(self)
+		self.v_sensor = VelocitySensor.VelocitySensor(self)
+		self.accelerometer = AccelerometerSensor.AccelerometerSensor(self)
 		
 		self.sensors = {
 			"altimeter": self.altimeter,
 			"gps": self.gps,
 			"quat": self.quat,
-			"gyro": self.gyro
+			"gyro": self.gyro,
+			"velocity": self.v_sensor,
+			"accelerometer": self.accelerometer
 		}
 		
 		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
@@ -77,6 +83,14 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		
 		return position, rotation
 		
+	def GetAngularAndLinearVelocity(self):
+		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id)
+		
+		angular_velocity = np.array(angular_velocity)
+		velocity = np.array(velocity)
+		
+		return velocity, angular_velocity
+	
 	def GetPosition(self):
 		position, rotation = self.GetPositionRotation()
 		
@@ -92,3 +106,14 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		
 		return quaternion
 	
+	def GetAngularVelocity(self):
+		velocity, angular_velocity = self.GetAngularAndLinearVelocity()
+		 
+		return angular_velocity
+	
+	def GetVelocity(self):
+		 velocity, angular_velocity = self.GetAngularAndLinearVelocity()
+		 
+		 return velocity
+	  
+	 

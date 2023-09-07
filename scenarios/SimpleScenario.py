@@ -4,6 +4,7 @@ import pybullet as pb
 import numpy as np
 
 import scenarios.ScenarioInterface as ScenarioInterface
+import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.SimpleDrone as SimpleDrone
 import entities.StaticObject as StaticObject
@@ -25,6 +26,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.time_step = 0
 		
 		pb.setGravity(0,0,-9.8)
+		#pb.setGravity(0,0,0)
 		
 		self.agents = {}
 		self.dynamic_objects = {}
@@ -38,7 +40,8 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
 		
-		self.observers["entity_observer"] = self.entity_observer
+		#self.observers["entity_observer"] = self.entity_observer
+		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
 		self.unified_entities = {}
 		for agent_id in self.agents:
@@ -54,10 +57,12 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
+		#drone_urdf = "entity_files/drone_debug.urdf"
 		
 		waypoints = [
-			np.array([0, 10, 1]),
-			np.array([10, 10, 1])
+			#np.array([0, 4, 1]),
+			#np.array([10, 4, 1])
+			np.array([-10, 2, 1])
 		]
 		
 		actuator = SimpleDroneActuator.SimpleDroneActuator()
@@ -76,12 +81,14 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 			controller = controller
 		)
 		
+		self.camera.SetTarget(drone)
+		
 		return drone
 		
 	def InstantiateEntities(self):
 		
-		start_pos = [0, 0 ,1]
-		start_rot = [0, 0, 0]
+		start_pos = [0, 0, 3]
+		start_rot = [0.7, 0, 0]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 		
 		self.agents["simple_drone"] = drone
@@ -107,6 +114,10 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	
 	def ProcessEvents(self):
 		self.event_queue.ProcessQueue()
+		
+	def Render(self):
+		pass
+		#self.camera.FollowTarget()
 		
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1

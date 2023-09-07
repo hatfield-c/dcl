@@ -46,3 +46,21 @@ class DynamicObject(EntityInterface.EntityInterface):
 		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
 		
 		return quaternion
+	
+	def GetAngularAndLinearVelocity(self):
+		angular_velocity, velocity = pb.getBaseVelocity(self.pb_id)
+		
+		angular_velocity = np.array(angular_velocity)
+		velocity = np.array(velocity)
+		
+		return angular_velocity, velocity
+	
+	def GetAngularVelocity(self):
+		angular_velocity, velocity = self.GetAngularAndLinearVelocity()
+		 
+		return angular_velocity
+	
+	def GetVelocity(self):
+		 angular_velocity, velocity = self.GetAngularAndLinearVelocity()
+		 
+		 return velocity

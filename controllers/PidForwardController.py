@@ -1,7 +1,9 @@
 import numpy as np
+import math
 
 import CONFIG
 import controllers.ControllerInterface as ControllerInterface
+import controllers.modules.Pid as Pid
 
 class PidForwardController(ControllerInterface.ControllerInterface):
 	def __init__(self, force_scale, torque_scale):
@@ -18,94 +20,85 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 			"backward": np.array([0, -1, 0]),
 		}
 		
-		turn_thrust = 0.1
-		turn_pitch = 0.1
+		nav_pitch = math.pi / 4
+		nav_yaw = math.pi / 4
+		nav_roll = math.pi / 4
 		
-		# todo: rename this to be self documenting
-		# (0: thrust, yaw, pitch)
+		# (0: pitch, roll, yaw)
 		self.nav_ball = {
-			"up": np.array([1, 0, 0]),
-			"right": np.array([turn_thrust, 1, -turn_pitch]),
-			"forward": np.array([turn_thrust, 0, -turn_pitch]),
-			"down": np.array([-1, 0, 0]),
-			"left": np.array([turn_thrust, -1, -turn_pitch]),
-			"backward": np.array([turn_thrust, 0, turn_pitch]),
-		}
-		
-		self.dir_ball = {
-			"up": np.array([0, 0, 1]),
-			"right": np.array([0, ]),
-			"forward": np.array([0, 0, 0])
+			"up": np.array([0, 0, 0]),
+			"right": np.array([-nav_pitch, nav_roll, nav_yaw]),
+			"forward": np.array([-nav_pitch, 0, 0]),
+			"down": np.array([0, 0, 0]),
+			"left": np.array([-nav_pitch, -nav_roll, -nav_yaw]),
+			"backward": np.array([-nav_pitch, nav_roll, nav_yaw]),
 		}
 		
 		self.deadzones = np.array([0.05, 0.05, 0.05]) * 0
-		
 		self.current_thrust = 0
 		
-		self.pitch_pid = {
-			"p": 1,
-			"i": 2,
-			"d": 2
-		}
-		self.pitch_memory = {
-			"prev_pitch": 0,
-			"integral": 0
-		}
-	
+		self.thrust_pid = Pid.Pid(
+			p_scale = 5, 
+			i_scale = 0.1, 
+			d_scale = 0.5, 
+			d_target = 0.5
+		)
+		self.pitch_pid = Pid.Pid(
+			p_scale = 0.1, 
+			i_scale = 0.1, 
+			d_scale = 0.5, 
+			d_target = 0.5
+		)
+		self.roll_pid = Pid.Pid(
+			p_scale = 0.1, 
+			i_scale = 0,#0.1, 
+			d_scale = 0,#0.5, 
+			d_target = 0.5
+		)
+		self.yaw_pid = Pid.Pid(
+			p_scale = 0.1, 
+			i_scale = 0,#0.1, 
+			d_scale = 0,#0.5, 
+			d_target = 0.5
+		)
+		
+
 	def GetControlSignal(self, plan, metadata):
-		current_state = plan[0]
-		next_state = plan[1]
+		current_rotation = plan["current_rotation"]
+		current_altitude = plan["current_altitude"]
+		desired_direction = plan["desired_direction"]
+		desired_altitude = plan["desired_altitude"]
+		angular_velocity = plan["angular_velocity"]
+		velocity = plan["velocity"]
 		
-		distance = current_state["distance"]
-		current_direction = current_state["direction"]
-		desired_direction = next_state["direction"]
+		#desired_direction = np.array([0, 1, 0])
 		
-		#test_direction = np.array([1, 0, 0])
-		#test_direction = test_direction / np.linalg.norm(test_direction)
+		desired_rotation = self.NavBall(desired_direction, self.unit_ball, self.nav_ball)
 		
-		navball_current = self.NavBall(current_direction, self.unit_ball, self.nav_ball)
-		navball_action = self.NavBall(desired_direction, self.unit_ball, self.nav_ball)
-		#navball_action = self.NavBall(test_direction)
 		print("===results===")
-		#print(test_direction, navball_action)
-		print(navball_current, navball_action)
-		#print(current_direction)
+		
+		#print(current_rotation)
+		#print(desired_rotation)
+		#print(desired_direction)
+
+		thrust_rpm = self.thrust_pid.ControlStep(current_altitude, desired_altitude, velocity[2])
+		pitch_rpm = self.pitch_pid.ControlStep(current_rotation[0], desired_rotation[0], angular_velocity[0])
+		roll_rpm = self.roll_pid.ControlStep(current_rotation[1], desired_rotation[1], angular_velocity[1])
+		yaw_rpm = self.yaw_pid.ControlStep(current_rotation[2], desired_rotation[2], angular_velocity[2])
+		
+		#print(yaw_rpm)
+		#thrust_rpm = 0.068
+		#thrust_rpm = 0
+		#yaw_rpm = 0
+		#pitch_rpm = 0
+		#roll_rpm = 0
+		
 		input()
-		thrust_rpm = navball_action[0]
-		yaw_rpm = navball_action[1]
-		pitch_rpm = self.GetPitchRpm(navball_current[2], navball_action[2])
-		roll_rpm = 0
 		
 		motor_vals = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 		
 		return motor_vals
 				
-	def GetThrustRpm(self, current, desired):
-		pass
-	
-	def GetYawRpm(self, current, desired):
-		pass
-	
-	def GetPitchRpm(self, current, desired):
-		
-		error = desired - current
-		
-		self.pitch_memory["integral"] += error
-		self.pitch_memory["integral"] = np.clip(self.pitch_memory["integral"], 2, -2)
-		
-		error_scaled = error / self.pitch_pid["i"]
-		current_scaled = error * self.pitch_pid["d"]
-		
-		i = (error_scaled * CONFIG.timestep) + self.pitch_memory["integral"]
-		d = (current_scaled - self.pitch_memory["prev_pitch"])
-		
-		self.pitch_memory["prev_pitch"] = current
-		
-		pid = error + i - d
-		pid = pid * self.pitch_pid["p"]
-		
-		return pid
-	
 	def NavBall(self, unit_direction, start_ball, end_ball):
 		
 		direction_horiz_anchor = self.GetNavBallAnchor(unit_direction[0], start_ball["right"], start_ball["left"], self.deadzones[0])
@@ -157,10 +150,17 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		br = thrust - yaw - pitch + roll
 		bl = thrust + yaw - pitch - roll
 		
+		#fr = thrust + pitch
+		#fl = thrust + pitch
+		#br = thrust - pitch
+		#bl = thrust - pitch
+		
 		motor_vals["fr_rotor_force"] = fr * self.force_scale
 		motor_vals["fl_rotor_force"] = fl * self.force_scale
 		motor_vals["br_rotor_force"] = br * self.force_scale
 		motor_vals["bl_rotor_force"] = bl * self.force_scale
 		motor_vals["torque"] = (-fr + fl - br + bl) * self.torque_scale
+		
+		#motor_vals["torque"] = 0#yaw * self.torque_scale
 		
 		return motor_vals

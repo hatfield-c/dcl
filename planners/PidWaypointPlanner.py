@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 import planners.PlannerInterface as PlannerInterface
 
@@ -13,6 +14,8 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 	def GetPlan(self, sensors, metadata):
 		gps = sensors["gps"]
 		gyro = sensors["gyro"]
+		accelerometer = sensors["accelerometer"]
+		velocity_sensor = sensors["velocity"]
 		
 		current_position = gps.ReadSensor(None)
 		next_position = self.GetWaypoint(current_position)
@@ -24,14 +27,25 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 			distance = 1
 		
 		desired_direction = diff / distance
+		current_rotation = gyro.ReadSensor(None)
 		
-		rotation = gyro.ReadSensor(None)
-		forward_direction = self.RotationToDirection(rotation)
+		velocity = velocity_sensor.ReadSensor(None)
+		angular_velocity = accelerometer.ReadSensor(None)
 
-		current_state = { "direction": forward_direction, "distance": distance }
-		next_state = { "direction":  desired_direction, "distance": 0}
-		
-		plan = [current_state, next_state]
+		#print("===planner===")
+		#print("dd     :", desired_direction)
+		#print("current:", current_position)
+		#print("next:", next_position)
+		#print("===")
+
+		plan = { 
+			"current_rotation": current_rotation, 
+			"current_altitude": current_position[2],
+			"desired_direction": desired_direction, 
+			"desired_altitude": next_position[2],
+			"angular_velocity": angular_velocity,
+			"velocity": velocity
+		}
 		
 		return plan
 			
@@ -48,6 +62,12 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 			self.waypoints.pop(0)
 				
 		return current_position
+
+	def DirectionToRotation(self, direction):
+		pitch = math.asin(direction[1])
+		yaw = math.atan2(direction[0], direction[2])
+		
+		return pitch, yaw
 
 	def RotationToDirection(self, rotation):
 		x = -np.sin(rotation[2]) * np.cos(rotation[0])

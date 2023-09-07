@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot name="drone_simple">
+	<material name="black">
+		<color rgba="0 0 0 1"/>
+	</material>
+
+	<material name="grey">
+		<color rgba="0.5 0.5 0.5 1"/>
+	</material>
+
+	<material name="red">
+		<color rgba="1 0 0 1"/>
+	</material>
+
+	<material name="green">
+		<color rgba="0 1 0 1"/>
+	</material>
+
+	<link name="chasis">
+		<visual>
+			<geometry>
+				<box size="0.2 0.3 0.1" />
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="grey"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="0.2 0.3 0.1" />
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+		</collision>
+	</link>
+
+</robot>

@@ -1,2 +1,2 @@
 
-timestep = 1. / 240.
+timestep = 0.006
