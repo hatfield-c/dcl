@@ -23,10 +23,16 @@ class Pid:
 		self.debug = debug
 		
 		self.memory = {
+			"prev_value": 0,
+			"estimated_velocity": 0,
 			"integral": 0
 		}
 		
-	def ControlStep(self, current, desired, current_velocity):
+	def ControlStep(self, current, desired = 0, current_velocity = None):
+		
+		if current_velocity is None:
+			current_velocity = self.memory["estimated_velocity"]
+		
 		error = desired - current
 		
 		p = error * self.p_scale
@@ -35,11 +41,18 @@ class Pid:
 		self.memory["integral"] = np.clip(self.memory["integral"], -self.integral_max, self.integral_max)
 		i = self.memory["integral"] * self.i_scale
 		
-		desired_velocity = error * self.d_target
-		d_error = desired_velocity - current_velocity
-		d = d_error * self.d_scale
+		#desired_velocity = error * self.d_target
+		#d_error = desired_velocity - current_velocity
+		#d = d_error * self.d_scale
+		#d_sign = np.sign(error)
+		#print(d_sign)
+		d = current_velocity * self.d_scale
 		
-		pid = p + i + d
+		pid = p + i + -d
+
+		change = current - self.memory["prev_value"]
+		self.memory["estimated_velocity"] = (self.memory["estimated_velocity"] / 3) + (2 * change / 3)
+		self.memory["prev_value"] = current
 
 		if self.debug:
 			print("    pid:", pid)

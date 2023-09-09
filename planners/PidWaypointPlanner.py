@@ -14,6 +14,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 	def GetPlan(self, sensors, metadata):
 		gps = sensors["gps"]
 		gyro = sensors["gyro"]
+		quat = sensors["quat"]
 		accelerometer = sensors["accelerometer"]
 		velocity_sensor = sensors["velocity"]
 		
@@ -29,8 +30,12 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		desired_direction = diff / distance
 		current_rotation = gyro.ReadSensor(None)
 		
+		current_direction = self.RotationToDirection(current_rotation)
+		
 		velocity = velocity_sensor.ReadSensor(None)
 		angular_velocity = accelerometer.ReadSensor(None)
+
+		current_quat = quat.ReadSensor(None)
 
 		#print("===planner===")
 		#print("dd     :", desired_direction)
@@ -38,9 +43,11 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		#print("next:", next_position)
 		#print("===")
 
-		plan = { 
+		plan = {
+			"current_quat": current_quat,
 			"current_rotation": current_rotation, 
 			"current_altitude": current_position[2],
+			"current_direction": current_direction,
 			"desired_direction": desired_direction, 
 			"desired_altitude": next_position[2],
 			"angular_velocity": angular_velocity,

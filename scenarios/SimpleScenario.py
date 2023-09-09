@@ -25,8 +25,8 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.pb_client = pb_client
 		self.time_step = 0
 		
-		pb.setGravity(0,0,-9.8)
-		#pb.setGravity(0,0,0)
+		#pb.setGravity(0,0,-9.8)
+		pb.setGravity(0,0,0)
 		
 		self.agents = {}
 		self.dynamic_objects = {}
@@ -60,9 +60,8 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		#drone_urdf = "entity_files/drone_debug.urdf"
 		
 		waypoints = [
-			#np.array([0, 4, 1]),
-			#np.array([10, 4, 1])
-			np.array([-10, 2, 1])
+			np.array([0, 4, 1]),
+			np.array([10, 4, 1]),
 		]
 		
 		actuator = SimpleDroneActuator.SimpleDroneActuator()
@@ -87,8 +86,9 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 	def InstantiateEntities(self):
 		
-		start_pos = [0, 0, 3]
-		start_rot = [0.7, 0, 0]
+		start_pos = [0, 0, 2.5]
+		start_rot = [-0.785398, 0, 0]
+		#start_rot = [-0.785398, 0.785398, 0]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 		
 		self.agents["simple_drone"] = drone

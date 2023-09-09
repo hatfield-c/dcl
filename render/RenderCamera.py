@@ -5,7 +5,7 @@ class RenderCamera:
 	def __init__(
 		self, 
 		target_entity = None,
-		distance = 2,
+		distance = 3,
 		yaw = 75,
 		pitch = -20
 	):

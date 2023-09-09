@@ -37,11 +37,9 @@ class SimpleDroneActuator(ActuatorInterface.ActuatorInterface):
 			flags = pb.LINK_FRAME
 		)
 		
-		'''
 		pb.applyExternalTorque(
 			control_data["pb_id"],
 			-1,
-			torqueObj = [0, 0, 1],#[0, 0, control_data["torque"]],
-			flags = pb.WORLD_FRAME #pb.LINK_FRAME
+			torqueObj = [0, 0, control_data["torque"]],
+			flags = pb.LINK_FRAME
 		)
-		'''
