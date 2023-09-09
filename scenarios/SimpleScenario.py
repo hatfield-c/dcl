@@ -25,8 +25,8 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		self.pb_client = pb_client
 		self.time_step = 0
 		
-		#pb.setGravity(0,0,-9.8)
-		pb.setGravity(0,0,0)
+		pb.setGravity(0,0,-9.8)
+		#pb.setGravity(0,0,0)
 		
 		self.agents = {}
 		self.dynamic_objects = {}
@@ -60,7 +60,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		#drone_urdf = "entity_files/drone_debug.urdf"
 		
 		waypoints = [
-			np.array([0, 4, 1]),
+			np.array([0, 10, 1]),
 			np.array([10, 4, 1]),
 		]
 		
@@ -117,7 +117,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 	def Render(self):
 		pass
-		#self.camera.FollowTarget()
+		self.camera.FollowTarget()
 		
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1

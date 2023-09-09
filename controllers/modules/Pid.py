@@ -41,11 +41,6 @@ class Pid:
 		self.memory["integral"] = np.clip(self.memory["integral"], -self.integral_max, self.integral_max)
 		i = self.memory["integral"] * self.i_scale
 		
-		#desired_velocity = error * self.d_target
-		#d_error = desired_velocity - current_velocity
-		#d = d_error * self.d_scale
-		#d_sign = np.sign(error)
-		#print(d_sign)
 		d = current_velocity * self.d_scale
 		
 		pid = p + i + -d
