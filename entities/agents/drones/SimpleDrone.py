@@ -2,15 +2,8 @@ import numpy as np
 import pybullet as pb
 
 import entities.agents.AgentInterface as AgentInterface
-"""
-import sensors.AltimeterSensor as AltimeterSensor
-import sensors.GpsSensor as GpsSensor
-import sensors.QuatSensor as QuatSensor
-import sensors.GyroSensor as GyroSensor
-import sensors.VelocitySensor as VelocitySensor
-import sensors.AccelerometerSensor as AccelerometerSensor
-"""
-import sensors.TelemSensor as TelemSensor
+
+import sensors.TelemetrySensor as TelemetrySensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
@@ -34,28 +27,12 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.actuator = actuator
 		self.planner = planner
 		self.controller = controller
-		"""
-		self.altimeter = AltimeterSensor.AltimeterSensor(self)
-		self.gps = GpsSensor.GpsSensor(self)
-		self.quat = QuatSensor.QuatSensor(self)
-		self.gyro = GyroSensor.GyroSensor(self)
-		self.v_sensor = VelocitySensor.VelocitySensor(self)
-		self.accelerometer = AccelerometerSensor.AccelerometerSensor(self)
-		"""
-		self.telem = TelemSensor.TelemSensor(self)
+
+		self.telem = TelemetrySensor.TelemetrySensor(self)
 		
 		self.sensors = {
 			"telem": self.telem
 		}
-		"""
-			"altimeter": self.altimeter,
-			"gps": self.gps,
-			"quat": self.quat,
-			"gyro": self.gyro,
-			"velocity": self.v_sensor,
-			"accelerometer": self.accelerometer,
-		}
-		"""
 		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
 		self.pb_id = pb.loadURDF(self.urdf_name, self.position, rotation_quaternion)
 		

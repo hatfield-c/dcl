@@ -1,6 +1,6 @@
 import sensors.SensorInterface as SensorInterface
 
-class TelemSensor(SensorInterface.SensorInterface):
+class TelemetrySensor(SensorInterface.SensorInterface):
 	def __init__(self, entity):
 		self.entity = entity
 		    		

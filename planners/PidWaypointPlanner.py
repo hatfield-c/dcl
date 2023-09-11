@@ -17,12 +17,6 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 	
 	def GetPlan(self, sensors, metadata):
-		"""
-		gps = sensors["gps"]
-		gyro = sensors["gyro"]
-		quat = sensors["quat"]
-		velocity_sensor = sensors["velocity"]
-		"""
 		telem = sensors["telem"]
 		
 		sensorCall = telem.ReadSensor(None)
