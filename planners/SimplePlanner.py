@@ -6,9 +6,10 @@ class SimplePlanner(PlannerInterface.PlannerInterface):
 		self.drone = drone
 	
 	def GetPlan(self, sensors, metadata):
-		altimeter = sensors["altimeter"]
+		telem = sensors["telem"]
+		sensorCall = telem.ReadSensor(None)
 		
-		altitude = altimeter.ReadSensor(None)
+		altitude = sensorCall["altimeter"]
 		
 		current_state = { "altitude": altitude }
 		next_state = { "altitude": 1 }

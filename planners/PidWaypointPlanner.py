@@ -17,12 +17,17 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 	
 	def GetPlan(self, sensors, metadata):
+		"""
 		gps = sensors["gps"]
 		gyro = sensors["gyro"]
 		quat = sensors["quat"]
 		velocity_sensor = sensors["velocity"]
+		"""
+		telem = sensors["telem"]
 		
-		current_position = gps.ReadSensor(None)
+		sensorCall = telem.ReadSensor(None)
+		
+		current_position = sensorCall["gps"]
 		next_position = self.GetWaypoint(current_position)
 		
 		diff = next_position - current_position
@@ -33,11 +38,11 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 		desired_direction = diff / distance
 
-		current_rotation = gyro.ReadSensor(None)
+		current_rotation = sensorCall["gyro"]
 		current_direction = self.RotationToDirection(current_rotation)
 
-		velocity = velocity_sensor.ReadSensor(None)
-		current_quat = quat.ReadSensor(None)
+		velocity = sensorCall["velocity"]
+		current_quat = sensorCall["quat"]
 
 		action = self.ChooseAction(current_position, current_direction, desired_direction)
 		
