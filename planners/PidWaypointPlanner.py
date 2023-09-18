@@ -5,15 +5,16 @@ import planners.PlannerInterface as PlannerInterface
 
 class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 	
-	def __init__(self, waypoints, waypoint_threshold = 0.5, alignment_threshold = 0.5):
+	def __init__(self, waypoints, waypoint_threshold = 0.5, turn_strength = 1):
 		self.waypoints = waypoints
 		self.waypoint_threshold = waypoint_threshold
-		self.alignment_threshold = alignment_threshold
+		self.turn_strength = turn_strength
 		
-		self.HOVER_ACTION = "hover"
 		self.MOVE_ACTION = "move"
+		self.BRAKE_ACTION = "brake"
+		self.ALIGN_ACTION = "align"
 		
-		self.current_action = "hover"
+		self.current_action = "move"
 		
 	
 	def GetPlan(self, sensors, metadata):
@@ -30,7 +31,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		if distance == 0:
 			distance = 1
 		
-		desired_direction = diff / distance
+		waypoint_direction = diff / distance
 
 		current_rotation = sensorCall["gyro"]
 		current_direction = self.RotationToDirection(current_rotation)
@@ -38,10 +39,10 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		velocity = sensorCall["velocity"]
 		current_quat = sensorCall["quat"]
 
-		action = self.ChooseAction(current_position, current_direction, desired_direction)
-		
+		desired_direction = self.GetDesiredForwardDirection(waypoint_direction, velocity)
+
 		plan = {
-			"action": action,
+			"action": self.MOVE_ACTION,
 			"current_quat": current_quat,
 			"current_altitude": current_position[2],
 			"desired_direction": desired_direction, 
@@ -51,16 +52,26 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 		return plan
 			
-	def ChooseAction(self, current_position, current_direction, target_direction):
-		return self.MOVE_ACTION
+	def GetDesiredForwardDirection(self, target_direction, velocity):
+		velocity_xy = velocity[[0, 1]]
+		target_xy = target_direction[[0, 1]]
 		
-		target_distance = self.GetTargetDistance(current_position)
-		alignment = np.dot(current_direction, target_direction)
+		speed = np.linalg.norm(velocity_xy)
 		
-		if target_distance > self.waypoint_threshold and alignment > self.alignment_threshold:
-			return self.MOVE_ACTION
+		if speed == 0:
+			velocity_xy = target_xy
+			speed = 1
+			
+		velocity_xy = velocity_xy / speed
 		
-		return self.HOVER_ACTION
+		vel_to_target = target_xy - velocity_xy
+		new_direction = target_xy + (vel_to_target * self.turn_strength)
+		new_direction = new_direction / np.linalg.norm(new_direction)
+		
+		desired_direction = np.array([new_direction[0], new_direction[1], target_direction[2]])
+		desired_direction = desired_direction / np.linalg.norm(desired_direction)
+		
+		return desired_direction
 	
 	def GetTargetDistance(self, current_position):
 		target_position = self.waypoints[0]

@@ -57,55 +57,11 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 	def GetControlSignal(self, plan, metadata):
 		action = plan["action"]
 		
-		if action == "hover":
-			motor_vals = self.HoverAction(plan)
 		if action == "move":
 			motor_vals = self.MoveAction(plan)
 		
 		return motor_vals
 		
-	def HoverAction(self, plan):
-		current_altitude = plan["current_altitude"]
-		desired_direction = plan["desired_direction"]
-		desired_altitude = plan["desired_altitude"]
-		velocity = plan["velocity"]
-		current_quat = plan["current_quat"]
-		
-		current_rotate_matrix = pb.getMatrixFromQuaternion(current_quat)
-		current_rotate_matrix = np.array(current_rotate_matrix)
-		current_rotate_matrix = current_rotate_matrix.reshape((3, 3))
-		
-		desired_xy = desired_direction[[0, 1]]
-		desired_xy = desired_xy / np.linalg.norm(desired_xy)
-		
-		local_front = np.matmul(current_rotate_matrix, self.unit_ball["forward"])
-		local_corner_1 = np.matmul(current_rotate_matrix, self.xy_corner_1)
-		local_corner_2 = np.matmul(current_rotate_matrix, self.xy_corner_2)
-		
-		local_corner_1_xy = local_corner_1[[0, 1]]
-		local_corner_2_xy = local_corner_2[[0, 1]]
-		local_corner_1_xy = local_corner_1_xy / np.linalg.norm(local_corner_1_xy)
-		local_corner_2_xy = local_corner_2_xy / np.linalg.norm(local_corner_2_xy)
-		
-		dist_1_xy = desired_xy - local_corner_1_xy
-		dist_2_xy = desired_xy - local_corner_2_xy
-		dist_1_xy = np.linalg.norm(dist_1_xy)
-		dist_2_xy = np.linalg.norm(dist_2_xy)
-		
-		pitch_error = local_front[2]
-		roll_error = dist_2_xy - dist_1_xy
-		yaw_error = local_corner_2[2] - local_corner_1[2]
-		
-		thrust_rpm = self.thrust_pid.ControlStep(current_altitude, desired_altitude, velocity[2])
-		pitch_rpm = self.pitch_pid.ControlStep(pitch_error)
-		roll_rpm = self.roll_pid.ControlStep(roll_error)
-		yaw_rpm = self.yaw_pid.ControlStep(yaw_error)
-		
-		thrust_rpm = max(0, thrust_rpm)
-		
-		motor_vals = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
-		
-		return motor_vals
 	
 	def MoveAction(self, plan):
 		current_altitude = plan["current_altitude"]

@@ -66,7 +66,7 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 		
 		actuator = SimpleDroneActuator.SimpleDroneActuator()
 	
-		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints)	
+		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)	
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 		#planner = SimplePlanner.SimplePlanner()	
 		#controller = SimpleController.SimpleController()
@@ -87,8 +87,8 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateEntities(self):
 		
 		start_pos = [0, 0, 2.5]
-		start_rot = [-0.785398, 0, 0]
-		#start_rot = [-0.785398, 0.785398, 0]
+		#start_rot = [-0.785398, 0, 0]
+		start_rot = [-0.785398, 0, 0.785398 * 2]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 		
 		self.agents["simple_drone"] = drone
