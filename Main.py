@@ -2,12 +2,13 @@ import pybullet as pb
 import time
 
 import CONFIG
-import scenarios.SimpleScenario as SimpleScenario
+import scenarios.WackADroneScenario as WackADroneScenario
 
 def Main():
 	pb_client = pb.connect(pb.GUI)
 	
-	scenario = SimpleScenario.SimpleScenario(pb_client)
+	#scenario = SimpleScenario.SimpleScenario(pb_client)
+	scenario = WackADroneScenario.WackADroneScenario(pb_client)
 	scenario.InstantiateEntities()
 	
 	for i in range (10000):
