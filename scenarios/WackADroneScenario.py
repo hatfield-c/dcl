@@ -56,8 +56,9 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		
 		
 	def InstantiateDrone(self, start_pos, start_rotation, waypoints):
-		drone_urdf = "entity_files/drone_simple.urdf"
+		#drone_urdf = "entity_files/drone_simple.urdf"
 		#drone_urdf = "entity_files/drone_debug.urdf"
+		drone_urdf = "entity_files/drone_stick.urdf"
 		
 		
 		
