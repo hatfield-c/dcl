@@ -10,8 +10,8 @@ def Main():
 	pb_client = pb.connect(pb.GUI)
 	
 	#scenario = SimpleScenario.SimpleScenario(pb_client)
-	#scenario = WackADroneScenario.WackADroneScenario(pb_client)
-	scenario = DropScenario.DropScenario(pb_client)
+	scenario = WackADroneScenario.WackADroneScenario(pb_client)
+	#scenario = DropScenario.DropScenario(pb_client)
 	scenario.InstantiateEntities()
 	
 	for i in range (10000):
