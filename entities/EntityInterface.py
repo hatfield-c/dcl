@@ -29,3 +29,4 @@ class EntityInterface:
 		
 	def GetAngularVeclotiy():
 		raise NotImplementedError()
+	 

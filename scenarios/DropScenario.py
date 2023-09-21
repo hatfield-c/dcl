@@ -6,7 +6,7 @@ import numpy as np
 import scenarios.ScenarioInterface as ScenarioInterface
 import render.RenderCamera as RenderCamera
 
-import entities.agents.drones.SimpleDrone as SimpleDrone
+import entities.agents.drones.DropDrone as DropDrone
 import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
 
@@ -19,7 +19,7 @@ import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
 
-class WackADroneScenario(ScenarioInterface.ScenarioInterface):
+class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
 		self.pb_client = pb_client
 		self.time_step = 0
@@ -54,16 +54,18 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 			self.unified_entities[static_object.GetBulletId()] = static_object
 		
 		
-	def InstantiateDrone(self, start_pos, start_rotation, waypoints):
+	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
-		#drone_urdf = "entity_files/drone_debug.urdf"
+		
+		waypoints = [
+			np.array([0, 10, 1]),
+			np.array([10, 4, 1]),
+		]
 		
 		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)	
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
-		#planner = SimplePlanner.SimplePlanner()	
-		#controller = SimpleController.SimpleController()
 		
-		drone = SimpleDrone.SimpleDrone(
+		drone = DropDrone.DropDrone(
 			urdf_name = drone_urdf,
 			position = start_pos,
 			rotation = start_rotation,
@@ -76,23 +78,13 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		return drone
 		
 	def InstantiateEntities(self):
-		start_pos1 = [0, 0, 2.5]
-		start_pos2 = [0, 20, 2.5]
 		
-		waypoints1 = [
-			np.array(start_pos2)
-		]
-		waypoints2 = [
-			np.array(start_pos1)
-		]
+		start_pos = [0, 0, 2.5]
 		#start_rot = [-0.785398, 0, 0]
-		start_rot1 = [-0.785398, 0, 0.785398 * 2]
-		start_rot2 = [-0.785398, 0, -0.785398 * 2]
-		drone1 = self.InstantiateDrone(start_pos1, start_rot1, waypoints1)
-		drone2 = self.InstantiateDrone(start_pos2, start_rot2, waypoints2)
+		start_rot = [-0.785398, 0, 0.785398 * 2]
+		drone = self.InstantiateDrone(start_pos, start_rot)
 		
-		self.agents["simple_drone1"] = drone1
-		self.agents["simple_drone2"] = drone2
+		self.agents["simple_drone"] = drone
 		
 		cube = DynamicObject.DynamicObject(urdf_name = "entity_files/debug_cube.urdf", position = [-2, 2, 3], rotation = [0.79, 0.79, 0])
 		 

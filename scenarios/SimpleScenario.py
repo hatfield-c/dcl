@@ -10,7 +10,6 @@ import entities.agents.drones.SimpleDrone as SimpleDrone
 import entities.StaticObject as StaticObject
 import entities.DynamicObject as DynamicObject
 
-import actuators.SimpleDroneActuator as SimpleDroneActuator
 import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
 import controllers.SimpleController as SimpleController
@@ -64,8 +63,6 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 			np.array([10, 4, 1]),
 		]
 		
-		actuator = SimpleDroneActuator.SimpleDroneActuator()
-	
 		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)	
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 		#planner = SimplePlanner.SimplePlanner()	
@@ -75,7 +72,6 @@ class SimpleScenario(ScenarioInterface.ScenarioInterface):
 			urdf_name = drone_urdf,
 			position = start_pos,
 			rotation = start_rotation,
-			actuator = actuator,
 			planner = planner,
 			controller = controller
 		)

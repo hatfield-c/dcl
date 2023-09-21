@@ -64,3 +64,19 @@ class DynamicObject(EntityInterface.EntityInterface):
 		 angular_velocity, velocity = self.GetAngularAndLinearVelocity()
 		 
 		 return velocity
+
+	def SetState(self, data):
+		if "position" in data:
+			position = data["position"]
+			quaternion = np.array([0, 0, 0, 0])
+
+			if "quaternion" in data:
+				quaternion = data["quaternion"]
+
+			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
+			
+		if "velocity" in data:
+			velocity = data["velocity"]
+			angular_velocity = np.array([0, 0, 0])
+
+			pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity)

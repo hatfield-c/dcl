@@ -8,7 +8,7 @@ class StaticObject(EntityInterface.EntityInterface):
 		self,
 		urdf_name,
 		position = [0, 0 ,0],
-		rotation = [0, 0, 0],
+		rotation = [0, 0, 0]
 	):
 		self.urdf_name = urdf_name
 		self.position = np.array(position)

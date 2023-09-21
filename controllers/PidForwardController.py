@@ -3,6 +3,7 @@ import numpy as np
 import math
 
 import CONFIG
+import physics.Transform as Transform
 import controllers.ControllerInterface as ControllerInterface
 import controllers.modules.Pid as Pid
 
@@ -10,16 +11,6 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 	def __init__(self, force_scale, torque_scale):
 		self.force_scale = force_scale
 		self.torque_scale = torque_scale
-		
-		self.unit_ball = {
-			"zero": np.array([0, 0, 0]),
-			"right": np.array([1, 0, 0]),
-			"forward": np.array([0, 1, 0]),
-			"up": np.array([0, 0, 1]),
-			"left": np.array([-1, 0, 0]),
-			"down": np.array([0, 0, -1]),
-			"backward": np.array([0, -1, 0]),
-		}
 		
 		self.xy_corner_1 = np.array([1, -1, 0])
 		self.xy_corner_2 = np.array([-1, -1, 0])
@@ -70,16 +61,12 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		velocity = plan["velocity"]
 		current_quat = plan["current_quat"]
 		
-		current_rotate_matrix = pb.getMatrixFromQuaternion(current_quat)
-		current_rotate_matrix = np.array(current_rotate_matrix)
-		current_rotate_matrix = current_rotate_matrix.reshape((3, 3))
-		
 		desired_xy = desired_direction[[0, 1]]
 		desired_xy = desired_xy / np.linalg.norm(desired_xy)
 		
-		local_front = np.matmul(current_rotate_matrix, self.unit_ball["forward"])
-		local_corner_1 = np.matmul(current_rotate_matrix, self.xy_corner_1)
-		local_corner_2 = np.matmul(current_rotate_matrix, self.xy_corner_2)
+		local_front = Transform.GetForward(current_quat)
+		local_corner_1 = Transform.RotatePoint(current_quat, self.xy_corner_1)
+		local_corner_2 = Transform.RotatePoint(current_quat, self.xy_corner_2)
 		
 		local_corner_1_xy = local_corner_1[[0, 1]]
 		local_corner_2_xy = local_corner_2[[0, 1]]

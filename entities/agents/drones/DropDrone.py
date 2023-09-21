@@ -1,12 +1,14 @@
+import time
 import numpy as np
 import pybullet as pb
 
 import entities.agents.AgentInterface as AgentInterface
 
 import actuators.RotorActuator as RotorActuator
+import actuators.ArmActuator as ArmActuator
 import sensors.TelemetrySensor as TelemetrySensor
 
-class SimpleDrone(AgentInterface.AgentInterface):
+class DropDrone(AgentInterface.AgentInterface):
 	def __init__(
 			self,
 			urdf_name,
@@ -25,6 +27,7 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.angular_velocity = np.array(angular_velocity)
 		
 		self.rotors = RotorActuator.RotorActuator()
+		self.arm = ArmActuator.ArmActuator(np.array([0, 0, -0.2]))
 		self.planner = planner
 		self.controller = controller
 
@@ -41,11 +44,26 @@ class SimpleDrone(AgentInterface.AgentInterface):
 			"urdf_name": self.urdf_name
 		}
 		
+		self.drop_timer = time.time()
+		
 	def TakeAction(self):
 		plan = self.planner.GetPlan(self.sensors, self.metadata)
 		rotor_control = self.controller.GetControlSignal(plan, self.metadata)
 		
 		rotor_control["pb_id"] = self.pb_id
+		
+		if time.time() - self.drop_timer > 3:
+			self.drop_timer = time.time()
+			
+			telem_data = self.telem.ReadSensor(None)
+			
+			drop_data = {
+				"position": telem_data["gps"],
+				"velocity": telem_data["velocity"],
+				"quaternion": telem_data["quat"]
+			}
+			
+			self.arm.Actuate(drop_data)
 		
 		self.rotors.Actuate(rotor_control)
 		

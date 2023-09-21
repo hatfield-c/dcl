@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+import physics.Transform as Transform
 import planners.PlannerInterface as PlannerInterface
 
 class PidWaypointPlanner(PlannerInterface.PlannerInterface):
@@ -10,12 +11,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		self.waypoint_threshold = waypoint_threshold
 		self.turn_strength = turn_strength
 		
-		self.MOVE_ACTION = "move"
-		self.BRAKE_ACTION = "brake"
-		self.ALIGN_ACTION = "align"
-		
 		self.current_action = "move"
-		
 	
 	def GetPlan(self, sensors, metadata):
 		telem = sensors["telem"]
@@ -33,16 +29,13 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		
 		waypoint_direction = diff / distance
 
-		current_rotation = sensorCall["gyro"]
-		current_direction = self.RotationToDirection(current_rotation)
-
 		velocity = sensorCall["velocity"]
 		current_quat = sensorCall["quat"]
 
 		desired_direction = self.GetDesiredForwardDirection(waypoint_direction, velocity)
 
 		plan = {
-			"action": self.MOVE_ACTION,
+			"action": self.current_action,
 			"current_quat": current_quat,
 			"current_altitude": current_position[2],
 			"desired_direction": desired_direction, 
@@ -93,12 +86,3 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 			
 		return current_position
 	
-	def RotationToDirection(self, rotation):
-		x = -np.sin(rotation[2]) * np.cos(rotation[0])
-		y = np.cos(rotation[2]) * np.cos(rotation[0])
-		z = np.sin(rotation[0])
-		
-		direction = np.array([x, y, z])
-		magnitude = np.linalg.norm(direction)
-		
-		return direction / magnitude

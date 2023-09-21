@@ -2,7 +2,7 @@ import pybullet as pb
 
 import actuators.ActuatorInterface as ActuatorInterface
 
-class SimpleDroneActuator(ActuatorInterface.ActuatorInterface):
+class RotorActuator(ActuatorInterface.ActuatorInterface):
 	def __init__(self):
 		pass
 	
