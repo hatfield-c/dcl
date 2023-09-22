@@ -8,3 +8,6 @@ class ScenarioInterface:
 		
 	def UpdateAgents(self):
 		raise NotImplementedError()
+		
+	def ResetScenario(self):
+		raise NotImplementedError()
