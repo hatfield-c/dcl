@@ -9,8 +9,7 @@ import scenarios.permuters.ListPermuter as ListPermuter
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.DropDrone as DropDrone
-import entities.StaticObject as StaticObject
-import entities.DynamicObject as DynamicObject
+import entities.SimpleEntity as SimpleEntity
 
 import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
@@ -79,7 +78,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateEntities(self):
 
 		start_pos = [0, 0, 2.5]
-		#start_rot = [-0.785398, 0, 0]
 		start_rot = [-0.785398, 0, 0.785398 * 2]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
@@ -98,14 +96,14 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			)
 		}
 
-		cube1 = DynamicObject.DynamicObject(
+		cube1 = SimpleEntity.SimpleEntity(
 			urdf_name = "entity_files/debug_cube.urdf",
 			position = [-2, 2, 3],
 			rotation = [0.79, 0.79, 0],
 			permuters = box_permuter
 		)
 
-		cube2 = DynamicObject.DynamicObject(
+		cube2 = SimpleEntity.SimpleEntity(
 			urdf_name = "entity_files/debug_cube.urdf",
 			position = [2, 2, 3],
 			rotation = [0.79, 0.79, 0],
@@ -114,7 +112,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
-		self.static_objects["floor"] = StaticObject.StaticObject(urdf_name = "entity_files/20m_floor.urdf")
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 
 		self.entity_observer.RegisterEntities([cube1])
 

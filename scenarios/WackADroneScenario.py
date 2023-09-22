@@ -7,8 +7,7 @@ import scenarios.ScenarioInterface as ScenarioInterface
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.SimpleDrone as SimpleDrone
-import entities.StaticObject as StaticObject
-import entities.DynamicObject as DynamicObject
+import entities.SimpleEntity as SimpleEntity
 
 import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
@@ -107,10 +106,10 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		self.agents["simple_drone1"] = drone1
 		self.agents["simple_drone2"] = drone2
 
-		cube = DynamicObject.DynamicObject(urdf_name = "entity_files/debug_cube.urdf", position = [-2, 2, 3], rotation = [0.79, 0.79, 0])
+		cube = SimpleEntity.SimpleEntity(urdf_name = "entity_files/debug_cube.urdf", position = [-2, 2, 3], rotation = [0.79, 0.79, 0])
 
 		self.dynamic_objects["debug_cube"] = cube
-		self.static_objects["floor"] = StaticObject.StaticObject(urdf_name = "entity_files/20m_floor.urdf")
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 
 		self.entity_observer.RegisterEntities([cube])
 

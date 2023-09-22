@@ -3,21 +3,37 @@ import pybullet as pb
 
 import entities.EntityInterface as EntityInterface
 
-class StaticObject(EntityInterface.EntityInterface):
+class SimpleEntity(EntityInterface.EntityInterface):
 	def __init__(
 		self,
 		urdf_name,
 		position = [0, 0 ,0],
 		rotation = [0, 0, 0],
+		quaternion = None,
+		velocity = [0, 0, 0],
+		angular_velocity = [0, 0 ,0],
+		is_static = False,
 		permuters = None
 	):
 		self.urdf_name = urdf_name
-		self.position = np.array(position)
-		self.rotation = np.array(rotation)
 		self.permuters = permuters
 
-		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
-		self.pb_id = pb.loadURDF(self.urdf_name, self.position, rotation_quaternion)
+		if quaternion is None:
+			quaternion = pb.getQuaternionFromEuler(rotation)
+
+		if is_static:
+			is_static = 1
+		else:
+			is_static = 0
+
+		self.pb_id = pb.loadURDF(self.urdf_name, position, quaternion, useFixedBase = is_static)
+
+		state_data = {
+			"velocity": velocity,
+			"angular_velocity": angular_velocity
+		}
+
+		self.SetState(state_data)
 
 	def GetBulletId(self):
 		return self.pb_id
@@ -67,25 +83,6 @@ class StaticObject(EntityInterface.EntityInterface):
 
 		 return velocity
 
-	def SetState(self, state_data):
-			if "position" in state_data:
-				position = state_data["position"]
-				quaternion = self.GetQuaternion()
-
-				if "quaternion" in state_data:
-					quaternion = state_data["quaternion"]
-
-				pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
-
-			if "velocity" in state_data:
-				velocity = state_data["velocity"]
-				angular_velocity = np.array([0, 0, 0])
-
-				if "angular_velocity" in state_data:
-					angular_velocity = state_data["angular_velocity"]
-
-				pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity)
-
 	def GetStatePermutation(self):
 		permutation = {}
 
@@ -98,3 +95,34 @@ class StaticObject(EntityInterface.EntityInterface):
 			permutation[label] = permuter.GetPermutation()
 
 		return permutation
+
+	def SetState(self, state_data):
+
+		if "position" in state_data or "quaternion" in state_data or "angle" in state_data:
+			position = self.GetPosition()
+			quaternion = self.GetQuaternion()
+
+			if "position" in state_data:
+				position = state_data["position"]
+
+			if "angle" in state_data:
+				angle = state_data["angle"]
+
+				quaternion = pb.getQuaternionFromEuler(angle)
+
+			if "quaternion" in state_data:
+				quaternion = state_data["quaternion"]
+
+			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
+
+		if "velocity" in state_data or "angular_velocity" in state_data:
+			velocity = self.GetVelocity()
+			angular_velocity = self.GetAngularVelocity()
+
+			if "velocity" in state_data:
+				velocity = state_data["velocity"]
+
+			if "angular_velocity" in state_data:
+				angular_velocity = state_data["angular_velocity"]
+
+			pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity)
