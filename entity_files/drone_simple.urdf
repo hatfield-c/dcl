@@ -16,7 +16,7 @@
 		<color rgba="0 1 0 1"/>
 	</material>
 
-	<link name="chasis">
+	<link name="chassis">
 		<inertial>
     		<origin rpy="0 0 0" xyz="0 0 0"/>
     		<mass value="0.027"/>
@@ -73,8 +73,8 @@
 			<material name="green"/>
 		</visual>
   	</link>
-	<joint name="fr_rotor_to_chasis" type="fixed">
-		<parent link="chasis"/>
+	<joint name="fr_rotor_to_chassis" type="fixed">
+		<parent link="chassis"/>
 		<child link="fr_rotor"/>
 	</joint>
 
@@ -92,8 +92,8 @@
 			<material name="green"/>
 		</visual>
   	</link>
-	<joint name="fl_rotor_to_chasis" type="fixed">
-		<parent link="chasis"/>
+	<joint name="fl_rotor_to_chassis" type="fixed">
+		<parent link="chassis"/>
 		<child link="fl_rotor"/>
 	</joint>
 
@@ -111,8 +111,8 @@
 			<material name="red"/>
 		</visual>
   	</link>
-	<joint name="br_rotor_to_chasis" type="fixed">
-		<parent link="chasis"/>
+	<joint name="br_rotor_to_chassis" type="fixed">
+		<parent link="chassis"/>
 		<child link="br_rotor"/>
 	</joint>
 
@@ -130,8 +130,8 @@
 			<material name="red"/>
 		</visual>
   	</link>
-	<joint name="bl_rotor_to_chasis" type="fixed">
-		<parent link="chasis"/>
+	<joint name="bl_rotor_to_chassis" type="fixed">
+		<parent link="chassis"/>
 		<child link="bl_rotor"/>
 	</joint>
 

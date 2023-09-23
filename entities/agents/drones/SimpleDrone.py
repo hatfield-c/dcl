@@ -5,6 +5,7 @@ import entities.agents.AgentInterface as AgentInterface
 
 import actuators.RotorActuator as RotorActuator
 import sensors.TelemetrySensor as TelemetrySensor
+import sensors.LidarSensor as LidarSensor
 
 class SimpleDrone(AgentInterface.AgentInterface):
 	def __init__(
@@ -29,10 +30,13 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		self.controller = controller
 
 		self.telem = TelemetrySensor.TelemetrySensor(self)
+		self.lidar = LidarSensor.LidarSensor(self)
 		
 		self.sensors = {
-			"telem": self.telem
+			"telem": self.telem,
+			"lidar": self.lidar
 		}
+
 		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
 		self.pb_id = pb.loadURDF(self.urdf_name, self.position, rotation_quaternion)
 		
@@ -48,6 +52,13 @@ class SimpleDrone(AgentInterface.AgentInterface):
 		rotor_control["pb_id"] = self.pb_id
 		
 		self.rotors.Actuate(rotor_control)
+		telem_data = self.telem.ReadSensor(None)
+		control_data = {
+			"position": telem_data["gps"],
+			"velocity": telem_data["velocity"],
+			"quaternion": telem_data["quat"]
+		}
+		self.lidar.ReadSensor(control_data)
 		
 	def GetSensors(self):
 		return self.sensors
