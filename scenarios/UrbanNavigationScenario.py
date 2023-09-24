@@ -40,7 +40,7 @@ class UrbanNavigationScenario(ScenarioInterface.ScenarioInterface):
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
 
 		#self.observers["entity_observer"] = self.entity_observer
-		self.camera = RenderCamera.RenderCamera(yaw = 150)
+		self.camera = RenderCamera.RenderCamera(yaw = 220)
 
 		self.unified_entities = {}
 

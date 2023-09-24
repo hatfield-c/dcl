@@ -28,7 +28,7 @@ class SimpleDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		self.controller = controller
 
 		self.telemetry = TelemetrySensor.TelemetrySensor(self)
-		self.lidar = LidarSensor.LidarSensor(self)
+		self.lidar = LidarSensor.LidarSensor(self, debug = True)
 
 		self.sensors = {
 			"telemetry": self.telemetry,
