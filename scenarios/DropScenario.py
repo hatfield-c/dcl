@@ -52,11 +52,12 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			entity.SetState(permutation_data)
 
 	def InstantiateDrone(self, start_pos, start_rotation):
-		drone_urdf = "entity_files/drone_simple.urdf"
+		#drone_urdf = "entity_files/drone_simple.urdf"
+		drone_urdf = "entity_files/drone_stick.urdf"
 
 		waypoints = [
-			np.array([0, 10, 1]),
-			np.array([10, 4, 1]),
+			np.array([0, 10, 3]),
+			np.array([10, 4, 3]),
 		]
 
 		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)
@@ -130,6 +131,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			static_object = self.static_objects[static_obj_id]
 
 			self.unified_entities[static_object.GetBulletId()] = static_object
+
+	def UpdateEntities(self):
+
+		for entity_id in self.unified_entities:
+			entity = self.unified_entities[entity_id]
+
+			entity.UpdateEntity()
 
 	def UpdateAgents(self):
 

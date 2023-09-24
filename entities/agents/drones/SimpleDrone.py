@@ -1,103 +1,54 @@
 import numpy as np
 import pybullet as pb
 
+import entities.SimpleEntity as SimpleEntity
 import entities.agents.AgentInterface as AgentInterface
 
 import actuators.RotorActuator as RotorActuator
 import sensors.TelemetrySensor as TelemetrySensor
 
-class SimpleDrone(AgentInterface.AgentInterface):
+class SimpleDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 	def __init__(
 			self,
 			urdf_name,
 			position = [0, 0 ,0],
 			rotation = [0, 0, 0],
+			quaternion = None,
 			velocity = [0, 0, 0],
 			angular_velocity = [0, 0 ,0],
+			permuters = None,
 			planner = None,
 			controller = None
 		):
-		self.urdf_name = urdf_name
-		
-		self.position = np.array(position)
-		self.rotation = np.array(rotation)
-		self.velocity = np.array(velocity)
-		self.angular_velocity = np.array(angular_velocity)
-		
+		super(SimpleDrone, self).__init__(urdf_name, position, rotation, quaternion, velocity, angular_velocity, permuters)
+
 		self.rotors = RotorActuator.RotorActuator()
 		self.planner = planner
 		self.controller = controller
 
-		self.telem = TelemetrySensor.TelemetrySensor(self)
-		
+		self.telemetry = TelemetrySensor.TelemetrySensor(self)
+
 		self.sensors = {
-			"telem": self.telem
+			"telemetry": self.telemetry
 		}
-		rotation_quaternion = pb.getQuaternionFromEuler(self.rotation)
-		self.pb_id = pb.loadURDF(self.urdf_name, self.position, rotation_quaternion)
-		
+
 		self.metadata = {
 			"pb_id": self.pb_id,
 			"urdf_name": self.urdf_name
 		}
-		
+
+		self.metadata = {
+			"pb_id": self.pb_id,
+			"urdf_name": self.urdf_name
+		}
+
 	def TakeAction(self):
 		plan = self.planner.GetPlan(self.sensors, self.metadata)
 		rotor_control = self.controller.GetControlSignal(plan, self.metadata)
-		
+
 		rotor_control["pb_id"] = self.pb_id
-		
+
 		self.rotors.Actuate(rotor_control)
-		
+
 	def GetSensors(self):
 		return self.sensors
-	
-	def GetBulletId(self):
-		return self.pb_id
-	
-	def GetUrdf(self):
-		return self.urdf_name
-	
-	def GetPositionRotation(self):
-		position, rotation = pb.getBasePositionAndOrientation(self.pb_id)
-		rotation = pb.getEulerFromQuaternion(rotation)
-		
-		position = np.array(position)
-		rotation = np.array(rotation)
-		
-		return position, rotation
-		
-	def GetAngularAndLinearVelocity(self):
-		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id)
-		
-		angular_velocity = np.array(angular_velocity)
-		velocity = np.array(velocity)
-		
-		return velocity, angular_velocity
-	
-	def GetPosition(self):
-		position, rotation = self.GetPositionRotation()
-		
-		return position
-	
-	def GetRotation(self):
-		position, rotation = self.GetPositionRotation()
-		
-		return rotation
-	
-	def GetQuaternion(self):
-		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
-		
-		return quaternion
-	
-	def GetAngularVelocity(self):
-		velocity, angular_velocity = self.GetAngularAndLinearVelocity()
-		 
-		return angular_velocity
-	
-	def GetVelocity(self):
-		velocity, angular_velocity = self.GetAngularAndLinearVelocity()
-		 
-		return velocity
-	  
-	 

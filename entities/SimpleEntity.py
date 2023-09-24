@@ -28,12 +28,32 @@ class SimpleEntity(EntityInterface.EntityInterface):
 
 		self.pb_id = pb.loadURDF(self.urdf_name, position, quaternion, useFixedBase = is_static)
 
-		state_data = {
+		self.state_data = {
+			"position": None,
+			"rotation": None,
+			"quaternion": None,
+			"velocity": None,
+			"angular_velocity": None
+		}
+
+		velocity_data = {
 			"velocity": velocity,
 			"angular_velocity": angular_velocity
 		}
 
-		self.SetState(state_data)
+		self.SetState(velocity_data)
+		self.UpdateEntity()
+
+	def UpdateEntity(self):
+		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
+		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id)
+		rotation = pb.getEulerFromQuaternion(quaternion)
+
+		self.state_data["position"] = np.array(position)
+		self.state_data["quaternion"] = np.array(quaternion)
+		self.state_data["velocity"] = np.array(velocity)
+		self.state_data["angular_velocity"] = np.array(angular_velocity)
+		self.state_data["rotation"] = np.array(rotation)
 
 	def GetBulletId(self):
 		return self.pb_id
@@ -41,47 +61,20 @@ class SimpleEntity(EntityInterface.EntityInterface):
 	def GetUrdf(self):
 		return self.urdf_name
 
-	def GetPositionRotation(self):
-		position, rotation = pb.getBasePositionAndOrientation(self.pb_id)
-		rotation = pb.getEulerFromQuaternion(rotation)
-
-		position = np.array(position)
-		rotation = np.array(rotation)
-
-		return position, rotation
-
 	def GetPosition(self):
-		position, rotation = self.GetPositionRotation()
-
-		return position
+		return self.state_data["position"]
 
 	def GetRotation(self):
-		position, rotation = self.GetPositionRotation()
-
-		return rotation
+		return self.state_data["rotation"]
 
 	def GetQuaternion(self):
-		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
-
-		return quaternion
-
-	def GetAngularAndLinearVelocity(self):
-		angular_velocity, velocity = pb.getBaseVelocity(self.pb_id)
-
-		angular_velocity = np.array(angular_velocity)
-		velocity = np.array(velocity)
-
-		return angular_velocity, velocity
+		return self.state_data["quaternion"]
 
 	def GetAngularVelocity(self):
-		angular_velocity, velocity = self.GetAngularAndLinearVelocity()
-
-		return angular_velocity
+		return self.state_data["angular_velocity"]
 
 	def GetVelocity(self):
-		 angular_velocity, velocity = self.GetAngularAndLinearVelocity()
-
-		 return velocity
+		 return self.state_data["velocity"]
 
 	def GetStatePermutation(self):
 		permutation = {}
@@ -105,13 +98,17 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			if "position" in state_data:
 				position = state_data["position"]
 
-			if "angle" in state_data:
-				angle = state_data["angle"]
+			if "rotation" in state_data:
+				rotation = state_data["rotation"]
 
-				quaternion = pb.getQuaternionFromEuler(angle)
+				quaternion = pb.getQuaternionFromEuler(rotation)
 
 			if "quaternion" in state_data:
 				quaternion = state_data["quaternion"]
+
+			self.state_data["position"] = position
+			self.state_data["quaternion"] = quaternion
+			self.state_data["rotation"] = pb.getEulerFromQuaternion(quaternion)
 
 			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
 
@@ -124,5 +121,8 @@ class SimpleEntity(EntityInterface.EntityInterface):
 
 			if "angular_velocity" in state_data:
 				angular_velocity = state_data["angular_velocity"]
+
+			self.state_data["velocity"] = velocity
+			self.state_data["angular_velocity"] = angular_velocity
 
 			pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity)

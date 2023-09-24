@@ -3,13 +3,10 @@ class EntityInterface:
 	def __init__(self):
 		pass
 
+	def UpdateEntity(self):
+		raise NotImplementedError()
+
 	def GetBulletId(self):
-		raise NotImplementedError()
-
-	def GetPositionRotation(self):
-		raise NotImplementedError()
-
-	def GetAngularAndLinearVelocity(self):
 		raise NotImplementedError()
 
 	def GetQuaternion(self):
@@ -30,8 +27,8 @@ class EntityInterface:
 	def GetAngularVeclotiy():
 		raise NotImplementedError()
 
-	def SetState(self, state_data):
+	def GetStatePermutation(self):
 		raise NotImplementedError()
 
-	def GetStatePermutation(self):
+	def SetState(self, state_data):
 		raise NotImplementedError()

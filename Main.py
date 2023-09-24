@@ -16,6 +16,7 @@ def Main():
 
 	for i in range (10000):
 		scenario.Render()
+		scenario.UpdateEntities()
 		scenario.UpdateAgents()
 		scenario.UpdateObservers()
 		scenario.ProcessEvents()

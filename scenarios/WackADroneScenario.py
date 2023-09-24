@@ -42,15 +42,6 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
 		self.unified_entities = {}
-		for agent_id in self.agents:
-			agent = self.agents[agent_id]
-			self.unified_entities[agent.GetBulletId()] = agent
-		for dynamic_obj_id in self.dynamic_objects:
-			dynamic_object = self.dynamic_objects[dynamic_obj_id]
-			self.unified_entities[dynamic_object.GetBulletId()] = dynamic_object
-		for static_obj_id in self.static_objects:
-			static_object = self.static_objects[static_obj_id]
-			self.unified_entities[static_object.GetBulletId()] = static_object
 
 	def ResetScenario(self):
 		for pb_id in self.unified_entities:
@@ -83,8 +74,6 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 			controller = controller
 		)
 
-		self.camera.SetTarget(drone)
-
 		return drone
 
 	def InstantiateEntities(self):
@@ -106,12 +95,36 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		self.agents["simple_drone1"] = drone1
 		self.agents["simple_drone2"] = drone2
 
+		self.camera.SetTarget(drone2)
+
 		cube = SimpleEntity.SimpleEntity(urdf_name = "entity_files/debug_cube.urdf", position = [-2, 2, 3], rotation = [0.79, 0.79, 0])
 
 		self.dynamic_objects["debug_cube"] = cube
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 
 		self.entity_observer.RegisterEntities([cube])
+
+		for agent_id in self.agents:
+			agent = self.agents[agent_id]
+
+			self.unified_entities[agent.GetBulletId()] = agent
+
+		for dynamic_obj_id in self.dynamic_objects:
+			dynamic_object = self.dynamic_objects[dynamic_obj_id]
+
+			self.unified_entities[dynamic_object.GetBulletId()] = dynamic_object
+
+		for static_obj_id in self.static_objects:
+			static_object = self.static_objects[static_obj_id]
+
+			self.unified_entities[static_object.GetBulletId()] = static_object
+
+	def UpdateEntities(self):
+
+		for entity_id in self.unified_entities:
+			entity = self.unified_entities[entity_id]
+
+			entity.UpdateEntity()
 
 	def UpdateAgents(self):
 
@@ -129,7 +142,6 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		self.event_queue.ProcessQueue()
 
 	def Render(self):
-		pass
 		self.camera.FollowTarget()
 
 	def UpdateTime(self):

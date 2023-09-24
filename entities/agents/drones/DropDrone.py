@@ -29,10 +29,10 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		self.planner = planner
 		self.controller = controller
 
-		self.telem = TelemetrySensor.TelemetrySensor(self)
+		self.telemetry = TelemetrySensor.TelemetrySensor(self)
 
 		self.sensors = {
-			"telem": self.telem
+			"telemetry": self.telemetry
 		}
 
 		self.metadata = {
@@ -51,12 +51,10 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		if time.time() - self.drop_timer > 3:
 			self.drop_timer = time.time()
 
-			telem_data = self.telem.ReadSensor(None)
-
 			drop_data = {
-				"position": telem_data["gps"],
-				"velocity": telem_data["velocity"],
-				"quaternion": telem_data["quat"]
+				"position": self.GetPosition(),
+				"velocity": self.GetVelocity(),
+				"quaternion": self.GetQuaternion()
 			}
 
 			self.arm.Actuate(drop_data)
