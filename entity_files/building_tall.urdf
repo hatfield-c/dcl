@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot name="building_tall">
+	<material name="gray">
+		<color rgba="130 130 130 1"/>
+	</material>
+
+	<link name="building">
+		<contact>
+			<lateral_friction value="1"/>
+		</contact>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<mass value="1"/>
+			<inertia ixx="1" ixy="1" ixz="1" iyy="1" iyz="1" izz="1"/>
+		</inertial>
+
+		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+
+			<geometry>
+				<box size="1 1 5" />
+			</geometry>
+
+			<material name="gray"/>
+		</visual>
+
+		<collision>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+
+			<geometry>
+				<box size="1 1 1" />
+			</geometry>
+		</collision>
+	</link>
+</robot>
