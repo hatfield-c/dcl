@@ -34,13 +34,18 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.observers = {}
 
 		self.entity_logger = ChannelLogger.ChannelLogger("data/entity_data.txt", "entity_observer")
-
 		self.event_queue = EventQueue.EventQueue()
 		self.event_queue.RegisterConsumer(self.entity_logger)
-
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
 
-		#self.observers["entity_observer"] = self.entity_observer
+		self.target_distance_logger = ChannelLogger.ChannelLogger("data/target_distance.txt", "target_distance_observer")
+		self.target_distance_queue = EventQueue.EventQueue()
+		self.target_distance_queue.RegisterConsumer(self.target_distance_logger)
+		self.target_distance_observer = EntityObserver.EntityObserver(self.target_distance_queue, "target_distance_observer")
+		self.observers["target_distance_observer"] = self.target_distance_observer
+		self.target_distance_range = 10.0
+
+		# self.observers["entity_observer"] = self.entity_observer
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
 	def ResetScenario(self):
@@ -52,8 +57,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			entity.SetState(permutation_data)
 
 	def InstantiateDrone(self, start_pos, start_rotation):
-		#drone_urdf = "entity_files/drone_simple.urdf"
-		drone_urdf = "entity_files/drone_stick.urdf"
+		drone_urdf = "entity_files/drone_simple.urdf"
+		# drone_urdf = "entity_files/drone_stick.urdf"
 
 		waypoints = [
 			np.array([0, 10, 3]),
@@ -111,11 +116,18 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			permuters = list_permuter
 		)
 
+		target = SimpleEntity.SimpleEntity(
+			urdf_name = "entity_files/markers/green_diamond.urdf",
+			position = [5, 5, 0],
+			rotation = [0, 0, 0]
+		)
+
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 
-		self.entity_observer.RegisterEntities([cube1])
+		# self.entity_observer.RegisterEntities([cube1])
+		self.target_distance_observer.RegisterEntities([drone.GetPackageEntity(), target])
 
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
@@ -152,6 +164,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			observer.Observe(self.time_step)
 
 	def ProcessEvents(self):
+		self.target_distance_queue.ProcessDistanceQueue(self.target_distance_range)
 		self.event_queue.ProcessQueue()
 
 	def Render(self):
