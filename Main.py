@@ -12,7 +12,8 @@ def Main():
 
 	#scenario = SimpleScenario.SimpleScenario(pb_client)
 	#scenario = WackADroneScenario.WackADroneScenario(pb_client)
-	scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
+	#scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
+	scenario = DropScenario.DropScenario(pb_client)
 	scenario.InstantiateEntities()
 
 	for i in range (10000):
