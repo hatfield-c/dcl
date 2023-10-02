@@ -4,31 +4,31 @@ class EntityInterface:
 		pass
 
 	def UpdateEntity(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetBulletId(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetQuaternion(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetUrdf(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetPosition(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetRotation(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetVelocity(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetAngularVeclotiy():
 		raise NotImplementedError()
 
 	def GetStatePermutation(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def SetState(self, state_data):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
