@@ -63,6 +63,3 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 	def GetSensors(self):
 		return self.sensors
-	
-	def GetPackageEntity(self):
-		return self.arm.package
