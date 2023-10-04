@@ -19,11 +19,13 @@ import planners.SimplePlanner as SimplePlanner
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
+import observers.TargetDistanceObserver as TargetDistanceObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
 		self.pb_client = pb_client
 		self.time_step = 0
+		self.event_distance_range = 7
 
 		pb.setGravity(0,0,-9.8)
 
@@ -34,13 +36,18 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.observers = {}
 
 		self.entity_logger = ChannelLogger.ChannelLogger("data/entity_data.txt", "entity_observer")
+		self.target_distance_logger = ChannelLogger.ChannelLogger("data/target_distance.txt", "target_distance_observer")
 
 		self.event_queue = EventQueue.EventQueue()
 		self.event_queue.RegisterConsumer(self.entity_logger)
+		self.event_queue.RegisterConsumer(self.target_distance_logger)
 
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
-
 		#self.observers["entity_observer"] = self.entity_observer
+
+		self.target_distance_observer = TargetDistanceObserver.TargetDistanceObserver(self.event_queue, "target_distance_observer", self.event_distance_range)
+		self.observers["target_distance_observer"] = self.target_distance_observer
+
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
 	def ResetScenario(self):
@@ -52,8 +59,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			entity.SetState(permutation_data)
 
 	def InstantiateDrone(self, start_pos, start_rotation):
-		#drone_urdf = "entity_files/drone_simple.urdf"
-		drone_urdf = "entity_files/drone_stick.urdf"
+		drone_urdf = "entity_files/drone_simple.urdf"
+		# drone_urdf = "entity_files/drone_stick.urdf"
 
 		waypoints = [
 			np.array([0, 10, 3]),
@@ -111,11 +118,21 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			permuters = list_permuter
 		)
 
+		target = SimpleEntity.SimpleEntity(
+			urdf_name = "entity_files/markers/green_diamond.urdf",
+			position = [5, 5, 0],
+			rotation = [0, 0, 0]
+		)
+
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
+		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
+		self.static_objects["target"] = target
 
-		self.entity_observer.RegisterEntities([cube1])
+		self.target_distance_observer.RegisterPackage(drone.GetPackageEntity())
+		self.target_distance_observer.RegisterTarget(target)
+		# self.entity_observer.RegisterEntities([cube1])
 
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
