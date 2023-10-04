@@ -6,6 +6,7 @@ import scenarios.SimpleScenario as SimpleScenario
 import scenarios.WackADroneScenario as WackADroneScenario
 import scenarios.DropScenario as DropScenario
 import scenarios.UrbanNavigationScenario as UrbanNavigationScenario
+import scenarios.TeleopScenario as TeleopScenario
 
 def Main():
 	pb_client = pb.connect(pb.GUI)
@@ -13,7 +14,7 @@ def Main():
 	#scenario = SimpleScenario.SimpleScenario(pb_client)
 	#scenario = WackADroneScenario.WackADroneScenario(pb_client)
 	#scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
-	scenario = DropScenario.DropScenario(pb_client)
+	scenario = TeleopScenario.TeleopScenario(pb_client)
 	scenario.InstantiateEntities()
 
 	for i in range (10000):
