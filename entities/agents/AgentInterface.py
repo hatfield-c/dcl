@@ -6,7 +6,7 @@ class AgentInterface(EntityInterface.EntityInterface):
 		pass
 	
 	def TakeAction(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 		
 	def GetSensors(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')

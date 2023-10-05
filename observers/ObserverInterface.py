@@ -4,7 +4,7 @@ class ObserverInterface:
 		pass
 	
 	def RegisterEntities(self, entity_list):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 	
 	def Observe(self, timestep):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')

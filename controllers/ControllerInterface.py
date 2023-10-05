@@ -4,4 +4,4 @@ class ControllerInterface:
 		pass
 	
 	def GetControlSignal(self, plan, metadata):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')

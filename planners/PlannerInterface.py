@@ -4,4 +4,4 @@ class PlannerInterface:
 		pass
 	
 	def GetPlan(self, sensors, metadata):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')

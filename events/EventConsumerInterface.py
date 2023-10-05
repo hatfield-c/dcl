@@ -4,7 +4,7 @@ class EventConsumerInterface:
 		pass
 	
 	def GetChannel(self):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 	
 	def Consume(self, event_data):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')

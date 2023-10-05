@@ -4,4 +4,4 @@ class ActuatorInterface:
 		pass
 	
 	def Actuate(self, control_data):
-		raise NotImplementedError()
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
