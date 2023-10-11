@@ -17,6 +17,7 @@ import planners.SimplePlanner as SimplePlanner
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
+import observers.CollisionResetObserver as CollisionResetObserver
 
 class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
@@ -32,13 +33,18 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 		self.observers = {}
 
 		self.entity_logger = ChannelLogger.ChannelLogger("data/entity_data.txt", "entity_observer")
+		self.collision_reset_logger = ChannelLogger.ChannelLogger("", "collision_reset_logger")
 
 		self.event_queue = EventQueue.EventQueue()
 		self.event_queue.RegisterConsumer(self.entity_logger)
+		self.event_queue.RegisterConsumer(self.collision_reset_logger)
 
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
-
 		#self.observers["entity_observer"] = self.entity_observer
+
+		self.collision_reset_observer = CollisionResetObserver.CollisionResetObserver(self.event_queue, "collision_reset_logger", self)
+		self.observers["collision_reset_observer"] = self.collision_reset_observer
+
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
 		self.unified_entities = {}
@@ -104,6 +110,8 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 
 		self.entity_observer.RegisterEntities([cube])
 
+		self.collision_reset_observer.RegisterEntities([drone1, drone2])
+
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
 
@@ -146,3 +154,6 @@ class WackADroneScenario(ScenarioInterface.ScenarioInterface):
 
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1
+
+	def GetCollisionData(self):
+		return pb.getContactPoints()

@@ -12,6 +12,9 @@ class ChannelLogger(EventConsumerInterface.EventConsumerInterface):
 		return self.channel_name
 	
 	def Consume(self, channel_data):
+
+		if (self.file_output_name == ""):
+			return
 		
 		with open(self.file_output_name, 'a') as log_file:
 			write_data = str(channel_data) + self.newline

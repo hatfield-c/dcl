@@ -52,7 +52,7 @@ class LidarSensor(SensorInterface.SensorInterface):
 			beam_endpoint = hit_position
 			render_color = [1, 0, 0]
 
-			print("hit at " + str(hit_length))
+			# print("hit at " + str(hit_length))
 
 		time_diff = time.time() - self.current_time
 		self.current_time = time.time()
