@@ -24,8 +24,8 @@ class EntityInterface:
 	def GetVelocity(self):
 		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
-	def GetAngularVeclotiy():
-		raise NotImplementedError()
+	def GetAngularVeclotiy(self):
+		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
 
 	def GetStatePermutation(self):
 		raise NotImplementedError(self.__class__.__name__ + ' is not implemented.')
