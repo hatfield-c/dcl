@@ -9,6 +9,7 @@ import scenarios.permuters.ListPermuter as ListPermuter
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.DropDrone as DropDrone
+import entities.drop_scenario.TargetPole as TargetPole
 import entities.SimpleEntity as SimpleEntity
 
 import controllers.PidForwardController as PidForwardController
@@ -60,10 +61,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
-		# drone_urdf = "entity_files/drone_stick.urdf"
 
 		waypoints = [
-			np.array([0, 10, 3]),
+			np.array([0, -10, 2.5]),
 			np.array([10, 4, 3]),
 		]
 
@@ -85,22 +85,22 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 	def InstantiateEntities(self):
 
-		start_pos = [0, 0, 2.5]
-		start_rot = [-0.785398, 0, 0.785398 * 2]
+		start_pos = [0, 6.5, 2.5]
+		start_rot = [0, 0, 0.785398 * 4]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
 		self.agents["simple_drone"] = drone
 
 		box_permuter = {
 			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-2, -2, 4]),
-				high_values = np.array([2, 2, 1])
+				low_values = np.array([-5, -2, 4]),
+				high_values = np.array([-5, -2, 1])
 			)
 		}
 
 		list_permuter = {
 			"position": ListPermuter.ListPermuter(
-				choices_list = [ np.array([-1, -1, 5]), np.array([1, -1, 5]), np.array([-1, 1, 5]) ]
+				choices_list = [ np.array([-9, -1, 5]), np.array([8, -1, 5]), np.array([-7, 1, 5]) ]
 			)
 		}
 
@@ -124,15 +124,29 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			rotation = [0, 0, 0]
 		)
 
+		pole = TargetPole.TargetPole(
+			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
+			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
+			target_width = 0.52,
+			target_height = 1.5,
+			position = [-0.2, -3 ,0],
+			is_static = True
+		)
+		pole.SetState(
+			state_data = {
+				"target_indices": [ 0 ]
+			}
+		)
+
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 		self.static_objects["target"] = target
+		self.static_objects["pole"] = pole
 
 		self.target_distance_observer.RegisterPackage(drone.GetPackageEntity())
 		self.target_distance_observer.RegisterTarget(target)
-		# self.entity_observer.RegisterEntities([cube1])
 
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]

@@ -29,11 +29,11 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		self.pb_id = pb.loadURDF(self.urdf_name, position, quaternion, useFixedBase = is_static)
 
 		self.state_data = {
-			"position": None,
-			"rotation": None,
-			"quaternion": None,
-			"velocity": None,
-			"angular_velocity": None
+			"position": position,
+			"rotation": rotation,
+			"quaternion": quaternion,
+			"velocity": velocity,
+			"angular_velocity": angular_velocity
 		}
 
 		velocity_data = {
@@ -62,19 +62,19 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		return self.urdf_name
 
 	def GetPosition(self):
-		return self.state_data["position"]
+		return self.state_data["position"].copy()
 
 	def GetRotation(self):
-		return self.state_data["rotation"]
+		return self.state_data["rotation"].copy()
 
 	def GetQuaternion(self):
-		return self.state_data["quaternion"]
+		return self.state_data["quaternion"].copy()
 
 	def GetAngularVelocity(self):
-		return self.state_data["angular_velocity"]
+		return self.state_data["angular_velocity"].copy()
 
 	def GetVelocity(self):
-		 return self.state_data["velocity"]
+		 return self.state_data["velocity"].copy()
 
 	def GetStatePermutation(self):
 		permutation = {}
