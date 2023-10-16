@@ -60,6 +60,26 @@ class TeleopDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			self.arm.Actuate(drop_data)
         '''
 		self.rotors.Actuate(rotor_control)
+	def RollRight(self):
+		print("roll right")
 
+	def RollLeft(self):
+		print("roll left")
+
+	def PitchForward(self):
+		print("pitch forward")
+
+	def PitchBackwards(self):
+		print("pitch backward")
+
+	def YawRight(self):
+		print("yawright")
+
+	def YawLeft(self):
+		print("yawleft")
+
+	def ThrustUp(self):
+		print("thrust up")
+		
 	def GetSensors(self):
 		return self.sensors

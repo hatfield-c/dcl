@@ -78,11 +78,11 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateEntities(self):
 
 		start_pos = [0, 0, 2.5]
-		start_rot = [-0.785398, 0, 0.785398 * 2]
+		start_rot = [0, 0, 0]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
 		self.agents["teleop_drone"] = drone
-
+		'''
 		box_permuter = {
 			"position": BoxPermuter.BoxPermuter(
 				low_values = np.array([-2, -2, 4]),
@@ -95,7 +95,7 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 				choices_list = [ np.array([-1, -1, 5]), np.array([1, -1, 5]), np.array([-1, 1, 5]) ]
 			)
 		}
-
+		
 		cube1 = SimpleEntity.SimpleEntity(
 			urdf_name = "entity_files/debug_cube.urdf",
 			position = [-2, 2, 3],
@@ -109,13 +109,14 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 			rotation = [0.79, 0.79, 0],
 			permuters = list_permuter
 		)
-
+		
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
-		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
+		
 
 		self.entity_observer.RegisterEntities([cube1])
-
+		'''
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
 

@@ -8,6 +8,7 @@ import physics.Transform as Transform
 import controllers.ControllerInterface as ControllerInterface
 import controllers.modules.Pid as Pid
 
+
 class TeleopController(ControllerInterface.ControllerInterface):
 	def __init__(self, force_scale, torque_scale):
 		self.force_scale = force_scale
@@ -70,6 +71,9 @@ class TeleopController(ControllerInterface.ControllerInterface):
 		thrust_rpm = 0
 		roll_rpm = 0
 		yaw_rpm = 0
+
+		print("roll = " + str(roll) + "\n")
+		print("pitch = " + str(pitch) + "\n")
 		
 		# if pitch is not max, turn that way
 		# if thrust is less than max, increase thrust
@@ -77,6 +81,7 @@ class TeleopController(ControllerInterface.ControllerInterface):
 		something_pressed = False
 
 		#if forward pressed
+		'''
 		if keyboard.is_pressed('w'):
 			something_pressed = True
 			if (pitch < max_pitch_forward):
@@ -113,7 +118,30 @@ class TeleopController(ControllerInterface.ControllerInterface):
 
 		if keyboard.is_pressed('space'):
 			thrust_rpm = 100
+		'''
+		#yaw_rpm = 0.1 good exp. value
+		'''
+		roll_rpm = 0
+		pitch_rpm = 0
+		if (roll > 0 ):
+			print("Max roll right reached, stopping rolling")
+			roll_rpm = -0.01
+		if (roll < 0):
+			print("Max roll left reached, stopping rolling")
+			roll_rpm = 0.01
+		'''
+		'''
+		if (pitch > 0 ):
+			print("Max pitch forward reached, stopping pitching")
+			pitch_rpm = -0.1
+		if (pitch < 0):
+			print("Max pitch backward reached, stopping pitching")
+			pitch_rpm = 0.1
+		'''
+		'''
+		thrust_rpm = 0.1
 		thrust_rpm = max(0, thrust_rpm)
+		'''
 		
 		#if e pressed (turn right)
 		#if q pressed (turn left)
@@ -152,6 +180,29 @@ class TeleopController(ControllerInterface.ControllerInterface):
 
 		
 		"""
+		wKey = ord('w')
+		aKey = ord('a')
+		sKey = ord('s')
+		dKey = ord('d')
+		qKey = ord('q')
+		eKey = ord('e')
+		pKey = ord('p')
+		keys = pb.getKeyboardEvents()
+		if pKey in keys:
+			thrust_rpm = 2
+		if qKey in keys:
+			yaw_rpm = 0.1
+		if eKey in keys:
+			yaw_rpm = -0.1
+		if wKey in keys:
+			pitch_rpm = 0.1
+		if sKey in keys:
+			pitch_rpm = -0.1
+		if aKey in keys:
+			roll_rpm = -0.1
+		if dKey in keys:
+			roll_rpm = 0.1
+
 
 		motor_vals = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
