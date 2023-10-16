@@ -132,11 +132,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			position = [-0.2, -3 ,0],
 			is_static = True
 		)
-		pole.SetState(
-			state_data = {
-				"target_indices": [ 0 ]
-			}
-		)
 
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
