@@ -33,12 +33,19 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_length = episode_length
 		self.distance_reward_decay = distance_reward_decay
 
-	def SaveData(self, state_path, value_path, flush_memory = False):
+	def SaveData(self, state_path, value_path, max_path, flush_memory = False):
 		state_data = torch.stack(self.state_data)
 		value_data = torch.stack(self.value_data)
 
+		max_data = torch.absolute(state_data)
+		max_data = torch.max(max_data, dim = 1)
+		max_data = max_data.values
+		max_data = torch.max(max_data, dim = 0)
+		max_data = max_data.values
+
 		torch.save(state_data, state_path)
 		torch.save(value_data, value_path)
+		torch.save(max_data, max_path)
 
 		if flush_memory:
 			self.state_data = []

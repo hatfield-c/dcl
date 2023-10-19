@@ -89,9 +89,14 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 
 		thrust_rpm = max(0, thrust_rpm)
 
-		motor_vals = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
+		control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
-		return motor_vals
+		control_data["thrust_signal"] = thrust_rpm
+		control_data["pitch_signal"] = pitch_rpm
+		control_data["roll_signal"] = roll_rpm
+		control_data["yaw_signal"] = yaw_rpm
+
+		return control_data
 
 	def MotorMixer(self, thrust, yaw, pitch, roll):
 		motor_vals = {}

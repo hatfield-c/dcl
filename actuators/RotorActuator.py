@@ -10,11 +10,10 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 	def Actuate(self, control_data):
 
 		self.last_command = np.array([
-			control_data["fr_rotor_force"],
-			control_data["fl_rotor_force"],
-			control_data["br_rotor_force"],
-			control_data["bl_rotor_force"],
-			control_data["torque"]
+			control_data["thrust_signal"],
+			control_data["pitch_signal"],
+			control_data["roll_signal"],
+			control_data["yaw_signal"],
 		])
 
 		pb.applyExternalForce(

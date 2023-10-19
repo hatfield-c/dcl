@@ -19,6 +19,8 @@ def Main():
 
 	scenario.InstantiateEntities()
 
+	start_time = time.time()
+
 	while True:
 		scenario.Render()
 		scenario.UpdateEntities()
@@ -37,6 +39,11 @@ def Main():
 
 	pb.disconnect()
 
-	print("Scenario complete!")
+	end_time = time.time() - start_time
+
+	print("==========================")
+	print("\nScenario complete!")
+	print("    Run time:", "{:.2f}".format(end_time), "sec")
+	print("==========================")
 
 Main()
