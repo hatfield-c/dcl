@@ -21,12 +21,19 @@ import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.EntityObserver as EntityObserver
 import observers.TargetDistanceObserver as TargetDistanceObserver
+import observers.DropScenarioObserver as DropScenarioObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
 		self.pb_client = pb_client
 		self.time_step = 0
 		self.event_distance_range = 7
+
+		self.episode_count = 10
+		self.episode_length = 100
+
+		self.state_data_path = "data/state_data.pt"
+		self.value_data_path = "data/value_data.pt"
 
 		pb.setGravity(0,0,-9.8)
 
@@ -47,7 +54,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		#self.observers["entity_observer"] = self.entity_observer
 
 		self.target_distance_observer = TargetDistanceObserver.TargetDistanceObserver(self.event_queue, "target_distance_observer", self.event_distance_range)
-		self.observers["target_distance_observer"] = self.target_distance_observer
+		#self.observers["target_distance_observer"] = self.target_distance_observer
+
+		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None)
+		self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
@@ -58,6 +68,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			permutation_data = entity.GetStatePermutation()
 
 			entity.SetState(permutation_data)
+
+		self.time_step = 0
 
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
@@ -140,8 +152,18 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.static_objects["target"] = target
 		self.static_objects["pole"] = pole
 
-		self.target_distance_observer.RegisterPackage(drone.GetPackageEntity())
-		self.target_distance_observer.RegisterTarget(target)
+		self.scenario_observer.RegisterEntities(
+			self,
+			drone,
+			target,
+			pole,
+			self.static_objects["floor"],
+			distance_threshold = 1,
+			episode_length = self.episode_length,
+			distance_reward_decay = 1
+		)
+		#self.target_distance_observer.RegisterPackage(drone.GetPackageEntity())
+		#self.target_distance_observer.RegisterTarget(target)
 
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
@@ -185,3 +207,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1
+
+		if self.scenario_observer.GetEpisodeCount() >= self.episode_count:
+			self.scenario_observer.SaveData(self.state_data_path, self.value_data_path)
+
+			return False
+
+		return True

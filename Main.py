@@ -14,12 +14,12 @@ def Main():
 	#scenario = SimpleScenario.SimpleScenario(pb_client)
 	#scenario = WackADroneScenario.WackADroneScenario(pb_client)
 	#scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
-	scenario = TeleopScenario.TeleopScenario(pb_client)
-	#scenario = DropScenario.DropScenario(pb_client)
+	#scenario = TeleopScenario.TeleopScenario(pb_client)
+	scenario = DropScenario.DropScenario(pb_client)
 
 	scenario.InstantiateEntities()
 
-	for i in range (10000):
+	while True:
 		scenario.Render()
 		scenario.UpdateEntities()
 		scenario.UpdateAgents()
@@ -28,13 +28,15 @@ def Main():
 
 		pb.stepSimulation()
 
-		if i % 300 == 0:
-			print("reset!")
-			scenario.ResetScenario()
+		isSimulating = scenario.UpdateTime()
 
-		scenario.UpdateTime()
+		if not isSimulating:
+			break
+
 		time.sleep(CONFIG.timestep)
 
 	pb.disconnect()
+
+	print("Scenario complete!")
 
 Main()

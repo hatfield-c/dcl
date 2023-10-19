@@ -61,6 +61,20 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 		self.rotors.Actuate(rotor_control)
 
+	def IsPackageDropped(self):
+		last_command = self.arm.GetLastCommand()
+
+		if last_command[0] == 0:
+			return False
+
+		return True
+
+	def GetPreviousAction(self):
+		arm_command = self.arm.GetLastCommand()
+		rotor_command = self.rotors.GetLastCommand()
+
+		return np.concatenate((arm_command, rotor_command))
+
 	def GetSensors(self):
 		return self.sensors
 

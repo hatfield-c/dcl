@@ -21,7 +21,11 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 
 		self.package = SimpleEntity.SimpleEntity(package_urdf)
 
+		self.last_command = [ 0 ]
+
 	def Actuate(self, control_data):
+
+		self.last_command = [ 1 ]
 
 		position = control_data["position"]
 		quaternion = control_data["quaternion"]
@@ -38,3 +42,6 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 		}
 
 		self.package.SetState(drop_state)
+
+	def GetLastCommand(self):
+		return self.last_command

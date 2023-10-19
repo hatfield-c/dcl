@@ -1,13 +1,22 @@
+import numpy as np
 import pybullet as pb
 
 import actuators.ActuatorInterface as ActuatorInterface
 
 class RotorActuator(ActuatorInterface.ActuatorInterface):
 	def __init__(self):
-		pass
-	
+		self.last_command = None
+
 	def Actuate(self, control_data):
-		
+
+		self.last_command = np.array([
+			control_data["fr_rotor_force"],
+			control_data["fl_rotor_force"],
+			control_data["br_rotor_force"],
+			control_data["bl_rotor_force"],
+			control_data["torque"]
+		])
+
 		pb.applyExternalForce(
 			control_data["pb_id"],
 			0,
@@ -36,10 +45,13 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 			posObj = [0, 0, 0],
 			flags = pb.LINK_FRAME
 		)
-		
+
 		pb.applyExternalTorque(
 			control_data["pb_id"],
 			-1,
 			torqueObj = [0, 0, control_data["torque"]],
 			flags = pb.LINK_FRAME
 		)
+
+	def GetLastCommand(self):
+		return self.last_command
