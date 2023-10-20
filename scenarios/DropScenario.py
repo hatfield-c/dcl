@@ -26,7 +26,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.event_distance_range = 7
 
 		self.episode_count = 10
-		self.episode_length = 10
+		self.episode_length = 1000
 
 		self.state_data_path = "data/state_data.pt"
 		self.max_data_path = "data/max_data.pt"
@@ -43,9 +43,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.event_queue = EventQueue.EventQueue()
 
 		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None)
-		#self.observers["scenario_observer"] = self.scenario_observer
+		self.observers["scenario_observer"] = self.scenario_observer
 
-		self.camera = RenderCamera.RenderCamera(yaw = 150)
+		self.camera = RenderCamera.RenderCamera(pitch = -20)
 
 	def ResetScenario(self):
 		for pb_id in self.unified_entities:
@@ -59,22 +59,34 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
 
-		waypoints = [
-			np.array([0, -10, 2.5]),
-			np.array([10, 4, 3]),
-		]
+		waypoints = [np.array([0, -1, 6.5])]
 
-		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)
+		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 2, debug = True)
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		permuters = {
-			# "position_place_holder": "drone position permuter must be placed before waypoint permuter",
-			"waypoint": WaypointPermuter.WaypointPermuter(
-				num_points = 10,
-				min_distance = 3,
-				max_distance = 10,
-				noise_multiplier = 2,
-				noise_bias = 0.6
+			"position": ListPermuter.ListPermuter([ start_pos ]),
+			"rotation": ListPermuter.ListPermuter([ start_rotation ]),
+			"velocity": ListPermuter.ListPermuter([ np.zeros(3) ]),
+			"angular_velocity": ListPermuter.ListPermuter([ np.zeros(3) ]),
+			"waypoints": WaypointPermuter.WaypointPermuter(
+				num_points = 3,
+				origins = [
+					np.array([0, 0, 2.5]),
+					np.array([0, 6, 2.5]),
+					np.array([0, -3, 2.5]),
+					np.array([3, 0, 2.5]),
+					np.array([-3, 0, 2.5])
+				],
+				origin_weights = [
+					0.1,
+					0.1,
+					0.6,
+					0.1,
+					0.1
+				],
+				min_distance = 0,
+				max_distance = 5,
 			)
 		}
 
@@ -94,7 +106,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def InstantiateEntities(self):
 
 		start_pos = [0, 6.5, 2.5]
-		start_rot = [0, 0, 0.785398 * 4]
+		start_rot = [0, 0, 0.785398 * 2]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
 		self.agents["simple_drone"] = drone
@@ -126,12 +138,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			permuters = list_permuter
 		)
 
-		target = SimpleEntity.SimpleEntity(
-			urdf_name = "entity_files/markers/green_diamond.urdf",
-			position = [5, 5, 0],
-			rotation = [0, 0, 0]
-		)
-
 		pole = TargetPole.TargetPole(
 			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
 			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
@@ -145,13 +151,12 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
-		self.static_objects["target"] = target
 		self.static_objects["pole"] = pole
 
 		self.scenario_observer.RegisterEntities(
 			self,
 			drone,
-			target,
+			pole.target,
 			pole,
 			self.static_objects["floor"],
 			distance_threshold = 1,

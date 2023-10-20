@@ -20,7 +20,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			angular_velocity = [0, 0 ,0],
 			permuters = None,
 			planner = None,
-			controller = None
+			controller = None,
 		):
 
 		super(DropDrone, self).__init__(
@@ -88,14 +88,9 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		super().SetState(state_data)
 
 		if "waypoints" in state_data:
-			pass
+			waypoints = state_data["waypoints"]
 
-	def GetPermutationData(self):
-		permutation_data = {
-			"position": self.GetPosition()
-		}
-
-		return permutation_data
+			self.planner.SetWaypoints(waypoints)
 
 	def GetSensors(self):
 		return self.sensors

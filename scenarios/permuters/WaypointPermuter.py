@@ -1,33 +1,37 @@
 import numpy as np
+import random
 
 import scenarios.permuters.PermuterInterface as PermuterInterface
 
 class WaypointPermuter(PermuterInterface.PermuterInterface):
-	def __init__(self, num_points, min_distance, max_distance, noise_multiplier, noise_bias):
+	def __init__(self, num_points, origins, origin_weights, min_distance, max_distance):
 		self.num_points = num_points
+		self.origins = origins
+		self.origin_weights = origin_weights
 		self.min_distance = min_distance
 		self.max_distance = max_distance
-		self.noise_multiplier = noise_multiplier
-		self.noise_bias = noise_bias
 
 	def GetPermutation(self, permutation_data = None):
-		start_position = permutation_data["position"]
 
-		random_distance = np.random.uniform(self.min_distance, self.max_distance)
-		step_distances = np.linspace(0, random_distance, num = self.num_points)
+		dice = random.random()
+		total_weight = 0
+		origin_index = 0
+		for i in range(len(self.origins)):
+			total_weight = self.origin_weights[i]
 
-		random_direction = np.random.rand(start_position.shape[0])
-		random_direction = random_direction / (np.linalg.norm(random_direction) + 0.00001)
+			if dice < total_weight:
+				origin_index = i
+				break
 
-		noise_multiplier = np.random.triangular(0, self.noise_bias, self.noise_multiplier)
-
+		start_position = self.origins[origin_index]
 		waypoints = []
 		for i in range(self.num_points):
-			distance = step_distances[i]
-			noise = np.random.rand(start_position.shape[0])
+			random_distance = np.random.uniform(self.min_distance, self.max_distance)
+			random_direction = np.random.uniform(-1, 1, start_position.shape[0])
 
-			waypoint = start_position + (random_direction * distance) + (noise * noise_multiplier)
-
+			waypoint = start_position + (random_distance * random_direction)
 			waypoints.append(waypoint)
+
+			start_position = waypoint
 
 		return waypoints

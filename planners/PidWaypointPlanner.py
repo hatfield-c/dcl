@@ -3,15 +3,24 @@ import math
 
 import physics.Transform as Transform
 import planners.PlannerInterface as PlannerInterface
+import entities.SimpleEntity as SimpleEntity
 
 class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
-	def __init__(self, waypoints, waypoint_threshold = 0.5, turn_strength = 1):
+	def __init__(self, waypoints, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
 		self.waypoints = waypoints
 		self.waypoint_threshold = waypoint_threshold
 		self.turn_strength = turn_strength
 
 		self.current_action = "move"
+
+		self.debug = debug
+		self.waypoint_marker = None
+		if debug:
+			self.waypoint_marker = SimpleEntity.SimpleEntity(
+				urdf_name = "entity_files/markers/green_diamond.urdf",
+				position = [0, 0, -10],
+			)
 
 	def GetPlan(self, sensors, metadata):
 		telemetry = sensors["telemetry"]
@@ -20,6 +29,9 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
 		current_position = sensor_data["position"]
 		next_position = self.GetWaypoint(current_position)
+
+		if self.debug:
+			self.waypoint_marker.SetState({"position": next_position})
 
 		diff = next_position - current_position
 		distance = np.linalg.norm(diff)
@@ -85,3 +97,6 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 			self.waypoints.pop(0)
 
 		return current_position
+
+	def SetWaypoints(self, new_waypoints):
+		self.waypoints = new_waypoints

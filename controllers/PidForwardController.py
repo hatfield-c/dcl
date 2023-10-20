@@ -20,21 +20,21 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		self.move_depth = -np.sin(self.move_angle)
 
 		self.thrust_pid = Pid.Pid(
-			p_scale = 5,
-			i_scale = 0,
-			d_scale = 0.5,
+			p_scale = 10,
+			i_scale = 0.1,
+			d_scale = 5,
 			#debug = True
 		)
 		self.pitch_pid = Pid.Pid(
 			p_scale = 1,
-			i_scale = 0,
-			d_scale = 2,
+			i_scale = 0.1,
+			d_scale = 20,
 			#debug = True
 		)
 		self.roll_pid = Pid.Pid(
 			p_scale = 0.05,
-			i_scale = 0,
-			d_scale = 1,
+			i_scale = 0.01,
+			d_scale = 10,
 			#debug = True
 		)
 		self.yaw_pid = Pid.Pid(
@@ -44,6 +44,7 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 			#debug = True
 		)
 
+		self.thrust_multiplier = 1
 
 	def GetControlSignal(self, plan, metadata):
 		action = plan["action"]
@@ -87,8 +88,6 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		roll_rpm = self.roll_pid.ControlStep(roll_error)
 		yaw_rpm = self.yaw_pid.ControlStep(yaw_error)
 
-		thrust_rpm = max(0, thrust_rpm)
-
 		control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
 		control_data["thrust_signal"] = thrust_rpm
@@ -101,10 +100,20 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 	def MotorMixer(self, thrust, yaw, pitch, roll):
 		motor_vals = {}
 
+		if thrust < 0:
+			thrust = self.thrust_multiplier * thrust
+
 		fr = thrust + yaw + pitch + roll
 		fl = thrust - yaw + pitch - roll
 		br = thrust - yaw - pitch + roll
 		bl = thrust + yaw - pitch - roll
+
+		#print("thrust:", thrust)
+		#print(fr)
+		#print(fl)
+		#print(br)
+		#print(bl)
+		#print("==============")
 
 		motor_vals["fr_rotor_force"] = fr * self.force_scale
 		motor_vals["fl_rotor_force"] = fl * self.force_scale

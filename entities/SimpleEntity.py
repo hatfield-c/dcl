@@ -47,7 +47,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 	def UpdateEntity(self):
 		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
 		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id)
-		rotation = pb.getEulerFromQuaternion(quaternion)
+		rotation = np.array(pb.getEulerFromQuaternion(quaternion))
 
 		self.state_data["position"] = np.array(position)
 		self.state_data["quaternion"] = np.array(quaternion)
@@ -112,7 +112,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 
 			self.state_data["position"] = position
 			self.state_data["quaternion"] = quaternion
-			self.state_data["rotation"] = pb.getEulerFromQuaternion(quaternion)
+			self.state_data["rotation"] = np.array(pb.getEulerFromQuaternion(quaternion))
 
 			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
 
