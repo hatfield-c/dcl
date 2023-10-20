@@ -22,7 +22,16 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			planner = None,
 			controller = None
 		):
-		super(DropDrone, self).__init__(urdf_name, position, rotation, quaternion, velocity, angular_velocity, permuters)
+
+		super(DropDrone, self).__init__(
+			urdf_name = urdf_name,
+			position = position,
+			rotation = rotation,
+			quaternion = quaternion,
+			velocity = velocity,
+			angular_velocity = angular_velocity,
+			permuters = permuters
+		)
 
 		self.rotors = RotorActuator.RotorActuator()
 		self.arm = ArmActuator.ArmActuator(np.array([0, 0, -0.2]))
@@ -74,6 +83,19 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		rotor_command = self.rotors.GetLastCommand()
 
 		return np.concatenate((arm_command, rotor_command))
+
+	def SetState(self, state_data):
+		super().SetState(state_data)
+
+		if "waypoints" in state_data:
+			pass
+
+	def GetPermutationData(self):
+		permutation_data = {
+			"position": self.GetPosition()
+		}
+
+		return permutation_data
 
 	def GetSensors(self):
 		return self.sensors

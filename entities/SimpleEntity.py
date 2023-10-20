@@ -76,6 +76,9 @@ class SimpleEntity(EntityInterface.EntityInterface):
 	def GetVelocity(self):
 		 return self.state_data["velocity"].copy()
 
+	def GetPermutationData(self):
+		return {}
+
 	def GetStatePermutation(self):
 		permutation = {}
 
@@ -84,8 +87,9 @@ class SimpleEntity(EntityInterface.EntityInterface):
 
 		for label in self.permuters:
 			permuter = self.permuters[label]
+			permutation_data = self.GetPermutationData()
 
-			permutation[label] = permuter.GetPermutation()
+			permutation[label] = permuter.GetPermutation(permutation_data)
 
 		return permutation
 

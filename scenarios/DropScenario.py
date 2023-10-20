@@ -6,6 +6,7 @@ import numpy as np
 import scenarios.ScenarioInterface as ScenarioInterface
 import scenarios.permuters.BoxPermuter as BoxPermuter
 import scenarios.permuters.ListPermuter as ListPermuter
+import scenarios.permuters.WaypointPermuter as WaypointPermuter
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.DropDrone as DropDrone
@@ -49,7 +50,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def ResetScenario(self):
 		for pb_id in self.unified_entities:
 			entity = self.unified_entities[pb_id]
-
 			permutation_data = entity.GetStatePermutation()
 
 			entity.SetState(permutation_data)
@@ -67,13 +67,24 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
+		permuters = {
+			# "position_place_holder": "drone position permuter must be placed before waypoint permuter",
+			"waypoint": WaypointPermuter.WaypointPermuter(
+				num_points = 10,
+				min_distance = 3,
+				max_distance = 10,
+				noise_multiplier = 2,
+				noise_bias = 0.6
+			)
+		}
+
 		drone = DropDrone.DropDrone(
 			urdf_name = drone_urdf,
 			position = start_pos,
 			rotation = start_rotation,
 			planner = planner,
 			controller = controller,
-			permuters = None
+			permuters = permuters
 		)
 
 		self.camera.SetTarget(drone)
