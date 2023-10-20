@@ -17,7 +17,9 @@ import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
 
 import events.EventQueue as EventQueue
+import events.ChannelLogger as ChannelLogger
 import observers.DropScenarioObserver as DropScenarioObserver
+import observers.CollisionResetObserver as CollisionResetObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
@@ -40,10 +42,16 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.unified_entities = {}
 		self.observers = {}
 
+		self.collision_reset_logger = ChannelLogger.ChannelLogger("", "collision_reset_logger")
+
 		self.event_queue = EventQueue.EventQueue()
+		self.event_queue.RegisterConsumer(self.collision_reset_logger)
 
 		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None)
 		#self.observers["scenario_observer"] = self.scenario_observer
+
+		self.collision_reset_observer = CollisionResetObserver.CollisionResetObserver(self.event_queue, "collision_reset_logger", self)
+		self.observers["collision_reset_observer"] = self.collision_reset_observer
 
 		self.camera = RenderCamera.RenderCamera(yaw = 150)
 
@@ -54,6 +62,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			entity.SetState(permutation_data)
 
+		# print(self.tempDrone.GetVelocity())
+		# print(self.tempDrone.GetAngularVelocity())
 		self.time_step = 0
 
 	def InstantiateDrone(self, start_pos, start_rotation):
@@ -69,12 +79,26 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			# "position_place_holder": "drone position permuter must be placed before waypoint permuter",
-			"waypoint": WaypointPermuter.WaypointPermuter(
-				num_points = 10,
-				min_distance = 3,
-				max_distance = 10,
-				noise_multiplier = 2,
-				noise_bias = 0.6
+			# "waypoint": WaypointPermuter.WaypointPermuter(
+			# 	num_points = 10,
+			# 	min_distance = 3,
+			# 	max_distance = 10,
+			# 	noise_multiplier = 2,
+			# 	noise_bias = 0.6
+			# ),
+			"position": BoxPermuter.BoxPermuter(
+				low_values = np.array([-5, -1, 0.5]),
+				high_values = np.array([5, 1, 1.5])
+			),
+			"rotation": BoxPermuter.BoxPermuter(
+				low_values = np.array([0, 0, -np.pi / 2]),
+				high_values = np.array([np.pi * 2, np.pi * 2, np.pi / 2])
+			),
+			"velocity": ListPermuter.ListPermuter(
+				choices_list = [np.array([0, 0, 0])]
+			),
+			"angular_velocity": ListPermuter.ListPermuter(
+				choices_list = [np.array([0, 0, 0])]
 			)
 		}
 
@@ -96,6 +120,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		start_pos = [0, 6.5, 2.5]
 		start_rot = [0, 0, 0.785398 * 4]
 		drone = self.InstantiateDrone(start_pos, start_rot)
+
+		# self.tempDrone = drone
 
 		self.agents["simple_drone"] = drone
 
@@ -137,7 +163,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
 			target_width = 0.52,
 			target_height = 1.5,
-			position = [-0.2, -3 ,0],
+			position = [-0.2, 5 ,0],
 			is_static = True
 		)
 
@@ -208,3 +234,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			return False
 
 		return True
+
+	def GetCollisionData(self):
+		return pb.getContactPoints()
