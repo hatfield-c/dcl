@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import random
 
 import physics.Transform as Transform
 import planners.PlannerInterface as PlannerInterface
@@ -21,6 +22,8 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 				urdf_name = "entity_files/markers/green_diamond.urdf",
 				position = [0, 0, -10],
 			)
+
+		self.drop_probability = 1 / 500
 
 	def GetPlan(self, sensors, metadata):
 		telemetry = sensors["telemetry"]
@@ -46,13 +49,19 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
 		desired_direction = self.GetDesiredForwardDirection(waypoint_direction, velocity)
 
+		dice_roll = random.random()
+		drop_package = False
+		if dice_roll < self.drop_probability:
+			drop_package = True
+
 		plan = {
-			"action": self.current_action,
+			"move_action": self.current_action,
 			"current_quat": current_quat,
 			"current_altitude": current_position[2],
 			"desired_direction": desired_direction,
 			"desired_altitude": next_position[2],
-			"velocity": velocity
+			"velocity": velocity,
+			"drop_package": drop_package
 		}
 
 		return plan

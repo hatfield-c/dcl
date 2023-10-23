@@ -47,12 +47,14 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		self.thrust_multiplier = 1
 
 	def GetControlSignal(self, plan, metadata):
-		action = plan["action"]
+		control_signal = {}
 
-		if action == "move":
-			motor_vals = self.MoveAction(plan)
+		move_action = plan["move_action"]
 
-		return motor_vals
+		if move_action == "move":
+			control_signal = self.MoveAction(plan)
+
+		return control_signal
 
 
 	def MoveAction(self, plan):

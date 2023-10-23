@@ -47,7 +47,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.event_queue = EventQueue.EventQueue()
 		self.event_queue.RegisterConsumer(self.collision_reset_logger)
 
-		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None)
+		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None, True)
 		self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(pitch = -20)
@@ -59,8 +59,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			entity.SetState(permutation_data)
 
-		# print(self.tempDrone.GetVelocity())
-		# print(self.tempDrone.GetAngularVelocity())
 		self.time_step = 0
 
 	def InstantiateDrone(self, start_pos, start_rotation):
@@ -104,7 +102,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				],
 				min_distance = 0,
 				max_distance = 2,
-			)
+			),
+			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
 		}
 
 		drone = DropDrone.DropDrone(

@@ -5,7 +5,7 @@ import torch
 import observers.ObserverInterface as ObserverInterface
 
 class DropScenarioObserver(ObserverInterface.ObserverInterface):
-	def __init__(self, event_queue, channel_name):
+	def __init__(self, event_queue, channel_name, debug = False):
 		self.state_data = []
 		self.value_data = []
 		self.episode_states = []
@@ -20,6 +20,8 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.distance_reward_decay = 1
+
+		self.debug = debug
 
 	def RegisterEntities(self, scenario, drone, target, pole, floor, distance_threshold, episode_length, distance_reward_decay = 1):
 		self.scenario = scenario
@@ -102,22 +104,22 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 
 	def GetEpisodeValue(self, episode_data):
 
-		isCollision = False
-		isDropped = False
+		is_collision = False
+		is_dropped = False
 		shortest_distance = 1e20
 
 		for i in range(len(episode_data)):
 			data = episode_data[i]
 
-			isCollision = isCollision or data["collision"]
-			isDropped = isDropped or data["dropped"]
+			is_collision = is_collision or data["collision"]
+			is_dropped = is_dropped or data["dropped"]
 			distance = data["package_distance"]
 
 			if distance < shortest_distance:
 				shortest_distance = distance
 
 		collision_reward = 0
-		if isCollision:
+		if is_collision:
 			collision_reward = -1
 
 		pseudo_distance = shortest_distance - self.distance_threshold
@@ -128,16 +130,26 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 
 		reward = distance_reward + collision_reward
 
-		if not isDropped:
-			reward = np.minimum(0.5, reward)
+		if not is_dropped:
+			reward = np.minimum(-0.5, collision_reward)
+
+		if self.debug:
+			print("================")
+			print("  Episode Data")
+			print("================")
+			print("    Reward   :", reward)
+			print("    Collision:", is_collision)
+			print("    Dropped  :", is_dropped)
+			print("    Distance :", "{:.2f}".format(shortest_distance))
 
 		return reward
 
 	def IsDroneCollision(self):
-		target_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.GetBulletId())
+		pole_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.GetBulletId())
+		hoop_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.target.GetBulletId())
 		floor_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.floor.GetBulletId())
 
-		collisions = target_collisions + floor_collisions
+		collisions = pole_collisions + hoop_collisions + floor_collisions
 
 		if len(collisions) == 0:
 			return False

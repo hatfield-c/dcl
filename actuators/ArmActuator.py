@@ -25,6 +25,9 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 
 	def Actuate(self, control_data):
 
+		if self.last_command[0] == 1:
+			return
+
 		self.last_command = [ 1 ]
 
 		position = control_data["position"]
@@ -45,3 +48,6 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 
 	def GetLastCommand(self):
 		return self.last_command
+
+	def Reset(self):
+		self.last_command = [ 0 ]

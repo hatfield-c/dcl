@@ -49,16 +49,13 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			"urdf_name": self.urdf_name
 		}
 
-		self.drop_timer = time.time()
-
 	def TakeAction(self):
 		plan = self.planner.GetPlan(self.sensors, self.metadata)
-		rotor_control = self.controller.GetControlSignal(plan, self.metadata)
+		control_data = self.controller.GetControlSignal(plan, self.metadata)
 
-		rotor_control["pb_id"] = self.pb_id
+		control_data["pb_id"] = self.pb_id
 
-		if time.time() - self.drop_timer > 3:
-			self.drop_timer = time.time()
+		if plan["drop_package"]:
 
 			drop_data = {
 				"position": self.GetPosition(),
@@ -68,7 +65,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 			self.arm.Actuate(drop_data)
 
-		self.rotors.Actuate(rotor_control)
+		self.rotors.Actuate(control_data)
 
 	def IsPackageDropped(self):
 		last_command = self.arm.GetLastCommand()
@@ -86,6 +83,9 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 	def SetState(self, state_data):
 		super().SetState(state_data)
+
+		if "reset_package" in state_data:
+			self.arm.Reset()
 
 		if "waypoints" in state_data:
 			waypoints = state_data["waypoints"]
