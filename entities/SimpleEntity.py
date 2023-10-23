@@ -95,7 +95,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 
 	def SetState(self, state_data):
 
-		if "position" in state_data or "quaternion" in state_data or "angle" in state_data:
+		if "position" in state_data or "quaternion" in state_data or "rotation" in state_data:
 			position = self.GetPosition()
 			quaternion = self.GetQuaternion()
 

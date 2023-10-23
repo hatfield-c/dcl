@@ -20,6 +20,7 @@ def Main():
 	scenario.InstantiateEntities()
 
 	start_time = time.time()
+	step = 0
 
 	while True:
 		scenario.Render()
@@ -29,6 +30,8 @@ def Main():
 		scenario.ProcessEvents()
 
 		pb.stepSimulation()
+
+		step += 1
 
 		isSimulating = scenario.UpdateTime()
 

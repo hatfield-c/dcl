@@ -17,7 +17,9 @@ import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
 
 import events.EventQueue as EventQueue
+import events.ChannelLogger as ChannelLogger
 import observers.DropScenarioObserver as DropScenarioObserver
+import observers.CollisionResetObserver as CollisionResetObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(self, pb_client):
@@ -26,7 +28,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.event_distance_range = 7
 
 		self.episode_count = 10
-		self.episode_length = 1000
+		self.episode_length = 500
 
 		self.state_data_path = "data/state_data.pt"
 		self.max_data_path = "data/max_data.pt"
@@ -40,7 +42,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.unified_entities = {}
 		self.observers = {}
 
+		self.collision_reset_logger = ChannelLogger.ChannelLogger("", "collision_reset_logger")
+
 		self.event_queue = EventQueue.EventQueue()
+		self.event_queue.RegisterConsumer(self.collision_reset_logger)
 
 		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None)
 		self.observers["scenario_observer"] = self.scenario_observer
@@ -54,6 +59,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			entity.SetState(permutation_data)
 
+		# print(self.tempDrone.GetVelocity())
+		# print(self.tempDrone.GetAngularVelocity())
 		self.time_step = 0
 
 	def InstantiateDrone(self, start_pos, start_rotation):
@@ -65,10 +72,20 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		permuters = {
-			"position": ListPermuter.ListPermuter([ start_pos ]),
-			"rotation": ListPermuter.ListPermuter([ start_rotation ]),
-			"velocity": ListPermuter.ListPermuter([ np.zeros(3) ]),
-			"angular_velocity": ListPermuter.ListPermuter([ np.zeros(3) ]),
+			"position": BoxPermuter.BoxPermuter(
+				low_values = np.array([-5, -1, 0.2]),
+				high_values = np.array([5, 1, 1.5])
+			),
+			"rotation": BoxPermuter.BoxPermuter(
+				low_values = np.array([-math.pi / 8, -math.pi / 8, 0]),
+				high_values = np.array([math.pi / 8, math.pi / 8, 2 * math.pi])
+			),
+			"velocity": ListPermuter.ListPermuter(
+				choices_list = [np.array([0, 0, 0])]
+			),
+			"angular_velocity": ListPermuter.ListPermuter(
+				choices_list = [np.array([0, 0, 0])]
+			),
 			"waypoints": WaypointPermuter.WaypointPermuter(
 				num_points = 3,
 				origins = [
@@ -80,13 +97,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				],
 				origin_weights = [
 					0.1,
-					0.1,
 					0.6,
+					0.1,
 					0.1,
 					0.1
 				],
 				min_distance = 0,
-				max_distance = 5,
+				max_distance = 2,
 			)
 		}
 
@@ -105,50 +122,23 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 	def InstantiateEntities(self):
 
-		start_pos = [0, 6.5, 2.5]
+		start_pos = [0, -5, 2.5]
 		start_rot = [0, 0, 0.785398 * 2]
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
+		# self.tempDrone = drone
+
 		self.agents["simple_drone"] = drone
-
-		box_permuter = {
-			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -2, 4]),
-				high_values = np.array([-5, -2, 1])
-			)
-		}
-
-		list_permuter = {
-			"position": ListPermuter.ListPermuter(
-				choices_list = [ np.array([-9, -1, 5]), np.array([8, -1, 5]), np.array([-7, 1, 5]) ]
-			)
-		}
-
-		cube1 = SimpleEntity.SimpleEntity(
-			urdf_name = "entity_files/debug_cube.urdf",
-			position = [-2, 2, 3],
-			rotation = [0.79, 0.79, 0],
-			permuters = box_permuter
-		)
-
-		cube2 = SimpleEntity.SimpleEntity(
-			urdf_name = "entity_files/debug_cube.urdf",
-			position = [2, 2, 3],
-			rotation = [0.79, 0.79, 0],
-			permuters = list_permuter
-		)
 
 		pole = TargetPole.TargetPole(
 			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
 			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
 			target_width = 0.52,
 			target_height = 1.5,
-			position = [-0.2, -3 ,0],
+			position = [-0.2, 5 ,0],
 			is_static = True
 		)
 
-		self.dynamic_objects[cube1.GetBulletId()] = cube1
-		self.dynamic_objects[cube2.GetBulletId()] = cube2
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
 		self.static_objects["pole"] = pole
@@ -213,3 +203,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			return False
 
 		return True
+
+	def GetCollisionData(self):
+		return pb.getContactPoints()
