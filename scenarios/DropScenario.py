@@ -85,7 +85,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				choices_list = [np.array([0, 0, 0])]
 			),
 			"waypoints": WaypointPermuter.WaypointPermuter(
-				num_points = 3,
+				num_points = 1,
 				origins = [
 					np.array([0, 0, 2.5]),
 					np.array([0, 6, 2.5]),
@@ -102,6 +102,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				],
 				min_distance = 0,
 				max_distance = 2,
+				default_origin = 1
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
 		}

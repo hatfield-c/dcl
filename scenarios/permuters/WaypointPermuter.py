@@ -4,12 +4,13 @@ import random
 import scenarios.permuters.PermuterInterface as PermuterInterface
 
 class WaypointPermuter(PermuterInterface.PermuterInterface):
-	def __init__(self, num_points, origins, origin_weights, min_distance, max_distance):
+	def __init__(self, num_points, origins, origin_weights, min_distance, max_distance, default_origin):
 		self.num_points = num_points
 		self.origins = origins
 		self.origin_weights = origin_weights
 		self.min_distance = min_distance
-		self.max_distance = max_distance
+		self.max_distance = max_distance,
+		self.default_origin = default_origin
 
 	def GetPermutation(self, permutation_data = None):
 
@@ -33,5 +34,8 @@ class WaypointPermuter(PermuterInterface.PermuterInterface):
 			waypoints.append(waypoint)
 
 			start_position = waypoint
+
+		default_origin = self.origins[self.default_origin]
+		waypoints.append(default_origin)
 
 		return waypoints
