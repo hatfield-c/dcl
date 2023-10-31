@@ -13,7 +13,12 @@ class ScenarioSimulator:
 		pass
 
 	def Run(self):
-		pb_client = pb.connect(pb.GUI)
+
+		pb_client = None
+		if CONFIG.render_count > 0:
+			pb_client = pb.connect(pb.GUI)
+		else:
+			pb_client = pb.connect(pb.DIRECT)
 
 		#scenario = SimpleScenario.SimpleScenario(pb_client)
 		#scenario = WackADroneScenario.WackADroneScenario(pb_client)
@@ -27,6 +32,7 @@ class ScenarioSimulator:
 		step = 0
 
 		while True:
+
 			scenario.Render()
 			scenario.UpdateEntities()
 			scenario.UpdateAgents()

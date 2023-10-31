@@ -1,4 +1,0 @@
-[Simulation Step: 0]
-[Simulation Step: 100]
-[Simulation Step: 200]
-[Simulation Step: 300]

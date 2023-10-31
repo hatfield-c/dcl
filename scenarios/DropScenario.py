@@ -1,4 +1,5 @@
 
+import time
 import math
 import pybullet as pb
 import numpy as np
@@ -27,8 +28,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.time_step = 0
 		self.event_distance_range = 7
 
-		self.episode_count = 10
+		self.episode_count = 2#10
 		self.episode_length = 500
+		self.avg_episode_time = 0
+		self.episode_time_start = time.time()
 
 		self.state_data_path = "data/state_data.pt"
 		self.max_data_path = "data/max_data.pt"
@@ -57,6 +60,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			entity.SetState(permutation_data)
 
 		self.time_step = 0
+
+		episode_time_end = time.time() - self.episode_time_start
+		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
+
+		print("Reset! Time:", episode_time_end)
+
+		self.episode_time_start = time.time()
 
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"

@@ -1,2 +1,4 @@
 
-timestep = 0.006
+timestep = 0.001
+
+render_count = 1
