@@ -42,10 +42,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.unified_entities = {}
 		self.observers = {}
 
-		self.collision_reset_logger = ChannelLogger.ChannelLogger("", "collision_reset_logger")
-
 		self.event_queue = EventQueue.EventQueue()
-		self.event_queue.RegisterConsumer(self.collision_reset_logger)
 
 		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None, True)
 		self.observers["scenario_observer"] = self.scenario_observer

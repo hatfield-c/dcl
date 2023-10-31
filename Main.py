@@ -1,52 +1,25 @@
-import pybullet as pb
-import time
-
-import CONFIG
-import scenarios.SimpleScenario as SimpleScenario
-import scenarios.WackADroneScenario as WackADroneScenario
-import scenarios.DropScenario as DropScenario
-import scenarios.UrbanNavigationScenario as UrbanNavigationScenario
-import scenarios.TeleopScenario as TeleopScenario
 
 def Main():
-	pb_client = pb.connect(pb.GUI)
+	actions = [ "help", "simulate", "train_diffusion", "train_value" ]
 
-	#scenario = SimpleScenario.SimpleScenario(pb_client)
-	#scenario = WackADroneScenario.WackADroneScenario(pb_client)
-	#scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
-	#scenario = TeleopScenario.TeleopScenario(pb_client)
-	scenario = DropScenario.DropScenario(pb_client)
+	action = actions[1]
+	#action = actions[2]
 
-	scenario.InstantiateEntities()
+	if action not in actions:
+		action = actions[0]
 
-	start_time = time.time()
-	step = 0
+	if action == "simulate":
+		import scenarios.ScenarioSimulator as ScenarioSimulator
 
-	while True:
-		scenario.Render()
-		scenario.UpdateEntities()
-		scenario.UpdateAgents()
-		scenario.UpdateObservers()
-		scenario.ProcessEvents()
+		simulator = ScenarioSimulator.ScenarioSimulator()
+		simulator.Run()
 
-		pb.stepSimulation()
+	if action == "train_diffusion":
+		import training.Academy as Academy
 
-		step += 1
+		Academy.TrainDiffusion()
 
-		isSimulating = scenario.UpdateTime()
-
-		if not isSimulating:
-			break
-
-		time.sleep(CONFIG.timestep)
-
-	pb.disconnect()
-
-	end_time = time.time() - start_time
-
-	print("==========================")
-	print("\nScenario complete!")
-	print("    Run time:", "{:.2f}".format(end_time), "sec")
-	print("==========================")
+	if action == "help":
+		print("[write help message]")
 
 Main()
