@@ -6,9 +6,6 @@ import math
 #	DATA PARAMETERS
 ############################
 
-episode_count = None
-step_count = None
-
 seed_path = "data/state_data.pt"
 seed_maxes_path = "data/max_data.pt"
 value_path = "data/value_data.pt"

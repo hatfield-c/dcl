@@ -19,7 +19,7 @@ def TrainDiffusion():
 	action_size = 5
 	n_timesteps = 20
 
-	epochs = 10000
+	epochs = 100
 
 	seed_path = CONFIG.seed_path
 	#seed_maxes_path = CONFIG.seed_maxes_path
@@ -59,7 +59,6 @@ def TrainDiffusion():
 	)
 
 	trainer.train(epochs)
-	exit()
 	trainer.save(epochs)
 
 def TrainValue():
