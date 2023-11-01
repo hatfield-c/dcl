@@ -8,11 +8,13 @@ import sensors.SensorInterface as SensorInterface
 class LidarSensor(SensorInterface.SensorInterface):
 	def __init__(
 			self,
+			client_id,
 			entity,
 			offset = [0.1,0,0],
 			debug = False,
 			debug_time_buffer = 0.003
 		):
+		self.client_id = client_id
 		self.entity = entity
 		self.offset = offset
 		self.offset_distance = np.linalg.norm(self.offset)
@@ -37,7 +39,7 @@ class LidarSensor(SensorInterface.SensorInterface):
 		beam_origin = position + beam_offset
 		beam_endpoint = beam_origin + beam_direction * 10
 
-		results = pb.rayTest(beam_origin, beam_endpoint)
+		results = pb.rayTest(beam_origin, beam_endpoint, self.client_id)
 		results = results[0]
 		target_id = results[0]
 

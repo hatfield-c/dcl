@@ -23,8 +23,8 @@ import observers.DropScenarioObserver as DropScenarioObserver
 import observers.CollisionResetObserver as CollisionResetObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
-	def __init__(self, pb_client):
-		self.pb_client = pb_client
+	def __init__(self, client_id):
+		self.client_id = client_id
 		self.time_step = 0
 		self.event_distance_range = 7
 
@@ -47,10 +47,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.event_queue = EventQueue.EventQueue()
 
-		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(None, None, True)
+		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, None, None, True)
 		self.observers["scenario_observer"] = self.scenario_observer
 
-		self.camera = RenderCamera.RenderCamera(pitch = -20)
+		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
 
 	def ResetScenario(self):
 		for pb_id in self.unified_entities:
@@ -73,7 +73,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		waypoints = [np.array([0, -1, 6.5])]
 
-		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 2, debug = True)
+		planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 2, debug = True)
 		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		permuters = {
@@ -116,6 +116,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		drone = DropDrone.DropDrone(
 			urdf_name = drone_urdf,
+			client_id = self.client_id,
 			position = start_pos,
 			rotation = start_rotation,
 			planner = planner,
@@ -138,6 +139,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.agents["simple_drone"] = drone
 
 		pole = TargetPole.TargetPole(
+			client_id = self.client_id,
 			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
 			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
 			target_width = 0.52,
@@ -147,7 +149,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		)
 
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
-		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", client_id = self.client_id, is_static = True)
 		self.static_objects["pole"] = pole
 
 		self.scenario_observer.RegisterEntities(
@@ -210,6 +212,3 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			return False
 
 		return True
-
-	def GetCollisionData(self):
-		return pb.getContactPoints()

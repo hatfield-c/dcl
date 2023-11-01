@@ -13,6 +13,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 	def __init__(
 			self,
 			urdf_name,
+			client_id,
 			position = [0, 0 ,0],
 			rotation = [0, 0, 0],
 			quaternion = None,
@@ -25,6 +26,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 		super(DropDrone, self).__init__(
 			urdf_name = urdf_name,
+			client_id = client_id,
 			position = position,
 			rotation = rotation,
 			quaternion = quaternion,
@@ -33,8 +35,8 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			permuters = permuters
 		)
 
-		self.rotors = RotorActuator.RotorActuator()
-		self.arm = ArmActuator.ArmActuator(np.array([0, 0, -0.2]))
+		self.rotors = RotorActuator.RotorActuator(self.client_id)
+		self.arm = ArmActuator.ArmActuator(self.client_id, np.array([0, 0, -0.2]))
 		self.planner = planner
 		self.controller = controller
 

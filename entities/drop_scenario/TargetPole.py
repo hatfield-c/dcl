@@ -8,6 +8,7 @@ import entities.SimpleEntity as SimpleEntity
 class TargetPole(SimpleEntity.SimpleEntity):
 	def __init__(
 			self,
+			client_id,
 			pole_urdf,
 			target_urdf,
 			target_width,
@@ -23,7 +24,7 @@ class TargetPole(SimpleEntity.SimpleEntity):
 		self.pole_urdf = pole_urdf
 		self.target_urdf = target_urdf
 
-		super(TargetPole, self).__init__(self.pole_urdf, position, rotation, quaternion, velocity, angular_velocity, is_static, permuters)
+		super(TargetPole, self).__init__(self.pole_urdf, client_id, position, rotation, quaternion, velocity, angular_velocity, is_static, permuters)
 
 		self.target_height = target_height
 		self.target_width = target_width
@@ -35,6 +36,7 @@ class TargetPole(SimpleEntity.SimpleEntity):
 
 		self.target = SimpleEntity.SimpleEntity(
 			target_urdf,
+			self.client_id,
 			target_position,
 			self.GetRotation(),
 			is_static = True

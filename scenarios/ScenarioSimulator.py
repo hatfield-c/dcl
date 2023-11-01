@@ -14,17 +14,17 @@ class ScenarioSimulator:
 
 	def Run(self):
 
-		pb_client = None
+		client_id = None
 		if CONFIG.render_count > 0:
-			pb_client = pb.connect(pb.GUI)
+			client_id = pb.connect(pb.GUI)
 		else:
-			pb_client = pb.connect(pb.DIRECT)
+			client_id = pb.connect(pb.DIRECT)
 
-		#scenario = SimpleScenario.SimpleScenario(pb_client)
-		#scenario = WackADroneScenario.WackADroneScenario(pb_client)
-		#scenario = UrbanNavigationScenario.UrbanNavigationScenario(pb_client)
-		#scenario = TeleopScenario.TeleopScenario(pb_client)
-		scenario = DropScenario.DropScenario(pb_client)
+		#scenario = SimpleScenario.SimpleScenario(client_id)
+		#scenario = WackADroneScenario.WackADroneScenario(client_id)
+		#scenario = UrbanNavigationScenario.UrbanNavigationScenario(client_id)
+		#scenario = TeleopScenario.TeleopScenario(client_id)
+		scenario = DropScenario.DropScenario(client_id)
 
 		scenario.InstantiateEntities()
 
@@ -39,7 +39,7 @@ class ScenarioSimulator:
 			scenario.UpdateObservers()
 			scenario.ProcessEvents()
 
-			pb.stepSimulation()
+			pb.stepSimulation(client_id)
 
 			step += 1
 
@@ -48,9 +48,10 @@ class ScenarioSimulator:
 			if not isSimulating:
 				break
 
+
 			time.sleep(CONFIG.timestep)
 
-		pb.disconnect()
+		pb.disconnect(client_id)
 
 		end_time = time.time() - start_time
 

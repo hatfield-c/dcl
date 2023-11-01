@@ -5,11 +5,13 @@ import math
 class RenderCamera:
 	def __init__(
 		self,
+		client_id,
 		target_entity = None,
 		distance = 3,
 		yaw = None,
 		pitch = None
 	):
+		self.client_id = client_id
 		self.target_entity = target_entity
 		self.distance = distance
 		self.yaw = yaw
@@ -43,5 +45,6 @@ class RenderCamera:
 			cameraDistance = self.distance,
 			cameraYaw = yaw,
 			cameraPitch = pitch,
-			cameraTargetPosition = position
+			cameraTargetPosition = position,
+			physicsClientId = self.client_id
 		)

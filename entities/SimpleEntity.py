@@ -7,6 +7,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 	def __init__(
 		self,
 		urdf_name,
+		client_id,
 		position = [0, 0 ,0],
 		rotation = [0, 0, 0],
 		quaternion = None,
@@ -16,6 +17,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		permuters = None
 	):
 		self.urdf_name = urdf_name
+		self.client_id = client_id
 		self.permuters = permuters
 
 		if quaternion is None:
@@ -26,7 +28,13 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		else:
 			is_static = 0
 
-		self.pb_id = pb.loadURDF(self.urdf_name, position, quaternion, useFixedBase = is_static)
+		self.pb_id = pb.loadURDF(
+			self.urdf_name,
+			position,
+			quaternion,
+			useFixedBase = is_static,
+			physicsClientId = self.client_id
+		)
 
 		self.state_data = {
 			"position": position,
@@ -45,8 +53,8 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		self.UpdateEntity()
 
 	def UpdateEntity(self):
-		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id)
-		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id)
+		position, quaternion = pb.getBasePositionAndOrientation(self.pb_id, self.client_id)
+		velocity, angular_velocity = pb.getBaseVelocity(self.pb_id, self.client_id)
 		rotation = np.array(pb.getEulerFromQuaternion(quaternion))
 
 		self.state_data["position"] = np.array(position)
@@ -114,7 +122,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			self.state_data["quaternion"] = quaternion
 			self.state_data["rotation"] = np.array(pb.getEulerFromQuaternion(quaternion))
 
-			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion)
+			pb.resetBasePositionAndOrientation(self.pb_id, position, quaternion, self.client_id)
 
 		if "velocity" in state_data or "angular_velocity" in state_data:
 			velocity = self.GetVelocity()
@@ -129,4 +137,4 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			self.state_data["velocity"] = velocity
 			self.state_data["angular_velocity"] = angular_velocity
 
-			pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity)
+			pb.resetBaseVelocity(self.pb_id, velocity, angular_velocity, self.client_id)

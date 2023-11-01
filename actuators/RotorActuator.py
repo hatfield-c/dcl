@@ -4,9 +4,10 @@ import pybullet as pb
 import actuators.ActuatorInterface as ActuatorInterface
 
 class RotorActuator(ActuatorInterface.ActuatorInterface):
-	def __init__(self, rotor_max = 0.25):
+	def __init__(self, client_id, rotor_max = 0.25):
 		self.last_command = None
 		self.rotor_max = rotor_max
+		self.client_id = client_id
 
 	def Actuate(self, control_data):
 
@@ -33,35 +34,40 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 			0,
 			forceObj = [0, 0, fr_rotor],
 			posObj = [0, 0, 0],
-			flags = pb.LINK_FRAME
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
 		)
 		pb.applyExternalForce(
 			control_data["pb_id"],
 			1,
 			forceObj = [0, 0, fl_rotor],
 			posObj = [0, 0, 0],
-			flags = pb.LINK_FRAME
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
 		)
 		pb.applyExternalForce(
 			control_data["pb_id"],
 			2,
 			forceObj = [0, 0, br_rotor],
 			posObj = [0, 0, 0],
-			flags = pb.LINK_FRAME
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
 		)
 		pb.applyExternalForce(
 			control_data["pb_id"],
 			3,
 			forceObj = [0, 0, bl_rotor],
 			posObj = [0, 0, 0],
-			flags = pb.LINK_FRAME
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
 		)
 
 		pb.applyExternalTorque(
 			control_data["pb_id"],
 			-1,
 			torqueObj = [0, 0, torque],
-			flags = pb.LINK_FRAME
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
 		)
 
 	def GetLastCommand(self):

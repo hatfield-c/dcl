@@ -8,7 +8,8 @@ import entities.SimpleEntity as SimpleEntity
 
 class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
-	def __init__(self, waypoints, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
+	def __init__(self, client_id, waypoints, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
+		self.client_id = client_id
 		self.waypoints = waypoints
 		self.waypoint_threshold = waypoint_threshold
 		self.turn_strength = turn_strength
@@ -20,6 +21,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 		if debug:
 			self.waypoint_marker = SimpleEntity.SimpleEntity(
 				urdf_name = "entity_files/markers/green_diamond.urdf",
+				client_id = self.client_id,
 				position = [0, 0, -10],
 			)
 

@@ -7,9 +7,11 @@ import actuators.ActuatorInterface as ActuatorInterface
 class ArmActuator(ActuatorInterface.ActuatorInterface):
 	def __init__(
 		self,
+		client_id,
 		offset = [0, 0, -1],
 		package_urdf = "entity_files/sphere_red.urdf"
 	):
+		self.client_id = client_id
 		self.offset = offset
 		self.offset_distance = np.linalg.norm(self.offset)
 
@@ -19,7 +21,7 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 
 		self.offset_direction = self.offset / magnitude
 
-		self.package = SimpleEntity.SimpleEntity(package_urdf)
+		self.package = SimpleEntity.SimpleEntity(package_urdf, client_id)
 
 		self.last_command = [ 0 ]
 

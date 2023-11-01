@@ -5,7 +5,9 @@ import torch
 import observers.ObserverInterface as ObserverInterface
 
 class DropScenarioObserver(ObserverInterface.ObserverInterface):
-	def __init__(self, event_queue, channel_name, debug = False):
+	def __init__(self, client_id, event_queue, channel_name, debug = False):
+		self.client_id = client_id
+
 		self.state_data = []
 		self.value_data = []
 		self.episode_states = []
@@ -145,9 +147,9 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		return reward
 
 	def IsDroneCollision(self):
-		pole_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.GetBulletId())
-		hoop_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.target.GetBulletId())
-		floor_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.floor.GetBulletId())
+		pole_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.GetBulletId(), physicsClientId = self.client_id)
+		hoop_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.pole.target.GetBulletId(), physicsClientId = self.client_id)
+		floor_collisions = pb.getContactPoints(self.drone.GetBulletId(), self.floor.GetBulletId(), physicsClientId = self.client_id)
 
 		collisions = pole_collisions + hoop_collisions + floor_collisions
 
