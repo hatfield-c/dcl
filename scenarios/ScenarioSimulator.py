@@ -14,48 +14,75 @@ class ScenarioSimulator:
 
 	def Run(self):
 
-		client_id = None
-		if CONFIG.render_count > 0:
-			client_id = pb.connect(pb.GUI)
-		else:
-			client_id = pb.connect(pb.DIRECT)
+		client_ids = []
+		scenarios = []
 
-		#scenario = SimpleScenario.SimpleScenario(client_id)
-		#scenario = WackADroneScenario.WackADroneScenario(client_id)
-		#scenario = UrbanNavigationScenario.UrbanNavigationScenario(client_id)
-		#scenario = TeleopScenario.TeleopScenario(client_id)
-		scenario = DropScenario.DropScenario(client_id)
+		for i in range(CONFIG.client_count):
+			client_id = None
 
-		scenario.InstantiateEntities()
+			if CONFIG.render_debug and i < 1:
+				client_id = pb.connect(pb.GUI)
+			else:
+				client_id = pb.connect(pb.DIRECT)
+
+			#scenario = SimpleScenario.SimpleScenario(client_id)
+			#scenario = WackADroneScenario.WackADroneScenario(client_id)
+			#scenario = UrbanNavigationScenario.UrbanNavigationScenario(client_id)
+			#scenario = TeleopScenario.TeleopScenario(client_id)
+			scenario = DropScenario.DropScenario(
+				client_id = client_id,
+				gravity_strength = CONFIG.gravity_strength,
+				episode_count = CONFIG.episode_count,
+				episode_length = CONFIG.episode_length,
+				state_data_path = CONFIG.state_data_path,
+				max_data_path = CONFIG.max_data_path,
+				value_data_path = CONFIG.value_data_path
+			)
+
+			scenario.InstantiateEntities()
+			scenario.ResetScenario()
+
+			client_ids.append(client_id)
+			scenarios.append(scenario)
 
 		start_time = time.time()
 		step = 0
 
 		while True:
 
-			scenario.Render()
-			scenario.UpdateEntities()
-			scenario.UpdateAgents()
-			scenario.UpdateObservers()
-			scenario.ProcessEvents()
+			is_simulating = True
 
-			pb.stepSimulation(client_id)
+			for i in range(CONFIG.client_count):
+				client_id = client_ids[i]
+				scenario = scenarios[i]
+
+				scenario.Render()
+				scenario.UpdateEntities()
+				scenario.UpdateAgents()
+				scenario.UpdateObservers()
+				scenario.ProcessEvents()
+
+				pb.stepSimulation(client_id)
+
+				scenario_result = scenario.UpdateTime()
+
+				is_simulating = is_simulating and scenario_result
 
 			step += 1
 
-			isSimulating = scenario.UpdateTime()
-
-			if not isSimulating:
+			if not is_simulating:
 				break
-
 
 			time.sleep(CONFIG.timestep)
 
-		pb.disconnect(client_id)
+		for i in range(CONFIG.client_count):
+			client_id = client_ids[i]
+
+			pb.disconnect(client_id)
 
 		end_time = time.time() - start_time
 
-		print("==========================")
-		print("\nScenario complete!")
+		print("\n\n==========================")
+		print("Scenario complete!")
 		print("    Run time:", "{:.2f}".format(end_time), "sec")
 		print("==========================")

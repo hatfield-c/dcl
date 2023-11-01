@@ -23,21 +23,29 @@ import observers.DropScenarioObserver as DropScenarioObserver
 import observers.CollisionResetObserver as CollisionResetObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
-	def __init__(self, client_id):
+	def __init__(
+			self,
+			client_id,
+			gravity_strength,
+			episode_count,
+			episode_length,
+			state_data_path,
+			max_data_path,
+			value_data_path
+		):
 		self.client_id = client_id
 		self.time_step = 0
-		self.event_distance_range = 7
 
-		self.episode_count = 2#10
-		self.episode_length = 500
+		self.episode_count = episode_count
+		self.episode_length = episode_length
 		self.avg_episode_time = 0
 		self.episode_time_start = time.time()
 
-		self.state_data_path = "data/state_data.pt"
-		self.max_data_path = "data/max_data.pt"
-		self.value_data_path = "data/value_data.pt"
+		self.state_data_path = state_data_path
+		self.max_data_path = max_data_path
+		self.value_data_path = value_data_path
 
-		pb.setGravity(0,0,-9.8)
+		pb.setGravity(0, 0, -gravity_strength)
 
 		self.agents = {}
 		self.dynamic_objects = {}
@@ -64,7 +72,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		episode_time_end = time.time() - self.episode_time_start
 		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
 
-		print("Reset! Time:", episode_time_end)
+		if self.client_id == 0:
+			print("Reset! Time:", episode_time_end)
 
 		self.episode_time_start = time.time()
 

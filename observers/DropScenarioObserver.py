@@ -19,6 +19,7 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.pole = None
 		self.floor = None
 
+		self.episode_count = 0
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.distance_reward_decay = 1
@@ -37,15 +38,22 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_length = episode_length
 		self.distance_reward_decay = distance_reward_decay
 
-	def SaveData(self, state_path, value_path, max_path, flush_memory = False):
+	def SaveData(self, state_path, value_path, max_path, flush_memory = False, file_type = ".pt"):
 		state_data = torch.stack(self.state_data)
 		value_data = torch.stack(self.value_data)
+
+		if self.client_id == 0:
+			print("\nClient ", self.client_id, "- Saving at " + state_path)
 
 		max_data = torch.absolute(state_data)
 		max_data = torch.max(max_data, dim = 1)
 		max_data = max_data.values
 		max_data = torch.max(max_data, dim = 0)
 		max_data = max_data.values
+
+		state_path = state_path + "-" + str(self.client_id) + file_type
+		value_path = value_path + "-" + str(self.client_id) + file_type
+		max_path = max_path + "-" + str(self.client_id) + file_type
 
 		torch.save(state_data, state_path)
 		torch.save(value_data, value_path)
@@ -69,6 +77,7 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_data = []
 
 		self.scenario.ResetScenario()
+		self.episode_count += 1
 
 	def Observe(self, timestep):
 
@@ -135,10 +144,10 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		if not is_dropped:
 			reward = np.minimum(-0.5, collision_reward)
 
-		if self.debug:
-			print("================")
-			print("  Episode Data")
-			print("================")
+		if self.debug and self.client_id == 0:
+			print("============================")
+			print("  Episode", self.episode_count ,"- Client " + str(self.client_id))
+			print("============================")
 			print("    Reward   :", reward)
 			print("    Collision:", is_collision)
 			print("    Dropped  :", is_dropped)
