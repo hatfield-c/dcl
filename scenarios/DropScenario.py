@@ -34,7 +34,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			ai_type = "waypoint",
 			state_data_path = None,
 			max_data_path = None,
-			value_data_path = None
+			value_data_path = None,
+			episode_print_count = 1
 		):
 		self.client_id = client_id
 		self.ai_type = ai_type
@@ -61,7 +62,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.scenario_observer = None
 		if state_data_path is not None:
-			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, None, None, True)
+			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, None, None, True)
 			self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
@@ -74,14 +75,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			entity.SetState(permutation_data)
 
 		self.time_step = 0
-
-		episode_time_end = time.time() - self.episode_time_start
-		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
-
-		if self.client_id == 0:
-			print("Reset! Time:", episode_time_end)
-
-		self.episode_time_start = time.time()
 
 	def GetDroneAI(self, ai_type):
 		planner = None

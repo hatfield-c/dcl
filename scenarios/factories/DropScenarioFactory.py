@@ -30,7 +30,8 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 			ai_type = self.ai_type,
 			state_data_path = self.state_data_path,
 			max_data_path = self.max_data_path,
-			value_data_path = self.value_data_path
+			value_data_path = self.value_data_path,
+			episode_print_count = 10
 		)
 
 		return scenario

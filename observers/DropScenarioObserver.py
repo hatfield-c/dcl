@@ -1,3 +1,4 @@
+import time
 import pybullet as pb
 import numpy as np
 import torch
@@ -5,7 +6,7 @@ import torch
 import observers.ObserverInterface as ObserverInterface
 
 class DropScenarioObserver(ObserverInterface.ObserverInterface):
-	def __init__(self, client_id, event_queue, channel_name, debug = False):
+	def __init__(self, client_id, episode_print_count, event_queue, channel_name, debug = False):
 		self.client_id = client_id
 
 		self.state_data = []
@@ -19,7 +20,10 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.pole = None
 		self.floor = None
 
+		self.avg_episode_time = 0
+		self.episode_time_start = time.time()
 		self.episode_count = 0
+		self.episode_print_count = episode_print_count
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.distance_reward_decay = 1
@@ -146,14 +150,20 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		if not is_dropped:
 			reward = np.minimum(-0.5, collision_reward)
 
-		if self.debug and self.client_id == 0:
+		episode_time_end = time.time() - self.episode_time_start
+		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
+		self.episode_time_start = time.time()
+
+		if self.debug and self.client_id == 0 and self.episode_count % self.episode_print_count == 0:
+
 			print("============================")
 			print("  Episode", self.episode_count ,"- Client " + str(self.client_id))
 			print("============================")
-			print("    Reward   :", reward)
-			print("    Collision:", is_collision)
-			print("    Dropped  :", is_dropped)
-			print("    Distance :", "{:.2f}".format(shortest_distance))
+			print("    Reward              :", reward)
+			print("    Collision           :", is_collision)
+			print("    Dropped             :", is_dropped)
+			print("    Distance            :", "{:.2f}".format(shortest_distance))
+			print("    Average Episode Time:", "{:.2f}".format(self.avg_episode_time))
 
 		return reward
 
