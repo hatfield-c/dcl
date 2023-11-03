@@ -42,6 +42,8 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		state_data = torch.stack(self.state_data)
 		value_data = torch.stack(self.value_data)
 
+		value_data = value_data.reshape(-1)
+
 		if self.client_id == 0:
 			print("\nClient ", self.client_id, "- Saving at " + state_path)
 

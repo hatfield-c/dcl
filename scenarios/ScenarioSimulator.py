@@ -12,12 +12,12 @@ class ScenarioSimulator:
 	def __init__(self):
 		pass
 
-	def Run(self):
+	def Run(self, client_count):
 
 		client_ids = []
 		scenarios = []
 
-		for i in range(CONFIG.client_count):
+		for i in range(client_count):
 			client_id = None
 
 			if CONFIG.render_debug and i < 1:
@@ -52,7 +52,7 @@ class ScenarioSimulator:
 
 			is_simulating = True
 
-			for i in range(CONFIG.client_count):
+			for i in range(client_count):
 				client_id = client_ids[i]
 				scenario = scenarios[i]
 
@@ -75,7 +75,7 @@ class ScenarioSimulator:
 
 			time.sleep(CONFIG.timestep)
 
-		for i in range(CONFIG.client_count):
+		for i in range(client_count):
 			client_id = client_ids[i]
 
 			pb.disconnect(client_id)

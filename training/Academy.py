@@ -55,7 +55,7 @@ def TrainDiffusion():
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models/"
+		results_folder = "models/diffusion/"
 	)
 
 	trainer.train(epochs)
@@ -64,10 +64,10 @@ def TrainDiffusion():
 def TrainValue():
 
 	horizon = 4
-	total_size = 23
-	state_size = 17
-	action_size = 6
-	epochs = 10000
+	total_size = 17
+	state_size = 12
+	action_size = 5
+	epochs = 100
 	n_timesteps = 20
 
 	seed_path = CONFIG.seed_path
@@ -104,7 +104,7 @@ def TrainValue():
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models_val/"
+		results_folder = "models/value/"
 	)
 
 	trainer.train(epochs)
@@ -143,7 +143,7 @@ def DiffusionPlanning():
 		log_freq = 10,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models_dif/"
+		results_folder = "models/diffusion/"
 	)
 	trainer.load(label_dif)
 
@@ -161,7 +161,7 @@ def DiffusionPlanning():
 		log_freq = 10,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models_val/"
+		results_folder = "models/value/"
 	)
 	trainer.load(label_val)
 

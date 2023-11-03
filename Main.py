@@ -2,27 +2,23 @@
 import CONFIG
 
 def Main():
-	actions = [ "help", "simulate", "stitch_data", "train_diffusion", "train_value" ]
+	actions = [ "help", "generate_data", "stitch_data", "train_diffusion", "train_value" ]
 
 	#action = actions[1]
 	#action = actions[2]
-	action = actions[3]
+	#action = actions[3]
+	action = actions[4]
 
 	if action not in actions:
 		action = actions[0]
 
-	if action == "simulate":
+	if action == actions[1]:
 		import scenarios.ScenarioSimulator as ScenarioSimulator
 
 		simulator = ScenarioSimulator.ScenarioSimulator()
-		simulator.Run()
+		simulator.Run(CONFIG.client_count)
 
-	if action == "train_diffusion":
-		import training.Academy as Academy
-
-		Academy.TrainDiffusion()
-
-	if action == "stitch_data":
+	if action == actions[2]:
 		import data_processing.DataStitcher as DataStitcher
 
 		stitcher = DataStitcher.DataStitcher()
@@ -32,6 +28,16 @@ def Main():
 			value_data_path = CONFIG.value_data_path,
 			client_count = CONFIG.client_count,
 		)
+
+	if action == actions[3]:
+		import training.Academy as Academy
+
+		Academy.TrainDiffusion()
+
+	if action == actions[4]:
+		import training.Academy as Academy
+
+		Academy.TrainValue()
 
 	if action == "help":
 		print("[write help message]")
