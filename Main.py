@@ -5,11 +5,11 @@ import training.Academy as Academy
 def Main():
 	actions = [ "help", "generate_data", "stitch_data", "train_diffusion", "train_value", "diffusion_planning" ]
 
-	action = actions[1]
+	#action = actions[1]
 	#action = actions[2]
 	#action = actions[3]
 	#action = actions[4]
-	#action = actions[5]
+	action = actions[5]
 
 	if action not in actions:
 		action = actions[0]
@@ -38,10 +38,7 @@ def Main():
 		Academy.TrainValue()
 
 	if action == actions[5]:
-		import scenarios.ScenarioSimulator as ScenarioSimulator
-
-		simulator = ScenarioSimulator.ScenarioSimulator()
-		simulator.Run(CONFIG.client_count)
+		Academy.DiffusionPlanning()
 
 	if action == "help":
 		print("[write help message]")

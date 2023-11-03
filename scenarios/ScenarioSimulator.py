@@ -11,24 +11,7 @@ class ScenarioSimulator:
 
 	def Run(self, client_count, render_scenario, timestep):
 
-		client_ids = []
-		scenarios = []
-
-		for i in range(client_count):
-			client_id = None
-
-			if render_scenario and i < 1:
-				client_id = pb.connect(pb.GUI)
-			else:
-				client_id = pb.connect(pb.DIRECT)
-
-			scenario = self.scenario_factory.Create(client_id)
-
-			scenario.InstantiateEntities()
-			scenario.ResetScenario()
-
-			client_ids.append(client_id)
-			scenarios.append(scenario)
+		client_ids, scenarios = self.CreateScenarios(client_count, render_scenario)
 
 		start_time = time.time()
 		step = 0
@@ -71,3 +54,25 @@ class ScenarioSimulator:
 		print("Scenario complete!")
 		print("    Run time:", "{:.2f}".format(end_time), "sec")
 		print("==========================")
+
+	def CreateScenarios(self, client_count, render_scenario):
+		client_ids = []
+		scenarios = []
+
+		for i in range(client_count):
+			client_id = None
+
+			if render_scenario and i < 1:
+				client_id = pb.connect(pb.GUI)
+			else:
+				client_id = pb.connect(pb.DIRECT)
+
+			scenario = self.scenario_factory.Create(client_id)
+
+			scenario.InstantiateEntities()
+			scenario.ResetScenario()
+
+			client_ids.append(client_id)
+			scenarios.append(scenario)
+
+		return client_ids, scenarios

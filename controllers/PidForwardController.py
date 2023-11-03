@@ -92,6 +92,7 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 
 		control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
+		control_data["drop_package"] = plan["drop_package"]
 		control_data["thrust_signal"] = thrust_rpm
 		control_data["pitch_signal"] = pitch_rpm
 		control_data["roll_signal"] = roll_rpm

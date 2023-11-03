@@ -27,6 +27,7 @@ def GenerateData():
 		gravity_strength = CONFIG.gravity_strength,
 		episode_count = CONFIG.episode_count,
 		episode_length = CONFIG.episode_length,
+		ai_type = "waypoint",
 		state_data_path = CONFIG.state_data_path,
 		max_data_path = CONFIG.max_data_path,
 		value_data_path = CONFIG.value_data_path
@@ -143,60 +144,22 @@ def TrainValue():
 
 def DiffusionPlanning():
 
-	horizon = 4
-	timesteps = 20
-	total_size = 23
-	state_size = 17
-	action_size = 6
-	label_dif = 10000
-	label_val = 10000
-
-	seed_path = CONFIG.seed_path
-	seed_maxes_path = CONFIG.seed_maxes_path
-
-	seed_data = torch.load(seed_path).cuda()
-	#seed_maxes = torch.load(seed_maxes_path)
-
-	normalizer = Normalizer.Normalizer(seed_data)
-	normalizer.GoToCuda()
-
-	temporal_model = temporal.TemporalUnet(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=(1, 4, 8), attention = True)
-	temporal_model = temporal_model.cuda()
-
-	diffusion_manager = diffusion.GaussianDiffusion(temporal_model, horizon, state_size, action_size, n_timesteps = timesteps, predict_epsilon = False)
-	diffusion_manager = diffusion_manager.cuda()
-
-	trainer = training.Trainer(
-		diffusion_model = diffusion_manager,
-		dataloader = None,
-		dataset = None,
-		renderer = None,
-		log_freq = 10,
-		save_freq = 1e20,
-		sample_freq = 1e20,
-		results_folder = "models/diffusion/"
+	factory = DropScenarioFactory.DropScenarioFactory(
+		gravity_strength = CONFIG.gravity_strength,
+		episode_count = CONFIG.episode_count,
+		episode_length = CONFIG.episode_length,
+		ai_type = "diffusion",
+		state_data_path = None,
+		max_data_path = None,
+		value_data_path = None
 	)
-	trainer.load(label_dif)
+	client_count = CONFIG.client_count
+	render_scenario = CONFIG.render_scenario
+	timestep = CONFIG.timestep
 
-	temporal_value = temporal.ValueFunction(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=(1, 2, 4, 8))
-	temporal_value = temporal_value.cuda()
-
-	value_manager = diffusion.ValueDiffusion(temporal_value, horizon, state_size, action_size, loss_type = "value_l2", n_timesteps = timesteps, predict_epsilon = False)
-	value_manager = value_manager.cuda()
-
-	trainer = training.Trainer(
-		diffusion_model = value_manager,
-		dataloader = None,
-		dataset = None,
-		renderer = None,
-		log_freq = 10,
-		save_freq = 1e20,
-		sample_freq = 1e20,
-		results_folder = "models/value/"
+	simulator = ScenarioSimulator.ScenarioSimulator(factory)
+	simulator.Run(
+		client_count = client_count,
+		render_scenario = render_scenario,
+		timestep = timestep
 	)
-	trainer.load(label_val)
-
-	guide = guides.ValueGuide(value_manager, scale = 0.1)
-
-	planner = DiffusionPlanner.DiffusionPlanner()
-	planner.Plan(diffusion_manager, guide, normalizer)

@@ -1,10 +1,10 @@
 
 timestep = 0.00001
 
-client_count = 37
-render_scenario = False
+client_count = 1#37
+render_scenario = True#False
 
-episode_count = 10
+episode_count = 2#10
 episode_length = 500
 
 state_data_path = "data/state_data"

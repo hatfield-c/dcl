@@ -22,6 +22,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			permuters = None,
 			planner = None,
 			controller = None,
+			target_entity = None
 		):
 
 		super(DropDrone, self).__init__(
@@ -39,11 +40,13 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		self.arm = ArmActuator.ArmActuator(self.client_id, np.array([0, 0, -0.2]))
 		self.planner = planner
 		self.controller = controller
+		self.target_entity = target_entity
 
 		self.telemetry = TelemetrySensor.TelemetrySensor(self)
 
 		self.sensors = {
-			"telemetry": self.telemetry
+			"telemetry": self.telemetry,
+			"target": self.target_entity
 		}
 
 		self.metadata = {
@@ -57,7 +60,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 		control_data["pb_id"] = self.pb_id
 
-		if plan["drop_package"]:
+		if control_data["drop_package"]:
 
 			drop_data = {
 				"position": self.GetPosition(),

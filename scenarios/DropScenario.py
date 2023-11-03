@@ -14,13 +14,15 @@ import entities.agents.drones.DropDrone as DropDrone
 import entities.drop_scenario.TargetPole as TargetPole
 import entities.SimpleEntity as SimpleEntity
 
-import controllers.PidForwardController as PidForwardController
 import planners.PidWaypointPlanner as PidWaypointPlanner
+import planners.DiffusionPlanner as DiffusionPlanner
+
+import controllers.PidForwardController as PidForwardController
+import controllers.DiffusionController as DiffusionController
 
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
 import observers.DropScenarioObserver as DropScenarioObserver
-import observers.CollisionResetObserver as CollisionResetObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -29,11 +31,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			gravity_strength,
 			episode_count,
 			episode_length,
-			state_data_path,
-			max_data_path,
-			value_data_path
+			ai_type = "waypoint",
+			state_data_path = None,
+			max_data_path = None,
+			value_data_path = None
 		):
 		self.client_id = client_id
+		self.ai_type = ai_type
 		self.time_step = 0
 
 		self.episode_count = episode_count
@@ -55,8 +59,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.event_queue = EventQueue.EventQueue()
 
-		self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, None, None, True)
-		self.observers["scenario_observer"] = self.scenario_observer
+		self.scenario_observer = None
+		if state_data_path is not None:
+			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, None, None, True)
+			self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
 
@@ -77,13 +83,28 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.episode_time_start = time.time()
 
-	def InstantiateDrone(self, start_pos, start_rotation):
+	def GetDroneAI(self, ai_type):
+		planner = None
+		controller = None
+
+		if ai_type == "waypoint":
+			waypoints = [np.array([0, -1, 6.5])]
+
+			planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 2, debug = True)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
+		if ai_type == "diffusion":
+			waypoints = [np.array([0, -1, 6.5])]
+
+			planner = DiffusionPlanner.DiffusionPlanner(self.client_id, waypoints, turn_strength = 2, debug = True)
+			controller = DiffusionController.DiffusionController(1, 1)
+
+		return planner, controller
+
+	def InstantiateDrone(self, start_pos, start_rotation, target):
 		drone_urdf = "entity_files/drone_simple.urdf"
 
-		waypoints = [np.array([0, -1, 6.5])]
-
-		planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 2, debug = True)
-		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+		planner, controller = self.GetDroneAI(self.ai_type)
 
 		permuters = {
 			"position": BoxPermuter.BoxPermuter(
@@ -130,7 +151,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			rotation = start_rotation,
 			planner = planner,
 			controller = controller,
-			permuters = permuters
+			permuters = permuters,
+			target_entity = target
 		)
 
 		self.camera.SetTarget(drone)
@@ -138,14 +160,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		return drone
 
 	def InstantiateEntities(self):
-
-		start_pos = [0, -5, 2.5]
-		start_rot = [0, 0, 0.785398 * 2]
-		drone = self.InstantiateDrone(start_pos, start_rot)
-
-		# self.tempDrone = drone
-
-		self.agents["simple_drone"] = drone
 
 		pole = TargetPole.TargetPole(
 			client_id = self.client_id,
@@ -157,20 +171,26 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			is_static = True
 		)
 
+		start_pos = [0, -5, 2.5]
+		start_rot = [0, 0, 0.785398 * 2]
+		drone = self.InstantiateDrone(start_pos, start_rot, pole.target)
+
+		self.agents["simple_drone"] = drone
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", client_id = self.client_id, is_static = True)
 		self.static_objects["pole"] = pole
 
-		self.scenario_observer.RegisterEntities(
-			self,
-			drone,
-			pole.target,
-			pole,
-			self.static_objects["floor"],
-			distance_threshold = 1,
-			episode_length = self.episode_length,
-			distance_reward_decay = 1
-		)
+		if self.scenario_observer is not None:
+			self.scenario_observer.RegisterEntities(
+				self,
+				drone,
+				pole.target,
+				pole,
+				self.static_objects["floor"],
+				distance_threshold = 1,
+				episode_length = self.episode_length,
+				distance_reward_decay = 1
+			)
 
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
@@ -215,7 +235,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1
 
-		if self.scenario_observer.GetEpisodeCount() >= self.episode_count:
+		if self.scenario_observer is not None and self.scenario_observer.GetEpisodeCount() >= self.episode_count:
 			self.scenario_observer.SaveData(self.state_data_path, self.value_data_path, self.max_data_path)
 
 			return False
