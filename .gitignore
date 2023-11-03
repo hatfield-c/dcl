@@ -1,6 +1,6 @@
 # DCL Custom Rules
 data/
-models/
+models/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
