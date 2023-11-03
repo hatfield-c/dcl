@@ -11,12 +11,15 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 
 	def Actuate(self, control_data):
 
-		self.last_command = np.array([
-			control_data["thrust_signal"],
-			control_data["pitch_signal"],
-			control_data["roll_signal"],
-			control_data["yaw_signal"],
-		])
+		if "thrust_signal" in control_data:
+			self.last_command = np.array([
+				control_data["thrust_signal"],
+				control_data["pitch_signal"],
+				control_data["roll_signal"],
+				control_data["yaw_signal"],
+			])
+		else:
+			self.last_command = np.zeros(4)
 
 		fr_rotor = control_data["fr_rotor_force"]
 		fl_rotor = control_data["fl_rotor_force"]

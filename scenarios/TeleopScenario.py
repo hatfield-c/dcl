@@ -41,7 +41,7 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 		self.entity_observer = EntityObserver.EntityObserver(self.event_queue, "entity_observer")
 
 		#self.observers["entity_observer"] = self.entity_observer
-		self.camera = RenderCamera.RenderCamera(yaw = 150)
+		self.camera = RenderCamera.RenderCamera(self.pb_client, yaw = 150)
 
 	def ResetScenario(self):
 		for pb_id in self.unified_entities:
@@ -59,11 +59,12 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 			np.array([10, 4, 3]),
 		]
 
-		planner = PidWaypointPlanner.PidWaypointPlanner(waypoints, turn_strength = 1.1)
+		planner = PidWaypointPlanner.PidWaypointPlanner(self.pb_client, waypoints, turn_strength = 1.1)
 		controller = TeleopController.TeleopController(force_scale = 1, torque_scale = 1)
 
 		drone = TeleopDrone.TeleopDrone (
 			urdf_name = drone_urdf,
+			client_id = self.pb_client,
 			position = start_pos,
 			rotation = start_rotation,
 			planner = planner,
@@ -95,7 +96,7 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 				choices_list = [ np.array([-1, -1, 5]), np.array([1, -1, 5]), np.array([-1, 1, 5]) ]
 			)
 		}
-		
+
 		cube1 = SimpleEntity.SimpleEntity(
 			urdf_name = "entity_files/debug_cube.urdf",
 			position = [-2, 2, 3],
@@ -109,14 +110,14 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 			rotation = [0.79, 0.79, 0],
 			permuters = list_permuter
 		)
-		
+
 		self.dynamic_objects[cube1.GetBulletId()] = cube1
 		self.dynamic_objects[cube2.GetBulletId()] = cube2
-		
+
 
 		self.entity_observer.RegisterEntities([cube1])
 		'''
-		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", is_static = True)
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", client_id = self.pb_client, is_static = True)
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
 
@@ -159,3 +160,5 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1
+
+		return True

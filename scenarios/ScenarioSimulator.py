@@ -1,18 +1,15 @@
 import pybullet as pb
 import time
 
-import CONFIG
 import scenarios.SimpleScenario as SimpleScenario
-import scenarios.WackADroneScenario as WackADroneScenario
 import scenarios.DropScenario as DropScenario
-import scenarios.UrbanNavigationScenario as UrbanNavigationScenario
 import scenarios.TeleopScenario as TeleopScenario
 
 class ScenarioSimulator:
-	def __init__(self):
-		pass
+	def __init__(self, scenario_factory):
+		self.scenario_factory = scenario_factory
 
-	def Run(self, client_count):
+	def Run(self, client_count, render_scenario, timestep):
 
 		client_ids = []
 		scenarios = []
@@ -20,24 +17,12 @@ class ScenarioSimulator:
 		for i in range(client_count):
 			client_id = None
 
-			if CONFIG.render_debug and i < 1:
+			if render_scenario and i < 1:
 				client_id = pb.connect(pb.GUI)
 			else:
 				client_id = pb.connect(pb.DIRECT)
 
-			#scenario = SimpleScenario.SimpleScenario(client_id)
-			#scenario = WackADroneScenario.WackADroneScenario(client_id)
-			#scenario = UrbanNavigationScenario.UrbanNavigationScenario(client_id)
-			#scenario = TeleopScenario.TeleopScenario(client_id)
-			scenario = DropScenario.DropScenario(
-				client_id = client_id,
-				gravity_strength = CONFIG.gravity_strength,
-				episode_count = CONFIG.episode_count,
-				episode_length = CONFIG.episode_length,
-				state_data_path = CONFIG.state_data_path,
-				max_data_path = CONFIG.max_data_path,
-				value_data_path = CONFIG.value_data_path
-			)
+			scenario = self.scenario_factory.Create(client_id)
 
 			scenario.InstantiateEntities()
 			scenario.ResetScenario()
@@ -73,7 +58,7 @@ class ScenarioSimulator:
 			if not is_simulating:
 				break
 
-			time.sleep(CONFIG.timestep)
+			time.sleep(timestep)
 
 		for i in range(client_count):
 			client_id = client_ids[i]

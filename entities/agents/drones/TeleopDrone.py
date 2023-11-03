@@ -13,6 +13,7 @@ class TeleopDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 	def __init__(
 			self,
 			urdf_name,
+			client_id,
 			position = [0, 0 ,0],
 			rotation = [0, 0, 0],
 			quaternion = None,
@@ -22,10 +23,10 @@ class TeleopDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			planner = None,
 			controller = None
 		):
-		super(TeleopDrone, self).__init__(urdf_name, position, rotation, quaternion, velocity, angular_velocity, permuters)
+		super(TeleopDrone, self).__init__(urdf_name, client_id, position, rotation, quaternion, velocity, angular_velocity, permuters)
 
-		self.rotors = RotorActuator.RotorActuator()
-		self.arm = ArmActuator.ArmActuator(np.array([0, 0, -0.2]))
+		self.rotors = RotorActuator.RotorActuator(client_id)
+		self.arm = ArmActuator.ArmActuator(client_id, np.array([0, 0, -0.2]))
 		self.planner = planner
 		self.controller = controller
 
@@ -80,6 +81,6 @@ class TeleopDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 	def ThrustUp(self):
 		print("thrust up")
-		
+
 	def GetSensors(self):
 		return self.sensors

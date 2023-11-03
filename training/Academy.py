@@ -1,4 +1,10 @@
-import training.CONFIG as CONFIG
+import CONFIG
+
+import scenarios.ScenarioSimulator as ScenarioSimulator
+import scenarios.factories.DropScenarioFactory as DropScenarioFactory
+import scenarios.factories.GenericScenarioFactory as GenericScenarioFactory
+import scenarios.TeleopScenario as TeleopScenario
+
 import training.training as training
 import training.diffusion as diffusion
 import training.temporal as temporal
@@ -10,6 +16,31 @@ import training.Normalizer as Normalizer
 
 import torch
 import numpy as np
+
+def GenerateData():
+	#factory = GenericScenarioFactory.GenericScenarioFactory(scenario_class = TeleopScenario.TeleopScenario)
+	#client_count = 1
+	#render_scenario = True
+	#timestep = CONFIG.timestep
+
+	factory = DropScenarioFactory.DropScenarioFactory(
+		gravity_strength = CONFIG.gravity_strength,
+		episode_count = CONFIG.episode_count,
+		episode_length = CONFIG.episode_length,
+		state_data_path = CONFIG.state_data_path,
+		max_data_path = CONFIG.max_data_path,
+		value_data_path = CONFIG.value_data_path
+	)
+	client_count = CONFIG.client_count
+	render_scenario = CONFIG.render_scenario
+	timestep = CONFIG.timestep
+
+	simulator = ScenarioSimulator.ScenarioSimulator(factory)
+	simulator.Run(
+		client_count = client_count,
+		render_scenario = render_scenario,
+		timestep = timestep
+	)
 
 def TrainDiffusion():
 

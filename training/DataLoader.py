@@ -1,11 +1,6 @@
 import time
 
-import math
 import torch
-import numpy as np
-import random
-
-import training.CONFIG
 
 class DataLoader:
 	def __init__(self, samples, targets, horizon, episode_length = 100):
