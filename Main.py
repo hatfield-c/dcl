@@ -10,8 +10,8 @@ def Main():
 	#action = actions[2]
 	#action = actions[3]
 	#action = actions[4]
-	#action = actions[5]
-	action = actions[6]
+	action = actions[5]
+	#action = actions[6]
 
 	if action not in actions:
 		action = actions[0]

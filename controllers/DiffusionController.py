@@ -125,23 +125,30 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		conditions = {0: observation}
 		action, samples, pred_reward = self.policy(conditions, batch_size = batch_size)
 
+		control_data = {}
+
 		arm_actuator_signal = action[0]
-		thrust_rpm = action[1]
-		pitch_rpm = action[2]
-		roll_rpm = action[3]
-		yaw_rpm = action[4]
+		control_data["fr_rotor_force"] = action[1]
+		control_data["fl_rotor_force"] = action[2]
+		control_data["br_rotor_force"] = action[3]
+		control_data["bl_rotor_force"] = action[4]
+		control_data["torque"] = action[5]
+		#thrust_rpm = action[1]
+		#pitch_rpm = action[2]
+		#roll_rpm = action[3]
+		#yaw_rpm = action[4]
 
 		actuate_dropper = False
-		if arm_actuator_signal > 0.5:
+		if arm_actuator_signal > 0.9:
 			actuate_dropper = True
 
-		control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
+		#control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
 		control_data["drop_package"] = actuate_dropper
-		control_data["thrust_signal"] = thrust_rpm
-		control_data["pitch_signal"] = pitch_rpm
-		control_data["roll_signal"] = roll_rpm
-		control_data["yaw_signal"] = yaw_rpm
+		#control_data["thrust_signal"] = thrust_rpm
+		#control_data["pitch_signal"] = pitch_rpm
+		#control_data["roll_signal"] = roll_rpm
+		#control_data["yaw_signal"] = yaw_rpm
 
 		return control_data
 
