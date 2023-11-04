@@ -11,6 +11,12 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 
 	def Actuate(self, control_data):
 
+		fr_rotor = control_data["fr_rotor_force"]
+		fl_rotor = control_data["fl_rotor_force"]
+		br_rotor = control_data["br_rotor_force"]
+		bl_rotor = control_data["bl_rotor_force"]
+		torque = control_data["torque"]
+
 		if "thrust_signal" in control_data:
 			self.last_command = np.array([
 				control_data["thrust_signal"],
@@ -20,12 +26,6 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 			])
 		else:
 			self.last_command = np.zeros(4)
-
-		fr_rotor = control_data["fr_rotor_force"]
-		fl_rotor = control_data["fl_rotor_force"]
-		br_rotor = control_data["br_rotor_force"]
-		bl_rotor = control_data["bl_rotor_force"]
-		torque = control_data["torque"]
 
 		fr_rotor = np.clip(fr_rotor, 0, self.rotor_max)
 		fl_rotor = np.clip(fl_rotor, 0, self.rotor_max)

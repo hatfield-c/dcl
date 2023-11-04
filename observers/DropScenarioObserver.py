@@ -82,7 +82,6 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_states = []
 		self.episode_data = []
 
-		self.scenario.ResetScenario()
 		self.episode_count += 1
 
 	def Observe(self, timestep):

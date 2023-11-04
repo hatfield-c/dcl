@@ -3,6 +3,7 @@ import time
 import math
 import pybullet as pb
 import numpy as np
+import cv2
 
 import scenarios.ScenarioInterface as ScenarioInterface
 import scenarios.permuters.BoxPermuter as BoxPermuter
@@ -35,10 +36,14 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			state_data_path = None,
 			max_data_path = None,
 			value_data_path = None,
-			episode_print_count = 1
+			episode_print_count = 1,
+			render_scenario = True,
+			save_render = False
 		):
 		self.client_id = client_id
 		self.ai_type = ai_type
+		self.render_scenario = render_scenario
+		self.save_render = save_render
 		self.time_step = 0
 
 		self.episode_count = episode_count
@@ -223,7 +228,40 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.event_queue.ProcessQueue()
 
 	def Render(self):
-		self.camera.FollowTarget()
+		if self.render_scenario:
+			self.camera.FollowTarget()
+
+		if self.save_render:
+
+			target_position = self.agents["simple_drone"].GetPosition()
+			eye_position = np.array([
+				target_position[0],
+				target_position[1] - 1.3,
+				target_position[2] + 0.5
+			])
+			up = np.array([0, 0, 1])
+
+			view_matrix = pb.computeViewMatrix(eye_position, target_position, up)
+
+			projection_matrix = pb.computeProjectionMatrixFOV(75, 1, 0.1, 12)
+
+			result = pb.getCameraImage(
+				width = 256,
+				height = 256,
+				viewMatrix = view_matrix,
+				projectionMatrix = projection_matrix,
+				shadow = 1,
+				renderer = pb.ER_TINY_RENDERER,
+				flags = pb.ER_NO_SEGMENTATION_MASK,
+				physicsClientId = self.client_id,
+			)
+
+			rgb = result[2]
+			rgb = rgb[:, :, [2, 1, 0]]
+
+			filename = "data/render/frame" + str(self.time_step).zfill(4) + ".png"
+
+			cv2.imwrite(filename, rgb)
 
 	def UpdateTime(self):
 		self.time_step = self.time_step + 1
@@ -232,5 +270,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			self.scenario_observer.SaveData(self.state_data_path, self.value_data_path, self.max_data_path)
 
 			return False
+
+		if self.time_step == self.episode_length:
+			self.ResetScenario()
+
 
 		return True

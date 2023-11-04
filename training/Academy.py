@@ -23,6 +23,10 @@ def GenerateData():
 	#render_scenario = True
 	#timestep = CONFIG.timestep
 
+	client_count = CONFIG.client_count
+	render_scenario = CONFIG.render_scenario
+	timestep = CONFIG.timestep
+
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		episode_count = CONFIG.episode_count,
@@ -30,11 +34,10 @@ def GenerateData():
 		ai_type = "waypoint",
 		state_data_path = CONFIG.state_data_path,
 		max_data_path = CONFIG.max_data_path,
-		value_data_path = CONFIG.value_data_path
+		value_data_path = CONFIG.value_data_path,
+		render_scenario = render_scenario,
+		save_render = False
 	)
-	client_count = CONFIG.client_count
-	render_scenario = CONFIG.render_scenario
-	timestep = CONFIG.timestep
 
 	simulator = ScenarioSimulator.ScenarioSimulator(factory)
 	simulator.Run(
@@ -51,7 +54,7 @@ def TrainDiffusion():
 	action_size = 5
 	n_timesteps = 20
 
-	epochs = 100
+	epochs = 10000
 
 	seed_path = CONFIG.seed_path
 	#seed_maxes_path = CONFIG.seed_maxes_path
@@ -63,7 +66,7 @@ def TrainDiffusion():
 
 	#seed_maxes = torch.ones(seed_maxes.shape[0])
 
-	normalizer = Normalizer.Normalizer(seed_data)
+	normalizer = Normalizer.Normalizer(seed_data, action_size)
 	#normalizer.GoToCuda()
 
 	seed_data = normalizer.normalize(seed_data)
@@ -99,7 +102,7 @@ def TrainValue():
 	total_size = 17
 	state_size = 12
 	action_size = 5
-	epochs = 100
+	epochs = 10000
 	n_timesteps = 20
 
 	seed_path = CONFIG.seed_path
@@ -113,7 +116,7 @@ def TrainValue():
 	#seed_values = seed_values / torch.max(seed_values)
 	#seed_maxes = torch.ones(seed_maxes.shape[0])
 
-	normalizer = Normalizer.Normalizer(seed_data)
+	normalizer = Normalizer.Normalizer(seed_data, action_size)
 
 	seed_data = normalizer.normalize(seed_data)
 
@@ -151,15 +154,16 @@ def DiffusionPlanning():
 		ai_type = "diffusion",
 		state_data_path = None,
 		max_data_path = None,
-		value_data_path = None
+		value_data_path = None,
+		render_scenario = False,
+		save_render = True
 	)
-	client_count = CONFIG.client_count
-	render_scenario = CONFIG.render_scenario
+
 	timestep = CONFIG.timestep
 
 	simulator = ScenarioSimulator.ScenarioSimulator(factory)
 	simulator.Run(
-		client_count = client_count,
-		render_scenario = render_scenario,
+		client_count = 1,
+		render_scenario = False,
 		timestep = timestep
 	)

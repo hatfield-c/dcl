@@ -12,6 +12,8 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		state_data_path,
 		max_data_path,
 		value_data_path,
+		render_scenario,
+		save_render
 	):
 		self.gravity_strength = gravity_strength
 		self.episode_count = episode_count
@@ -20,6 +22,8 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		self.state_data_path = state_data_path
 		self.max_data_path = max_data_path
 		self.value_data_path = value_data_path
+		self.render_scenario = render_scenario
+		self.save_render = save_render
 
 	def Create(self, client_id):
 		scenario = DropScenario.DropScenario(
@@ -31,7 +35,9 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 			state_data_path = self.state_data_path,
 			max_data_path = self.max_data_path,
 			value_data_path = self.value_data_path,
-			episode_print_count = 10
+			episode_print_count = 10,
+			render_scenario = self.render_scenario,
+			save_render = self.save_render
 		)
 
 		return scenario

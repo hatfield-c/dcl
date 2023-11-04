@@ -21,14 +21,15 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		):
 		self.force_scale = force_scale
 		self.torque_scale = torque_scale
+		self.thrust_multiplier = 1
 
 		horizon = 4
 		self.timesteps = 20
 		total_size = 17
 		state_size = 12
 		action_size = 5
-		label_dif = 100
-		label_val = 100
+		label_dif = 10000
+		label_val = 10000
 
 		seed_path = CONFIG.seed_path
 		seed_maxes_path = CONFIG.seed_maxes_path
@@ -83,7 +84,8 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		)
 		self.trainer.load(label_val)
 
-		self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
+		#self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
+		self.guide = guides.ValueGuide(self.value_manager, scale = 1)
 		self.policy = policies.GuidedPolicy(self.guide, self.diffusion_manager, self.normalizer)
 
 		#planner = DiffusionPlanner.DiffusionPlanner()
