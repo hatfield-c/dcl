@@ -109,6 +109,8 @@ def TrainValue():
 	epochs = 10000
 	n_timesteps = 20
 
+	episode_length = CONFIG.episode_length
+
 	seed_path = CONFIG.seed_path
 	seed_maxes_path = CONFIG.seed_maxes_path
 	value_path = CONFIG.value_path
@@ -124,7 +126,7 @@ def TrainValue():
 
 	seed_data = normalizer.normalize(seed_data)
 
-	data_loader = DataLoader.DataLoader(seed_data, seed_values, horizon, horizon_scale)
+	data_loader = DataLoader.DataLoader(seed_data, seed_values, episode_length, horizon, horizon_scale)
 
 	temporal_model = temporal.ValueFunction(horizon = horizon, transition_dim = total_size, cond_dim = None)
 	temporal_model = temporal_model.cuda()
