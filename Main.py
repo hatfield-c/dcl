@@ -6,11 +6,11 @@ import render.VideoBuilder as VideoBuilder
 def Main():
 	actions = [ "help", "generate_data", "stitch_data", "train_diffusion", "train_value", "diffusion_planning", "build_video" ]
 
-	#action = actions[1]
+	action = actions[1]
 	#action = actions[2]
 	#action = actions[3]
 	#action = actions[4]
-	action = actions[5]
+	#action = actions[5]
 	#action = actions[6]
 
 	if action not in actions:

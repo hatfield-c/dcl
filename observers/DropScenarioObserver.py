@@ -6,8 +6,10 @@ import torch
 import observers.ObserverInterface as ObserverInterface
 
 class DropScenarioObserver(ObserverInterface.ObserverInterface):
-	def __init__(self, client_id, episode_print_count, event_queue, channel_name, debug = False):
+	def __init__(self, client_id, episode_print_count, time_counter, episode_counter, episode_length, debug = False):
 		self.client_id = client_id
+		self.time_counter = time_counter
+		self.episode_counter = episode_counter
 
 		self.state_data = []
 		self.value_data = []
@@ -21,16 +23,17 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.floor = None
 
 		self.avg_episode_time = 0
+		self.episode_length = episode_length
 		self.episode_time_start = time.time()
-		self.episode_count = 0
 		self.episode_print_count = episode_print_count
+
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.distance_reward_decay = 1
 
 		self.debug = debug
 
-	def RegisterEntities(self, scenario, drone, target, pole, floor, distance_threshold, episode_length, distance_reward_decay = 1):
+	def RegisterEntities(self, scenario, drone, target, pole, floor, distance_threshold, distance_reward_decay = 1):
 		self.scenario = scenario
 		self.drone = drone
 		self.package = drone.GetPackageEntity()
@@ -39,7 +42,6 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.floor = floor
 
 		self.distance_threshold = distance_threshold
-		self.episode_length = episode_length
 		self.distance_reward_decay = distance_reward_decay
 
 	def SaveData(self, state_path, value_path, max_path, flush_memory = False, file_type = ".pt"):
@@ -82,8 +84,6 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_states = []
 		self.episode_data = []
 
-		self.episode_count += 1
-
 	def Observe(self, timestep):
 
 		drone_position = self.drone.GetPosition()
@@ -114,9 +114,6 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 
 		self.episode_states.append(state_data)
 		self.episode_data.append(episode_data)
-
-		if len(self.episode_states) == self.episode_length:
-			self.EndEpisode()
 
 	def GetEpisodeValue(self, episode_data):
 
@@ -153,10 +150,10 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
 		self.episode_time_start = time.time()
 
-		if self.debug and self.client_id == 0 and self.episode_count % self.episode_print_count == 0:
+		if self.debug and self.client_id == 0 and self.episode_counter.GetCount() % self.episode_print_count == 0:
 
 			print("============================")
-			print("  Episode", self.episode_count ,"- Client " + str(self.client_id))
+			print("  Episode", self.episode_counter.GetCount() ,"- Client " + str(self.client_id))
 			print("============================")
 			print("    Reward              :", reward)
 			print("    Collision           :", is_collision)
@@ -174,6 +171,12 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		collisions = pole_collisions + hoop_collisions + floor_collisions
 
 		if len(collisions) == 0:
+			return False
+
+		return True
+
+	def IsEmpty(self):
+		if len(self.episode_states) > 0:
 			return False
 
 		return True

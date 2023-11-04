@@ -9,6 +9,8 @@ import scenarios.ScenarioInterface as ScenarioInterface
 import scenarios.permuters.BoxPermuter as BoxPermuter
 import scenarios.permuters.ListPermuter as ListPermuter
 import scenarios.permuters.WaypointPermuter as WaypointPermuter
+
+import physics.SimpleCounter as SimpleCounter
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.DropDrone as DropDrone
@@ -44,13 +46,15 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.ai_type = ai_type
 		self.render_scenario = render_scenario
 		self.save_render = save_render
-		self.time_step = 0
 
 		self.max_episodes = max_episodes
 		self.episode_length = episode_length
-		self.episode_count = 0
+
 		self.avg_episode_time = 0
 		self.episode_time_start = time.time()
+
+		self.time_counter = SimpleCounter.SimpleCounter(-1)
+		self.episode_counter = SimpleCounter.SimpleCounter(-1)
 
 		self.state_data_path = state_data_path
 		self.max_data_path = max_data_path
@@ -68,7 +72,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.scenario_observer = None
 		if state_data_path is not None:
-			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, None, None, True)
+			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
 			self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
@@ -80,8 +84,11 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			entity.SetState(permutation_data)
 
-		self.time_step = 0
-		self.episode_count += 1
+		if self.scenario_observer is not None and not self.scenario_observer.IsEmpty():
+			self.scenario_observer.EndEpisode()
+
+		self.time_counter.Reset()
+		self.episode_counter.Increment()
 
 	def GetDroneAI(self, ai_type):
 		planner = None
@@ -112,8 +119,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				high_values = np.array([5, 1, 1.5])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
-				low_values = np.array([-math.pi / 8, -math.pi / 8, 0]),
-				high_values = np.array([math.pi / 8, math.pi / 8, 2 * math.pi])
+				#low_values = np.array([-math.pi / 8, -math.pi / 8, 0]),
+				#high_values = np.array([math.pi / 8, math.pi / 8, 2 * math.pi])
+				low_values = np.array([0, 0, 0]),
+				high_values = np.array([0, 0, 0])
 			),
 			"velocity": ListPermuter.ListPermuter(
 				choices_list = [np.array([0, 0, 0])]
@@ -125,7 +134,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				num_points = 1,
 				origins = [
 					np.array([0, 0, 2.5]),
-					np.array([0, 6, 2.5]),
+					np.array([0, 6, 3.5]),
 					np.array([0, -3, 2.5]),
 					np.array([3, 0, 2.5]),
 					np.array([-3, 0, 2.5])
@@ -138,7 +147,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 					0
 				],
 				min_distance = 0,
-				max_distance = 1.5,
+				max_distance = 0,#1.5,
 				default_origin = 1
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
@@ -188,7 +197,6 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				pole,
 				self.static_objects["floor"],
 				distance_threshold = 1,
-				episode_length = self.episode_length,
 				distance_reward_decay = 1
 			)
 
@@ -224,7 +232,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def UpdateObservers(self):
 		for observer_name in self.observers:
 			observer = self.observers[observer_name]
-			observer.Observe(self.time_step)
+			observer.Observe(self.time_counter.GetCount())
 
 	def ProcessEvents(self):
 		self.event_queue.ProcessQueue()
@@ -260,7 +268,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			rgb = result[2]
 			rgb = rgb[:, :, [2, 1, 0]]
-			episode_num = str(self.episode_count).zfill(3)
+			episode_num = str(self.episode_counter.GetCount()).zfill(3)
 			timestep = str(self.time_step).zfill(4)
 
 			filename = "data/render/frames/frame" + episode_num + "-" + timestep + ".png"
@@ -268,15 +276,14 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			cv2.imwrite(filename, rgb)
 
 	def UpdateTime(self):
-		self.time_step = self.time_step + 1
+		self.time_counter.Increment()
 
-		if self.scenario_observer is not None and self.scenario_observer.GetEpisodeCount() >= self.max_episodes:
+		if self.scenario_observer is not None and self.episode_counter.GetCount() >= self.max_episodes:
 			self.scenario_observer.SaveData(self.state_data_path, self.value_data_path, self.max_data_path)
 
 			return False
 
-		if self.time_step == self.episode_length:
+		if self.time_counter.GetCount() == self.episode_length:
 			self.ResetScenario()
-
 
 		return True

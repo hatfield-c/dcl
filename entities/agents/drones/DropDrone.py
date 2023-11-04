@@ -81,10 +81,11 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		return True
 
 	def GetPreviousAction(self):
-		arm_command = self.arm.GetLastCommand()
+		#arm_command = self.arm.GetLastCommand()
 		rotor_command = self.rotors.GetLastCommand()
 
-		return np.concatenate((arm_command, rotor_command))
+		#return np.concatenate((arm_command, rotor_command))
+		return rotor_command
 
 	def SetState(self, state_data):
 		super().SetState(state_data)

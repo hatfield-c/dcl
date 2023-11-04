@@ -25,7 +25,8 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		self.render_scenario = render_scenario
 		self.save_render = save_render
 
-	def Create(self, client_id):
+	def Create(self, client_id, time_manager = None):
+
 		scenario = DropScenario.DropScenario(
 			client_id = client_id,
 			gravity_strength = self.gravity_strength,
