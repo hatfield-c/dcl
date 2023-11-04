@@ -38,6 +38,7 @@ class VideoBuilder:
 			(CONFIG.img_size[0], CONFIG.img_size[1])
 		)
 
+		print("Frame count:", frame_count)
 		for i in range(frame_count):
 			if i % CONFIG.print_every_frame == 0:
 				print("Frame:", i, "  {:.2f}".format((i / frame_count) * 100) + "% finished.")

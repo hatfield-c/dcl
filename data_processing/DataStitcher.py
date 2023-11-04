@@ -45,8 +45,17 @@ class DataStitcher:
 		torch.save(value_data, value_path)
 		torch.save(max_data, max_path)
 
+		val_count = 0
+		for i in range(11000):
+			value = value_data[i]
+
+			if value > 0.2:
+				val_count += 1
+
 		print("\nComplete!")
 		print("    Stitched together", client_count, "files.")
+		print("")
+		print("    positive count:", val_count)
 		print("")
 		print("    state path:", state_path)
 		print("    max path:", max_path)

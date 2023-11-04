@@ -29,7 +29,7 @@ def GenerateData():
 
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
-		episode_count = CONFIG.episode_count,
+		max_episodes = CONFIG.episode_count,
 		episode_length = CONFIG.episode_length,
 		ai_type = "waypoint",
 		state_data_path = CONFIG.state_data_path,
@@ -49,9 +49,9 @@ def GenerateData():
 def TrainDiffusion():
 
 	horizon = 4
-	total_size = 17
+	total_size = 18
 	state_size = 12
-	action_size = 5
+	action_size = 6
 	n_timesteps = 20
 
 	epochs = 10000
@@ -99,9 +99,9 @@ def TrainDiffusion():
 def TrainValue():
 
 	horizon = 4
-	total_size = 17
+	total_size = 18
 	state_size = 12
-	action_size = 5
+	action_size = 6
 	epochs = 10000
 	n_timesteps = 20
 
@@ -149,7 +149,7 @@ def DiffusionPlanning():
 
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
-		episode_count = CONFIG.episode_count,
+		max_episodes = CONFIG.episode_count,
 		episode_length = CONFIG.episode_length,
 		ai_type = "diffusion",
 		state_data_path = None,

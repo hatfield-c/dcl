@@ -6,7 +6,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 	def __init__(
 		self,
 		gravity_strength,
-		episode_count,
+		max_episodes,
 		episode_length,
 		ai_type,
 		state_data_path,
@@ -16,7 +16,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		save_render
 	):
 		self.gravity_strength = gravity_strength
-		self.episode_count = episode_count
+		self.max_episodes = max_episodes
 		self.episode_length = episode_length
 		self.ai_type = ai_type
 		self.state_data_path = state_data_path
@@ -29,7 +29,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		scenario = DropScenario.DropScenario(
 			client_id = client_id,
 			gravity_strength = self.gravity_strength,
-			episode_count = self.episode_count,
+			max_episodes = self.max_episodes,
 			episode_length = self.episode_length,
 			ai_type = self.ai_type,
 			state_data_path = self.state_data_path,

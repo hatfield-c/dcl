@@ -25,9 +25,9 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 
 		horizon = 4
 		self.timesteps = 20
-		total_size = 17
+		total_size = 18
 		state_size = 12
-		action_size = 5
+		action_size = 6
 		label_dif = 10000
 		label_val = 10000
 
@@ -85,7 +85,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.trainer.load(label_val)
 
 		#self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
-		self.guide = guides.ValueGuide(self.value_manager, scale = 1)
+		self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
 		self.policy = policies.GuidedPolicy(self.guide, self.diffusion_manager, self.normalizer)
 
 		#planner = DiffusionPlanner.DiffusionPlanner()
