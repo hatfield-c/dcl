@@ -84,7 +84,6 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		)
 		self.trainer.load(label_val)
 
-		#self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
 		self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
 		self.policy = policies.GuidedPolicy(self.guide, self.diffusion_manager, self.normalizer)
 
