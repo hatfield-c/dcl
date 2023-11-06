@@ -106,6 +106,6 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 	def GetCameraPosition(self):
 		if self.IsPackageDropped():
-			return self.arm.Package.GetPosition()
+			return self.arm.package.GetPosition()
 
 		return self.GetPosition()
