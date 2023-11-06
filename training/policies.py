@@ -39,7 +39,7 @@ class GuidedPolicy:
 
 		trajectories = samples.trajectories[:, [0]]
 
-		#trajectories = self.normalizer.unnormalize(trajectories)
+		trajectories = self.normalizer.unnormalize(trajectories)
 		trajectories = trajectories.detach().cpu().numpy()
 
 		## extract action [ batch_size x horizon x transition_dim ]

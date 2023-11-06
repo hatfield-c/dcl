@@ -8,11 +8,12 @@ import entities.SimpleEntity as SimpleEntity
 
 class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
-	def __init__(self, client_id, waypoints, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
+	def __init__(self, client_id, waypoints, time_counter, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
 		self.client_id = client_id
 		self.waypoints = waypoints
 		self.waypoint_threshold = waypoint_threshold
 		self.turn_strength = turn_strength
+		self.time_counter = time_counter
 
 		self.current_action = "move"
 
@@ -25,7 +26,7 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 				position = [0, 0, -10],
 			)
 
-		self.drop_probability = 1 / 500
+		self.drop_time = 280
 
 	def GetPlan(self, sensors, metadata):
 		telemetry = sensors["telemetry"]
@@ -51,9 +52,8 @@ class PidWaypointPlanner(PlannerInterface.PlannerInterface):
 
 		desired_direction = self.GetDesiredForwardDirection(waypoint_direction, velocity)
 
-		dice_roll = random.random()
 		drop_package = False
-		if dice_roll < self.drop_probability:
+		if self.drop_time < self.time_counter.GetCount():
 			drop_package = True
 
 		plan = {

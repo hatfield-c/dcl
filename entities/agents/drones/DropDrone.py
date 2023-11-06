@@ -22,7 +22,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			permuters = None,
 			planner = None,
 			controller = None,
-			target_entity = None
+			target_entity = None,
 		):
 
 		super(DropDrone, self).__init__(
@@ -103,3 +103,9 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 	def GetPackageEntity(self):
 		return self.arm.package
+
+	def GetCameraPosition(self):
+		if self.IsPackageDropped():
+			return self.arm.Package.GetPosition()
+
+		return self.GetPosition()

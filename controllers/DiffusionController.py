@@ -5,6 +5,7 @@ import math
 
 import CONFIG
 import controllers.ControllerInterface as ControllerInterface
+import controllers.PidForwardController as PidForwardController
 
 import training.Normalizer as Normalizer
 import training.temporal as temporal
@@ -25,9 +26,9 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 
 		horizon = 4
 		self.timesteps = 20
-		total_size = 18
+		total_size = 16
 		state_size = 12
-		action_size = 6
+		action_size = 4
 		label_dif = 10000
 		label_val = 10000
 
@@ -87,8 +88,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.guide = guides.ValueGuide(self.value_manager, scale = 0.1)
 		self.policy = policies.GuidedPolicy(self.guide, self.diffusion_manager, self.normalizer)
 
-		#planner = DiffusionPlanner.DiffusionPlanner()
-		#planner.Plan(diffusion_manager, guide, normalizer)
+		self.pid_controller = PidForwardController.PidForwardController(1, 1)
 
 	def GetControlSignal(self, plan, metadata):
 		control_signal = {}
@@ -124,32 +124,37 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		conditions = {0: observation}
 		action, samples, pred_reward = self.policy(conditions, batch_size = batch_size)
 
-		control_data = {}
+		plan["desired_direction"] = action[:3]
+		plan["desired_altitude"] = action[3]
 
-		arm_actuator_signal = action[0]
-		control_data["fr_rotor_force"] = action[1]
-		control_data["fl_rotor_force"] = action[2]
-		control_data["br_rotor_force"] = action[3]
-		control_data["bl_rotor_force"] = action[4]
-		control_data["torque"] = action[5]
+		pid_control = self.pid_controller.GetControlSignal(plan, None)
+
+		#control_data = {}
+		#arm_actuator_signal = action[0]
+		#control_data["fr_rotor_force"] = action[1]
+		#control_data["fl_rotor_force"] = action[2]
+		#control_data["br_rotor_force"] = action[3]
+		#control_data["bl_rotor_force"] = action[4]
+		#control_data["torque"] = action[5]
 		#thrust_rpm = action[1]
 		#pitch_rpm = action[2]
 		#roll_rpm = action[3]
 		#yaw_rpm = action[4]
 
-		actuate_dropper = False
-		if arm_actuator_signal > 0.9:
-			actuate_dropper = True
+		#actuate_dropper = False
+		#if arm_actuator_signal > 0.9:
+		#	actuate_dropper = True
 
 		#control_data = self.MotorMixer(thrust_rpm, yaw_rpm, pitch_rpm, roll_rpm)
 
-		control_data["drop_package"] = actuate_dropper
+		pid_control["drop_package"] = plan["drop_package"]
 		#control_data["thrust_signal"] = thrust_rpm
 		#control_data["pitch_signal"] = pitch_rpm
 		#control_data["roll_signal"] = roll_rpm
 		#control_data["yaw_signal"] = yaw_rpm
 
-		return control_data
+		#return control_data
+		return pid_control
 
 	def MotorMixer(self, thrust, yaw, pitch, roll):
 		motor_vals = {}

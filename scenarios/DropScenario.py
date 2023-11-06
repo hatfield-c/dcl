@@ -97,13 +97,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		if ai_type == "waypoint":
 			waypoints = [np.array([0, -1, 6.5])]
 
-			planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 1.5, debug = True)
+			planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 1.5, time_counter = self.time_counter, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		if ai_type == "diffusion":
 			waypoints = [np.array([0, -1, 6.5])]
 
-			planner = DiffusionPlanner.DiffusionPlanner(self.client_id, waypoints, turn_strength = 2, debug = True)
+			planner = DiffusionPlanner.DiffusionPlanner(self.client_id, self.time_counter, waypoints, turn_strength = 2, debug = True)
 			controller = DiffusionController.DiffusionController(1, 1)
 
 		return planner, controller
@@ -140,14 +140,14 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 					np.array([-3, 0, 2.5])
 				],
 				origin_weights = [
-					0,
-					1,
-					0,
-					0,
-					0
+					0.02,
+					0.92,
+					0.02,
+					0.02,
+					0.02
 				],
 				min_distance = 0,
-				max_distance = 0,#1.5,
+				max_distance = 0.5,
 				default_origin = 1
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
@@ -243,7 +243,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		if self.save_render:
 
-			target_position = self.agents["simple_drone"].GetPosition()
+			target_position = self.agents["simple_drone"].GetCameraPosition()
 			eye_position = np.array([
 				target_position[0],
 				target_position[1] - 1.3,
@@ -269,7 +269,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			rgb = result[2]
 			rgb = rgb[:, :, [2, 1, 0]]
 			episode_num = str(self.episode_counter.GetCount()).zfill(3)
-			timestep = str(self.time_step).zfill(4)
+			timestep = str(self.time_counter.GetCount()).zfill(4)
 
 			filename = "data/render/frames/frame" + episode_num + "-" + timestep + ".png"
 

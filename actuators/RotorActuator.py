@@ -34,12 +34,20 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 		bl_rotor = np.clip(bl_rotor, 0, self.rotor_max)
 		torque = np.clip(torque, -self.torque_max, self.torque_max)
 
+		#self.last_command = np.array([
+		#	fr_rotor,
+		#	fl_rotor,
+		#	br_rotor,
+		#	bl_rotor,
+		#	torque
+		#])
+
+		desired_direction = control_data["desired_direction"]
 		self.last_command = np.array([
-			fr_rotor,
-			fl_rotor,
-			br_rotor,
-			bl_rotor,
-			torque
+			desired_direction[0],
+			desired_direction[1],
+			desired_direction[2],
+			control_data["desired_altitude"]
 		])
 
 		pb.applyExternalForce(

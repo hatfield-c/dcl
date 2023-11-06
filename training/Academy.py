@@ -49,10 +49,10 @@ def GenerateData():
 def TrainDiffusion():
 
 	horizon = 4
-	horizon_scale = 20
-	total_size = 18
+	horizon_scale = 2
+	total_size = 16
 	state_size = 12
-	action_size = 6
+	action_size = 4
 	n_timesteps = 20
 
 	epochs = 10000
@@ -102,10 +102,10 @@ def TrainDiffusion():
 def TrainValue():
 
 	horizon = 4
-	horizon_scale = 20
-	total_size = 18
+	horizon_scale = 2
+	total_size = 16
 	state_size = 12
-	action_size = 6
+	action_size = 4
 	epochs = 10000
 	n_timesteps = 20
 

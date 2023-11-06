@@ -1,10 +1,10 @@
 
 timestep = 0.00001
 
-client_count = 1#37
-render_scenario = True#False
+client_count = 37
+render_scenario = False
 
-episode_count = 1#300
+episode_count = 300
 episode_length = 500
 print_every_episode_genderated = 10
 

@@ -49,7 +49,7 @@ class DataStitcher:
 		for i in range(11000):
 			value = value_data[i]
 
-			if value > 0.2:
+			if value > 0:
 				val_count += 1
 
 		print("\nComplete!")
