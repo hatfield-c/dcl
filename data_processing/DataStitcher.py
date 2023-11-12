@@ -70,15 +70,15 @@ class DataStitcher:
 		for i in range(value_data.shape[0]):
 			value = value_data[i]
 
-			if value[0] == 1:
+			if value == 1:
 				one_count += 1
-			elif value[0] == -1:
+			elif value == -1:
 				neg_one_count += 1
-			elif value[0] == 0:
+			elif value == 0:
 				zero_count += 1
-			elif value[0] > 0:
+			elif value > 0:
 				positive_count += 1
-			elif value[0] < 0:
+			elif value < 0:
 				negative_count += 1
 
 		print("    +1 count:", one_count)
