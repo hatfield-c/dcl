@@ -45,22 +45,44 @@ class DataStitcher:
 		torch.save(value_data, value_path)
 		torch.save(max_data, max_path)
 
-		val_count = 0
-		for i in range(11000):
-			value = value_data[i]
-
-			if value > 0:
-				val_count += 1
-
 		print("\nComplete!")
 		print("    Stitched together", client_count, "files.")
 		print("")
-		print("    positive count:", val_count)
+		self.PrintMetaData(value_data)
 		print("")
 		print("    state path:", state_path)
 		print("    max path:", max_path)
 		print("    value path:", value_path)
 		print("")
+		print("")
 		print("    state shape:", state_data.shape)
 		print("    max shape  :", max_data.shape)
 		print("    value shape:", value_data.shape)
+
+	def PrintMetaData(self, value_data):
+
+		one_count = 0
+		neg_one_count = 0
+		zero_count = 0
+		positive_count = 0
+		negative_count = 0
+
+		for i in range(value_data.shape[0]):
+			value = value_data[i]
+
+			if value[0] == 1:
+				one_count += 1
+			elif value[0] == -1:
+				neg_one_count += 1
+			elif value[0] == 0:
+				zero_count += 1
+			elif value[0] > 0:
+				positive_count += 1
+			elif value[0] < 0:
+				negative_count += 1
+
+		print("    +1 count:", one_count)
+		print("    -1 count:", neg_one_count)
+		print("     0 count:", zero_count)
+		print("    positive:", positive_count)
+		print("    negative:", negative_count)
