@@ -13,7 +13,6 @@ import render.RenderCamera as RenderCamera
 import entities.agents.drones.TeleopDrone as TeleopDrone
 import entities.SimpleEntity as SimpleEntity
 
-import controllers.TeleopController as TeleopController
 import planners.TeleopPlanner as TeleopPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
 import controllers.PidForwardController as PidForwardController

@@ -18,27 +18,30 @@ import torch
 import numpy as np
 
 def GenerateData():
-	factory = GenericScenarioFactory.GenericScenarioFactory(scenario_class = TeleopScenario.TeleopScenario)
-	client_count = 1
-	render_scenario = True
-	timestep = CONFIG.timestep
 	
 	client_count = CONFIG.client_count
 	render_scenario = CONFIG.render_scenario
 	timestep = CONFIG.timestep
-	'''
-	factory = DropScenarioFactory.DropScenarioFactory(
-		gravity_strength = CONFIG.gravity_strength,
-		max_episodes = CONFIG.episode_count,
-		episode_length = CONFIG.episode_length,
-		ai_type = "waypoint",
-		state_data_path = CONFIG.state_data_path,
-		max_data_path = CONFIG.max_data_path,
-		value_data_path = CONFIG.value_data_path,
-		render_scenario = render_scenario,
-		save_render = False
-	)
-	'''
+	scenario = CONFIG.scenario
+	
+	if (scenario == 0):
+		factory = DropScenarioFactory.DropScenarioFactory(
+			gravity_strength = CONFIG.gravity_strength,
+			max_episodes = CONFIG.episode_count,
+			episode_length = CONFIG.episode_length,
+			ai_type = "waypoint",
+			state_data_path = CONFIG.state_data_path,
+			max_data_path = CONFIG.max_data_path,
+			value_data_path = CONFIG.value_data_path,
+			render_scenario = render_scenario,
+			save_render = False
+		)
+
+	if (scenario == 1): 
+		factory = GenericScenarioFactory.GenericScenarioFactory(scenario_class = TeleopScenario.TeleopScenario)
+		client_count = 1
+		render_scenario = True
+
 	simulator = ScenarioSimulator.ScenarioSimulator(factory)
 	simulator.Run(
 		client_count = client_count,

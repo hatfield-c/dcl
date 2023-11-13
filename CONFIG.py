@@ -2,7 +2,10 @@
 timestep = 0.00001
 
 client_count = 37
-render_scenario = True
+render_scenario = False
+scenario = 0
+#scenario 0 - drop scenario ML training
+#scenario 1 - teleoperation
 
 episode_count = 10
 episode_length = 500
