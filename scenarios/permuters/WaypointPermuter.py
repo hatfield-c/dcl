@@ -18,7 +18,7 @@ class WaypointPermuter(PermuterInterface.PermuterInterface):
 		total_weight = 0
 		origin_index = 0
 		for i in range(len(self.origins)):
-			total_weight = self.origin_weights[i]
+			total_weight += self.origin_weights[i]
 
 			if dice < total_weight:
 				origin_index = i

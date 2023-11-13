@@ -70,6 +70,9 @@ class DataStitcher:
 		for i in range(value_data.shape[0]):
 			value = value_data[i]
 
+			if len(value.shape) < 1:
+				value = [value]
+
 			if value[0] == 1:
 				one_count += 1
 			elif value[0] == -1:

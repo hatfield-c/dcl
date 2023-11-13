@@ -18,9 +18,6 @@ class DataLoader:
 
 		self.max_step = self.episode_length - stop
 
-		if horizon_scale == 1:
-			self.max_step = 1
-
 		offset_matrix = torch.arange(start, stop, step_size)
 		self.offset_matrix = offset_matrix
 

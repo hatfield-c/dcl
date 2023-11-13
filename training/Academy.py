@@ -11,7 +11,6 @@ import training.temporal as temporal
 import training.guides as guides
 
 import training.DataLoader as DataLoader
-import training.DiffusionPlanner as DiffusionPlanner
 import training.Normalizer as Normalizer
 
 import torch
@@ -31,10 +30,11 @@ def GenerateData():
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
 		episode_length = CONFIG.episode_length,
-		ai_type = "waypoint",
+		ai_type = "random",
 		state_data_path = CONFIG.state_data_path,
 		max_data_path = CONFIG.max_data_path,
 		value_data_path = CONFIG.value_data_path,
+		episode_print_count = CONFIG.print_every_episode_generated,
 		render_scenario = render_scenario,
 		save_render = False
 	)
@@ -48,8 +48,8 @@ def GenerateData():
 
 def TrainDiffusion():
 
-	horizon = 4
-	horizon_scale = 2
+	horizon = 128
+	horizon_scale = 1
 	total_size = 16
 	state_size = 12
 	action_size = 4
@@ -93,7 +93,7 @@ def TrainDiffusion():
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models/diffusion/"
+		results_folder = "models/diffusion/v1/"
 	)
 
 	trainer.train(epochs)
@@ -101,8 +101,8 @@ def TrainDiffusion():
 
 def TrainValue():
 
-	horizon = 4
-	horizon_scale = 2
+	horizon = 128
+	horizon_scale = 1
 	total_size = 16
 	state_size = 12
 	action_size = 4
@@ -145,7 +145,7 @@ def TrainValue():
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models/value/"
+		results_folder = "models/value/v1/"
 	)
 
 	trainer.train(epochs)
@@ -161,6 +161,7 @@ def DiffusionPlanning():
 		state_data_path = None,
 		max_data_path = None,
 		value_data_path = None,
+		episode_print_count = CONFIG.print_every_episode_generated,
 		render_scenario = False,
 		save_render = True
 	)

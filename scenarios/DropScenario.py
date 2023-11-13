@@ -17,6 +17,7 @@ import entities.agents.drones.DropDrone as DropDrone
 import entities.drop_scenario.TargetPole as TargetPole
 import entities.SimpleEntity as SimpleEntity
 
+import planners.RandomDirectionPlanner as RandomDirectionPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
 import planners.DiffusionPlanner as DiffusionPlanner
 
@@ -25,7 +26,9 @@ import controllers.DiffusionController as DiffusionController
 
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
+
 import observers.DropScenarioObserver as DropScenarioObserver
+import observers.DistanceDiffusionObserver as DistanceDiffusionObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -72,7 +75,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.scenario_observer = None
 		if state_data_path is not None:
-			self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
+			#self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
+			self.scenario_observer = DistanceDiffusionObserver.DistanceDiffusionObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
+
 			self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
@@ -93,6 +98,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 	def GetDroneAI(self, ai_type):
 		planner = None
 		controller = None
+
+		if ai_type == "random":
+			planner = RandomDirectionPlanner.RandomDirectionPlanner(self.client_id, distance_scale = 2, debug = True)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		if ai_type == "waypoint":
 			waypoints = [np.array([0, -1, 6.5])]
@@ -115,40 +124,26 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -1, 0.2]),
+				low_values = np.array([-5, -1, 0.4]),
 				high_values = np.array([5, 1, 1.5])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
-				#low_values = np.array([-math.pi / 8, -math.pi / 8, 0]),
-				#high_values = np.array([math.pi / 8, math.pi / 8, 2 * math.pi])
-				low_values = np.array([0, 0, 0]),
-				high_values = np.array([0, 0, 0])
+				low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
+				high_values = np.array([math.pi / 3, math.pi / 3, 2 * math.pi])
+				#low_values = np.array([0, 0, 0]),
+				#high_values = np.array([0, 0, 0])
 			),
-			"velocity": ListPermuter.ListPermuter(
-				choices_list = [np.array([0, 0, 0])]
+			"velocity": BoxPermuter.BoxPermuter(
+				low_values = np.array([0, -1, -4]),
+				high_values = np.array([0, 10, 10])
+				#low_values = np.array([0, 0, 0]),
+				#high_values = np.array([0, 0, 0])
 			),
-			"angular_velocity": ListPermuter.ListPermuter(
-				choices_list = [np.array([0, 0, 0])]
-			),
-			"waypoints": WaypointPermuter.WaypointPermuter(
-				num_points = 1,
-				origins = [
-					np.array([0, 0, 2.5]),
-					np.array([0, 6, 3.5]),
-					np.array([0, -3, 2.5]),
-					np.array([3, 0, 2.5]),
-					np.array([-3, 0, 2.5])
-				],
-				origin_weights = [
-					0.02,
-					0.92,
-					0.02,
-					0.02,
-					0.02
-				],
-				min_distance = 0,
-				max_distance = 0.5,
-				default_origin = 1
+			"angular_velocity": BoxPermuter.BoxPermuter(
+				low_values = np.array([-8, -8, -8]),
+				high_values = np.array([8, 8, 8])
+				#low_values = np.array([0, 0, 0]),
+				#high_values = np.array([0, 0, 0])
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
 		}
@@ -172,8 +167,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		pole = TargetPole.TargetPole(
 			client_id = self.client_id,
-			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
-			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
+			pole_urdf = None,#"entity_files/drop_scenario/target_pole.urdf",
+			target_urdf = "entity_files/markers/blue_diamond.urdf",#"entity_files/drop_scenario/hoop_large.urdf",
 			target_width = 0.52,
 			target_height = 1.5,
 			position = [-0.2, 5 ,0],
@@ -186,7 +181,12 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.agents["simple_drone"] = drone
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
-		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", client_id = self.client_id, is_static = True)
+		self.static_objects["floor"] = SimpleEntity.SimpleEntity(
+			urdf_name = "entity_files/20m_floor.urdf",
+			client_id = self.client_id,
+			is_static = True,
+			texture_path = "entity_files/floor_material.png"
+		)
 		self.static_objects["pole"] = pole
 
 		if self.scenario_observer is not None:
@@ -195,9 +195,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				drone,
 				pole.target,
 				pole,
-				self.static_objects["floor"],
-				distance_threshold = 1,
-				distance_reward_decay = 1
+				self.static_objects["floor"]
 			)
 
 		for agent_id in self.agents:

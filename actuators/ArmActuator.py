@@ -21,6 +21,7 @@ class ArmActuator(ActuatorInterface.ActuatorInterface):
 
 		self.offset_direction = self.offset / magnitude
 
+		package_urdf = None
 		self.package = SimpleEntity.SimpleEntity(package_urdf, client_id)
 
 		self.last_command = [ 0 ]

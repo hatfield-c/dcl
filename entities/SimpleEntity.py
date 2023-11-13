@@ -14,8 +14,12 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		velocity = [0, 0, 0],
 		angular_velocity = [0, 0 ,0],
 		is_static = False,
-		permuters = None
+		permuters = None,
+		texture_path = None
 	):
+		if urdf_name is None:
+			urdf_name = "entity_files/empty.urdf"
+
 		self.urdf_name = urdf_name
 		self.client_id = client_id
 		self.permuters = permuters
@@ -35,6 +39,13 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			useFixedBase = is_static,
 			physicsClientId = self.client_id
 		)
+
+		self.texture_path = texture_path
+		self.texture = None
+		if self.texture_path is not None:
+			self.texture = pb.loadTexture(self.texture_path)
+
+			pb.changeVisualShape(self.pb_id, -1, textureUniqueId = self.texture, physicsClientId = self.client_id)
 
 		self.state_data = {
 			"position": position,

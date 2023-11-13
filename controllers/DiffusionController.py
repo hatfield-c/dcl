@@ -24,7 +24,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.torque_scale = torque_scale
 		self.thrust_multiplier = 1
 
-		horizon = 4
+		horizon = 128
 		self.timesteps = 20
 		total_size = 16
 		state_size = 12
@@ -55,7 +55,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 			log_freq = 10,
 			save_freq = 1e20,
 			sample_freq = 1e20,
-			results_folder = "models/diffusion/"
+			results_folder = "models/diffusion/v1/"
 		)
 		self.trainer.load(label_dif)
 
@@ -81,7 +81,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 			log_freq = 10,
 			save_freq = 1e20,
 			sample_freq = 1e20,
-			results_folder = "models/value/"
+			results_folder = "models/value/v1/"
 		)
 		self.trainer.load(label_val)
 

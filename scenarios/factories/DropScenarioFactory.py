@@ -12,6 +12,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		state_data_path,
 		max_data_path,
 		value_data_path,
+		episode_print_count,
 		render_scenario,
 		save_render
 	):
@@ -22,6 +23,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 		self.state_data_path = state_data_path
 		self.max_data_path = max_data_path
 		self.value_data_path = value_data_path
+		self.episode_print_count = episode_print_count
 		self.render_scenario = render_scenario
 		self.save_render = save_render
 
@@ -36,7 +38,7 @@ class DropScenarioFactory(ScenarioFactoryInterface.ScenarioFactoryInterface):
 			state_data_path = self.state_data_path,
 			max_data_path = self.max_data_path,
 			value_data_path = self.value_data_path,
-			episode_print_count = 10,
+			episode_print_count = self.episode_print_count,
 			render_scenario = self.render_scenario,
 			save_render = self.save_render
 		)

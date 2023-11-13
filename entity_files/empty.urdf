@@ -1,14 +1,10 @@
 <?xml version="1.0"?>
-<robot name="20m_floor_t">
+<robot name="empty_t">
 	<material name="grey">
-		<color rgba="0.5 0.5 0.5 1"/>
+		<color rgba="1 1 1 0"/>
 	</material>
 
-	<link name="20m_floor_obj">
-		<contact>
-			<lateral_friction value="1"/>
-		</contact>
-
+	<link name="empty_obj">
 		<inertial>
 			<origin rpy="0 0 0" xyz="0 0 0"/>
 			<mass value=".0"/>
@@ -19,18 +15,10 @@
 			<origin rpy="0 0 0" xyz="0 0 -5"/>
 
 			<geometry>
-				<box size="40 40 10" />
+				<box size="1 1 1" />
 			</geometry>
 
 			<material name="grey"/>
 		</visual>
-
-		<collision>
-			<origin rpy="0 0 0" xyz="0 0 -5"/>
-
-			<geometry>
-				<box size="100 100 10" />
-			</geometry>
-		</collision>
 	</link>
 </robot>

@@ -207,8 +207,11 @@ class ValueFunction(nn.Module):
 		self.mid_block2 = ResidualTemporalBlock(mid_dim_2, mid_dim_3, kernel_size=5, embed_dim=time_dim, horizon=horizon)
 		self.mid_down2 = Downsample1d(mid_dim_3)
 		horizon = horizon // 2
+
 		##
-		fc_dim = mid_dim_3# * max(horizon, 1)
+		## temporary fix - multiply by 2
+		## normally just multiply by 1
+		fc_dim = mid_dim_3 * 2# * max(horizon, 1)
 
 		self.final_block = nn.Sequential(
 			nn.Linear(fc_dim + time_dim, fc_dim // 2),
@@ -240,7 +243,6 @@ class ValueFunction(nn.Module):
 		x = self.mid_block2(x, t)
 		x = self.mid_down2(x)
 		##
-
 		x = x.view(len(x), -1)
 		x = torch.cat([x, t], dim=-1)
 

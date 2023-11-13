@@ -5,7 +5,7 @@ import torch
 
 import observers.ObserverInterface as ObserverInterface
 
-class DropScenarioObserver(ObserverInterface.ObserverInterface):
+class DistanceDiffusionObserver(ObserverInterface.ObserverInterface):
 	def __init__(self, client_id, episode_print_count, time_counter, episode_counter, episode_length, debug = False):
 		self.client_id = client_id
 		self.time_counter = time_counter
@@ -27,28 +27,19 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		self.episode_time_start = time.time()
 		self.episode_print_count = episode_print_count
 
-		self.distance_threshold = 0
+		self.distance_threshold = 0.1
 		self.episode_length = 1
-		self.distance_reward_decay = 1
-
-		self.one_count = 0
-		self.neg_one_count = 0
-		self.zero_count = 0
-		self.positive_count = 0
-		self.negative_count = 0
+		self.distance_reward_decay = 0.14
 
 		self.debug = debug
 
-	def RegisterEntities(self, scenario, drone, target, pole, floor, distance_threshold, distance_reward_decay = 1):
+	def RegisterEntities(self, scenario, drone, target, pole, floor):
 		self.scenario = scenario
 		self.drone = drone
 		self.package = drone.GetPackageEntity()
 		self.target = target
 		self.pole = pole
 		self.floor = floor
-
-		self.distance_threshold = distance_threshold
-		self.distance_reward_decay = distance_reward_decay
 
 	def SaveData(self, state_path, value_path, max_path, flush_memory = False, file_type = ".pt"):
 		state_data = torch.stack(self.state_data)
@@ -84,17 +75,6 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		value = self.GetEpisodeValue(self.episode_data)
 		value = torch.FloatTensor([value])
 
-		if value[0] == 1:
-			self.one_count += 1
-		elif value[0] == -1:
-			self.neg_one_count += 1
-		elif value[0] == 0:
-			self.zero_count += 1
-		elif value[0] > 0:
-			self.positive_count += 1
-		elif value[0] < 0:
-			self.negative_count += 1
-
 		self.state_data.append(episode_states)
 		self.value_data.append(value)
 
@@ -117,8 +97,9 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 			self.drone.GetAngularVelocity(),
 		]
 
-		package_distance = target_position - package_position
-		package_distance = np.linalg.norm(package_distance)
+		#package_distance = target_position - package_position
+		#package_distance = np.linalg.norm(package_distance)
+		package_distance = np.linalg.norm(target_offset)
 
 		episode_data = {
 			"collision": self.IsDroneCollision(),
@@ -137,6 +118,7 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		is_collision = False
 		is_dropped = False
 		shortest_distance = 1e20
+		distance = episode_data[-1]["package_distance"]
 
 		for i in range(len(episode_data)):
 			data = episode_data[i]
@@ -152,16 +134,19 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 		if is_collision:
 			collision_reward = -1
 
-		pseudo_distance = shortest_distance - self.distance_threshold
+		pseudo_distance = distance - self.distance_threshold
+		pseudo_distance = pseudo_distance * self.distance_reward_decay
+		pseudo_distance = 1 - np.maximum(0, pseudo_distance)
 		pseudo_distance = np.maximum(0, pseudo_distance)
-		pseudo_distance = -(pseudo_distance * self.distance_reward_decay)
+		#pseudo_distance = -(pseudo_distance * self.distance_reward_decay)
 
-		distance_reward = np.exp(pseudo_distance)
+		#distance_reward = np.exp(pseudo_distance)
+		distance_reward = pseudo_distance
 
 		reward = distance_reward + collision_reward
 
-		if not is_dropped:
-			reward = np.minimum(-0.5, collision_reward)
+		#if not is_dropped:
+		#	reward = np.minimum(-0.5, collision_reward)
 
 		episode_time_end = time.time() - self.episode_time_start
 		self.avg_episode_time = (self.avg_episode_time + episode_time_end) / 2
@@ -173,17 +158,10 @@ class DropScenarioObserver(ObserverInterface.ObserverInterface):
 			print("  Episode", self.episode_counter.GetCount() ,"- Client " + str(self.client_id))
 			print("============================")
 			print("    Reward              :", reward)
-			print("")
 			print("    Collision           :", is_collision)
-			print("    Dropped             :", is_dropped)
-			print("    Distance            :", "{:.2f}".format(shortest_distance))
-			print("")
-			print("    +1 count:", self.one_count)
-			print("    -1 count:", self.neg_one_count)
-			print("     0 count:", self.zero_count)
-			print("    positive:", self.positive_count)
-			print("    negative:", self.negative_count)
-			print("")
+			#print("    Dropped             :", is_dropped)
+			print("    Distance            :", "{:.2f}".format(distance))
+			print("    Shortest Distance   :", "{:.2f}".format(shortest_distance))
 			print("    Average Episode Time:", "{:.2f}".format(self.avg_episode_time))
 
 		return reward
