@@ -18,15 +18,15 @@ import torch
 import numpy as np
 
 def GenerateData():
-	#factory = GenericScenarioFactory.GenericScenarioFactory(scenario_class = TeleopScenario.TeleopScenario)
-	#client_count = 1
-	#render_scenario = True
-	#timestep = CONFIG.timestep
-
+	factory = GenericScenarioFactory.GenericScenarioFactory(scenario_class = TeleopScenario.TeleopScenario)
+	client_count = 1
+	render_scenario = True
+	timestep = CONFIG.timestep
+	
 	client_count = CONFIG.client_count
 	render_scenario = CONFIG.render_scenario
 	timestep = CONFIG.timestep
-
+	'''
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
@@ -38,7 +38,7 @@ def GenerateData():
 		render_scenario = render_scenario,
 		save_render = False
 	)
-
+	'''
 	simulator = ScenarioSimulator.ScenarioSimulator(factory)
 	simulator.Run(
 		client_count = client_count,

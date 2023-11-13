@@ -65,7 +65,10 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		current_quat = plan["current_quat"]
 
 		desired_xy = desired_direction[[0, 1]]
-		desired_xy = desired_xy / np.linalg.norm(desired_xy)
+		unitFactor = np.linalg.norm(desired_xy)
+		if unitFactor == 0:
+			unitFactor = 1
+		desired_xy = desired_xy / unitFactor
 
 		local_front = Transform.GetForward(current_quat)
 		local_corner_1 = Transform.RotatePoint(current_quat, self.xy_corner_1)

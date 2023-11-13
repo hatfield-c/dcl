@@ -2,7 +2,7 @@
 timestep = 0.00001
 
 client_count = 37
-render_scenario = False
+render_scenario = True
 
 episode_count = 10
 episode_length = 500
