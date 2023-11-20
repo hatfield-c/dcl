@@ -1,4 +1,5 @@
 import pybullet as pb
+
 import time
 
 import scenarios.SimpleScenario as SimpleScenario
@@ -13,7 +14,6 @@ class ScenarioSimulator:
 
 		client_ids, scenarios = self.CreateScenarios(client_count, render_scenario)
 
-		start_time = time.time()
 		step = 0
 
 		while True:
@@ -47,13 +47,6 @@ class ScenarioSimulator:
 			client_id = client_ids[i]
 
 			pb.disconnect(client_id)
-
-		end_time = time.time() - start_time
-
-		print("\n\n==========================")
-		print("Scenario complete!")
-		print("    Run time:", "{:.2f}".format(end_time), "sec")
-		print("==========================")
 
 	def CreateScenarios(self, client_count, render_scenario):
 		client_ids = []

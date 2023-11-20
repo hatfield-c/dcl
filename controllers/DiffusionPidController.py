@@ -14,7 +14,7 @@ import training.training as training
 import training.guides as guides
 import training.policies as policies
 
-class DiffusionController(ControllerInterface.ControllerInterface):
+class DiffusionPidController(ControllerInterface.ControllerInterface):
 	def __init__(
 			self,
 			force_scale,
@@ -24,13 +24,22 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.torque_scale = torque_scale
 		self.thrust_multiplier = 1
 
-		horizon = 128
-		self.timesteps = 20
-		total_size = 16
-		state_size = 12
-		action_size = 4
-		label_dif = 10000
-		label_val = 10000
+		horizon = CONFIG.horizon
+		self.timesteps = CONFIG.n_timesteps
+		total_size = CONFIG.total_size
+		state_size = CONFIG.state_size
+		action_size = CONFIG.action_size
+		label_dif = CONFIG.diffusion_epochs
+		label_val = CONFIG.value_epochs
+
+		diffusion_dim_mults = CONFIG.diffusion_dim_mults
+		value_dim_mults = CONFIG.value_dim_mults
+
+		horizon = CONFIG.horizon
+
+		total_size = CONFIG.total_size
+		state_size = CONFIG.state_size
+		action_size = CONFIG.action_size
 
 		seed_path = CONFIG.seed_path
 		seed_maxes_path = CONFIG.seed_maxes_path
@@ -41,7 +50,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.normalizer = Normalizer.Normalizer(seed_data, action_size)
 		self.normalizer.GoToCuda()
 
-		self.temporal_model = temporal.TemporalUnet(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=(1, 4, 8), attention = True)
+		self.temporal_model = temporal.TemporalUnet(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=diffusion_dim_mults, attention = True)
 		self.temporal_model = self.temporal_model.cuda()
 
 		self.diffusion_manager = diffusion.GaussianDiffusion(self.temporal_model, horizon, state_size, action_size, n_timesteps = self.timesteps, predict_epsilon = False)
@@ -55,11 +64,11 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 			log_freq = 10,
 			save_freq = 1e20,
 			sample_freq = 1e20,
-			results_folder = "models/diffusion/v1/"
+			results_folder = CONFIG.diffusion_model_path
 		)
 		self.trainer.load(label_dif)
 
-		self.temporal_value = temporal.ValueFunction(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=(1, 2, 4, 8))
+		self.temporal_value = temporal.ValueFunction(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=value_dim_mults)
 		self.temporal_value = self.temporal_value.cuda()
 
 		self.value_manager = diffusion.ValueDiffusion(
@@ -81,7 +90,7 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 			log_freq = 10,
 			save_freq = 1e20,
 			sample_freq = 1e20,
-			results_folder = "models/value/v1/"
+			results_folder = CONFIG.value_model_path
 		)
 		self.trainer.load(label_val)
 
@@ -89,6 +98,9 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		self.policy = policies.GuidedPolicy(self.guide, self.diffusion_manager, self.normalizer)
 
 		self.pid_controller = PidForwardController.PidForwardController(1, 1)
+
+		self.plan = None
+		self.plan_index = 0
 
 	def GetControlSignal(self, plan, metadata):
 		control_signal = {}
@@ -122,7 +134,20 @@ class DiffusionController(ControllerInterface.ControllerInterface):
 		observation = observation.repeat(batch_size, 1, 1)
 
 		conditions = {0: observation}
-		action, samples, pred_reward = self.policy(conditions, batch_size = batch_size)
+
+		if 4 <= self.plan_index:
+			self.plan = None
+
+		if self.plan is None:
+			action, samples, pred_reward = self.policy(conditions, batch_size = batch_size)
+
+			self.plan = samples
+			self.plan_index = 0
+
+		plan_step = self.plan[self.plan_index]
+		self.plan_index += 1
+
+		action = plan_step[:4]
 
 		plan["desired_direction"] = action[:3]
 		plan["desired_altitude"] = action[3]

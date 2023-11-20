@@ -1,17 +1,16 @@
 
+import time
+
 import CONFIG
 import training.Academy as Academy
 import render.VideoBuilder as VideoBuilder
 
 def Main():
+	start_time = time.time()
+
 	actions = [ "help", "generate_data", "stitch_data", "train_diffusion", "train_value", "diffusion_planning", "build_video" ]
 
-	#action = actions[1]
-	#action = actions[2]
-	#action = actions[3]
-	#action = actions[4]
-	#action = actions[5]
-	action = actions[6]
+	action = CONFIG.action
 
 	if action not in actions:
 		action = actions[0]
@@ -48,5 +47,11 @@ def Main():
 
 	if action == "help":
 		print("[write help message]")
+
+	runtime = time.time() - start_time
+	runtime = "{:.2f}".format(runtime)
+
+	print("\n[" + action + "]: Operation complete")
+	print("    Total runtime: " + runtime + " sec\n")
 
 Main()

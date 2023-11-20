@@ -19,6 +19,10 @@ class RenderCamera:
 
 		self.offset = 0
 
+	def SetAngle(self, yaw, pitch):
+		self.yaw = yaw
+		self.pitch = pitch
+
 	def SetTarget(
 		self,
 		target_entity

@@ -6,7 +6,7 @@ import physics.Transform as Transform
 import planners.PlannerInterface as PlannerInterface
 import entities.SimpleEntity as SimpleEntity
 
-class DiffusionPlanner(PlannerInterface.PlannerInterface):
+class DiffusionPidPlanner(PlannerInterface.PlannerInterface):
 
 	def __init__(self, client_id, time_counter, waypoints, waypoint_threshold = 0.5, turn_strength = 1, debug = False):
 		self.client_id = client_id

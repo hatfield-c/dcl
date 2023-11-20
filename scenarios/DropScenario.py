@@ -18,11 +18,15 @@ import entities.drop_scenario.TargetPole as TargetPole
 import entities.SimpleEntity as SimpleEntity
 
 import planners.RandomDirectionPlanner as RandomDirectionPlanner
+import planners.RandomRotorPlanner as RandomRotorPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
-import planners.DiffusionPlanner as DiffusionPlanner
+import planners.DiffusionPidPlanner as DiffusionPidPlanner
+import planners.DiffusionRotorPlanner as DiffusionRotorPlanner
 
 import controllers.PidForwardController as PidForwardController
-import controllers.DiffusionController as DiffusionController
+import controllers.RotorController as RotorController
+import controllers.DiffusionPidController as DiffusionPidController
+import controllers.DiffusionRotorController as DiffusionRotorController
 
 import events.EventQueue as EventQueue
 import events.ChannelLogger as ChannelLogger
@@ -36,22 +40,26 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			client_id,
 			gravity_strength,
 			max_episodes,
-			episode_length,
+			simulation_episode_length,
+			observer_episode_length,
 			ai_type = "waypoint",
 			state_data_path = None,
 			max_data_path = None,
 			value_data_path = None,
 			episode_print_count = 1,
 			render_scenario = True,
-			save_render = False
+			save_render = False,
+			is_saved = False
 		):
 		self.client_id = client_id
 		self.ai_type = ai_type
 		self.render_scenario = render_scenario
 		self.save_render = save_render
+		self.is_saved = is_saved
 
 		self.max_episodes = max_episodes
-		self.episode_length = episode_length
+		self.simulation_episode_length = simulation_episode_length
+		self.observer_episode_length = observer_episode_length
 
 		self.avg_episode_time = 0
 		self.episode_time_start = time.time()
@@ -73,35 +81,49 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.event_queue = EventQueue.EventQueue()
 
-		self.scenario_observer = None
-		if state_data_path is not None:
+		#self.scenario_observer = None
+		#if state_data_path is not None:
 			#self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
-			self.scenario_observer = DistanceDiffusionObserver.DistanceDiffusionObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
+		self.scenario_observer = DistanceDiffusionObserver.DistanceDiffusionObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.observer_episode_length, True, self.is_saved)
 
-			self.observers["scenario_observer"] = self.scenario_observer
+		self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
 
 	def ResetScenario(self):
+
+		#if self.scenario_observer is not None and not self.scenario_observer.IsEmpty():
+		#	self.scenario_observer.EndEpisode()
+
+		#self.time_counter.Reset()
+		#self.episode_counter.Increment()
+
+		#return
+
 		for pb_id in self.unified_entities:
 			entity = self.unified_entities[pb_id]
 			permutation_data = entity.GetStatePermutation()
 
 			entity.SetState(permutation_data)
 
-		if self.scenario_observer is not None and not self.scenario_observer.IsEmpty():
-			self.scenario_observer.EndEpisode()
-
 		self.time_counter.Reset()
 		self.episode_counter.Increment()
+
+	def ResetObservers(self):
+		if not self.scenario_observer.IsEmpty():
+			self.scenario_observer.EndEpisode()
 
 	def GetDroneAI(self, ai_type):
 		planner = None
 		controller = None
 
-		if ai_type == "random":
+		if ai_type == "random_pid":
 			planner = RandomDirectionPlanner.RandomDirectionPlanner(self.client_id, distance_scale = 2, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
+		if ai_type == "random_rotor":
+			planner = RandomRotorPlanner.RandomRotorPlanner(self.client_id)
+			controller = RotorController.RotorController()
 
 		if ai_type == "waypoint":
 			waypoints = [np.array([0, -1, 6.5])]
@@ -109,11 +131,15 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			planner = PidWaypointPlanner.PidWaypointPlanner(self.client_id, waypoints, turn_strength = 1.5, time_counter = self.time_counter, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
-		if ai_type == "diffusion":
+		if ai_type == "diffusion_pid":
 			waypoints = [np.array([0, -1, 6.5])]
 
-			planner = DiffusionPlanner.DiffusionPlanner(self.client_id, self.time_counter, waypoints, turn_strength = 2, debug = True)
-			controller = DiffusionController.DiffusionController(1, 1)
+			planner = DiffusionPidPlanner.DiffusionPidPlanner(self.client_id, self.time_counter, waypoints, turn_strength = 2, debug = True)
+			controller = DiffusionPidController.DiffusionPidController(1, 1)
+
+		if ai_type == "diffusion_rotor":
+			planner = DiffusionRotorPlanner.DiffusionRotorPlanner(self.client_id, self.time_counter)
+			controller = DiffusionRotorController.DiffusionRotorController(1, 1)
 
 		return planner, controller
 
@@ -124,18 +150,20 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -1, 0.4]),
-				high_values = np.array([5, 1, 1.5])
+				low_values = np.array([-5, -5, 0.4]),
+				high_values = np.array([5, 5, 3])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
-				low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
-				high_values = np.array([math.pi / 3, math.pi / 3, 2 * math.pi])
+				#low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
+				#high_values = np.array([math.pi / 3, math.pi / 3, 2 * math.pi])
+				low_values = np.array([-math.pi, -math.pi, -math.pi]),
+				high_values = np.array([math.pi, math.pi, math.pi])
 				#low_values = np.array([0, 0, 0]),
 				#high_values = np.array([0, 0, 0])
 			),
 			"velocity": BoxPermuter.BoxPermuter(
-				low_values = np.array([0, -1, -4]),
-				high_values = np.array([0, 10, 10])
+				low_values = np.array([4, -4, -4]),
+				high_values = np.array([4, 4, 4])
 				#low_values = np.array([0, 0, 0]),
 				#high_values = np.array([0, 0, 0])
 			),
@@ -145,7 +173,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				#low_values = np.array([0, 0, 0]),
 				#high_values = np.array([0, 0, 0])
 			),
-			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ])
+			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ]),
+			"start_position": ListPermuter.ListPermuter(choices_list = [ True ])
 		}
 
 		drone = DropDrone.DropDrone(
@@ -169,9 +198,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			client_id = self.client_id,
 			pole_urdf = None,#"entity_files/drop_scenario/target_pole.urdf",
 			target_urdf = "entity_files/markers/blue_diamond.urdf",#"entity_files/drop_scenario/hoop_large.urdf",
-			target_width = 0.52,
-			target_height = 1.5,
-			position = [-0.2, 5 ,0],
+			target_width = 0,#0.52,
+			target_height = 0,#1.5,
+			position = [0, 0, 1.5],
 			is_static = True
 		)
 
@@ -281,7 +310,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			return False
 
-		if self.time_counter.GetCount() == self.episode_length:
+		if self.time_counter.GetCount() % self.observer_episode_length == 0:
+			self.ResetObservers()
+
+		if self.time_counter.GetCount() == self.simulation_episode_length:
 			self.ResetScenario()
 
 		return True

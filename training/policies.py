@@ -31,27 +31,29 @@ class GuidedPolicy:
 
 		values = samples.values
 
+		print("[Predicted Value]:", values[0])
+
 		#maxes, indices = torch.max(values, dim = 0)
 		#max_index = indices[0]
 		max_index = 0
 		max_val = values[0].detach().cpu().numpy()
 		#max_val = maxes[0].detach().cpu()
 
-		trajectories = samples.trajectories[:, [0]]
+		trajectories = samples.trajectories#[:, [0]]
 
 		trajectories = self.normalizer.unnormalize(trajectories)
 		trajectories = trajectories.detach().cpu().numpy()
 
 		## extract action [ batch_size x horizon x transition_dim ]
-		action = trajectories[max_index, 0, :self.action_dim]
+		action0 = trajectories[max_index, 0, :self.action_dim]
 
 		### extract first action
 		#action = actions[0, 0]
 
-		observations = trajectories[:, :, self.action_dim:]
+		#observations = trajectories[:, :, self.action_dim:]
 
-		trajectories = Trajectories(action, observations, samples.values)
-		return action, trajectories, max_val
+		#trajectories = Trajectories(action, observations, samples.values)
+		return action0, trajectories[max_index], max_val
 
 	@property
 	def device(self):

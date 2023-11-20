@@ -29,14 +29,16 @@ def GenerateData():
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
-		episode_length = CONFIG.episode_length,
-		ai_type = "random",
+		simulation_episode_length = CONFIG.observer_episode_length,
+		observer_episode_length = CONFIG.observer_episode_length,
+		ai_type = "random_rotor",
 		state_data_path = CONFIG.state_data_path,
 		max_data_path = CONFIG.max_data_path,
 		value_data_path = CONFIG.value_data_path,
 		episode_print_count = CONFIG.print_every_episode_generated,
 		render_scenario = render_scenario,
-		save_render = False
+		save_render = False,
+		is_saved = True
 	)
 
 	simulator = ScenarioSimulator.ScenarioSimulator(factory)
@@ -48,14 +50,17 @@ def GenerateData():
 
 def TrainDiffusion():
 
-	horizon = 128
-	horizon_scale = 1
-	total_size = 16
-	state_size = 12
-	action_size = 4
-	n_timesteps = 20
+	horizon = CONFIG.horizon
+	horizon_scale = CONFIG.horizon_scale
+	total_size = CONFIG.total_size
+	state_size = CONFIG.state_size
+	action_size = CONFIG.action_size
+	n_timesteps = CONFIG.n_timesteps
+	dim_mults = CONFIG.diffusion_dim_mults
+	batch_size = CONFIG.diffusion_batch_size
 
-	epochs = 10000
+	epochs = CONFIG.diffusion_epochs
+	lr = CONFIG.diffusion_lr
 
 	episode_length = CONFIG.episode_length
 
@@ -76,38 +81,55 @@ def TrainDiffusion():
 
 	data_loader = DataLoader.DataLoader(seed_data, seed_values, episode_length, horizon, horizon_scale)
 
-	temporal_model = temporal.TemporalUnet(horizon = horizon, transition_dim = total_size, cond_dim = None, dim_mults=(1, 4, 8), attention = True)
+	temporal_model = temporal.TemporalUnet(
+		horizon = horizon,
+		transition_dim = total_size,
+		cond_dim = None,
+		dim_mults= dim_mults,
+		attention = True
+	)
 	temporal_model = temporal_model.cuda()
 
-	diffusion_manager = diffusion.GaussianDiffusion(temporal_model, horizon, state_size, action_size, loss_type = "l2", n_timesteps = n_timesteps, predict_epsilon = False)
+	diffusion_manager = diffusion.GaussianDiffusion(
+		temporal_model,
+		horizon,
+		state_size,
+		action_size,
+		loss_type = "l2",
+		n_timesteps = n_timesteps,
+		predict_epsilon = False
+	)
 	diffusion_manager = diffusion_manager.cuda()
 
 	trainer = training.Trainer(
 		diffusion_model = diffusion_manager,
 		dataloader = data_loader,
 		dataset = seed_data,
-		train_lr = 2e-4,
+		train_lr = lr,
 		renderer = None,
 		log_freq = 100,
-		train_batch_size = 128,
+		train_batch_size = batch_size,
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models/diffusion/v1/"
+		results_folder = CONFIG.diffusion_model_path
 	)
 
 	trainer.train(epochs)
 	trainer.save(epochs)
 
 def TrainValue():
+	horizon = CONFIG.horizon
+	horizon_scale = CONFIG.horizon_scale
+	total_size = CONFIG.total_size
+	state_size = CONFIG.state_size
+	action_size = CONFIG.action_size
+	n_timesteps = CONFIG.n_timesteps
+	dim_mults = CONFIG.value_dim_mults
+	batch_size = CONFIG.value_batch_size
 
-	horizon = 128
-	horizon_scale = 1
-	total_size = 16
-	state_size = 12
-	action_size = 4
-	epochs = 10000
-	n_timesteps = 20
+	epochs = CONFIG.value_epochs
+	lr = CONFIG.value_lr
 
 	episode_length = CONFIG.episode_length
 
@@ -128,24 +150,37 @@ def TrainValue():
 
 	data_loader = DataLoader.DataLoader(seed_data, seed_values, episode_length, horizon, horizon_scale)
 
-	temporal_model = temporal.ValueFunction(horizon = horizon, transition_dim = total_size, cond_dim = None)
+	temporal_model = temporal.ValueFunction(
+		horizon = horizon,
+		transition_dim = total_size,
+		dim_mults = dim_mults,
+		cond_dim = None
+	)
 	temporal_model = temporal_model.cuda()
 
-	diffusion_manager = diffusion.ValueDiffusion(temporal_model, horizon, state_size, action_size, loss_type = "value_l2", n_timesteps = n_timesteps, predict_epsilon = False)
+	diffusion_manager = diffusion.ValueDiffusion(
+		temporal_model,
+		horizon,
+		state_size,
+		action_size,
+		loss_type = "value_l2",
+		n_timesteps = n_timesteps,
+		predict_epsilon = False
+	)
 	diffusion_manager = diffusion_manager.cuda()
 
 	trainer = training.Trainer(
 		diffusion_model = diffusion_manager,
 		dataloader = data_loader,
 		dataset = seed_data,
-		train_lr = 2e-4,
+		train_lr = lr,
 		renderer = None,
 		log_freq = 100,
-		train_batch_size = 128,
+		train_batch_size = batch_size,
 		gradient_accumulate_every = 2,
 		save_freq = 1e20,
 		sample_freq = 1e20,
-		results_folder = "models/value/v1/"
+		results_folder = CONFIG.value_model_path
 	)
 
 	trainer.train(epochs)
@@ -156,14 +191,16 @@ def DiffusionPlanning():
 	factory = DropScenarioFactory.DropScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
-		episode_length = CONFIG.episode_length,
-		ai_type = "diffusion",
+		simulation_episode_length = CONFIG.simulation_episode_length,
+		observer_episode_length = CONFIG.observer_episode_length,
+		ai_type = "diffusion_rotor",
 		state_data_path = None,
 		max_data_path = None,
 		value_data_path = None,
-		episode_print_count = CONFIG.print_every_episode_generated,
+		episode_print_count = 50,
 		render_scenario = False,
-		save_render = True
+		save_render = True,
+		is_saved = False
 	)
 
 	timestep = CONFIG.timestep

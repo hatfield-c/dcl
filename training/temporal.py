@@ -211,7 +211,8 @@ class ValueFunction(nn.Module):
 		##
 		## temporary fix - multiply by 2
 		## normally just multiply by 1
-		fc_dim = mid_dim_3 * 2# * max(horizon, 1)
+		#fc_dim = mid_dim_3 * 2# * max(horizon, 1)
+		fc_dim = mid_dim_3# * max(horizon, 1)
 
 		self.final_block = nn.Sequential(
 			nn.Linear(fc_dim + time_dim, fc_dim // 2),

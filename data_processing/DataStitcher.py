@@ -54,10 +54,10 @@ class DataStitcher:
 		print("    max path:", max_path)
 		print("    value path:", value_path)
 		print("")
-		print("")
 		print("    state shape:", state_data.shape)
 		print("    max shape  :", max_data.shape)
 		print("    value shape:", value_data.shape)
+		print(max_data)
 
 	def PrintMetaData(self, value_data):
 
@@ -67,25 +67,32 @@ class DataStitcher:
 		positive_count = 0
 		negative_count = 0
 
+		avg_count = 0
+
 		for i in range(value_data.shape[0]):
 			value = value_data[i]
 
 			if len(value.shape) < 1:
 				value = [value]
 
-			if value[0] == 1:
-				one_count += 1
-			elif value[0] == -1:
-				neg_one_count += 1
-			elif value[0] == 0:
+			avg_count += value[0]
+
+			#if value[0] >= 1:
+			#	one_count += 1
+			#elif value[0] <= -1:
+			#	neg_one_count += 1
+			if value[0] == 0.5:
 				zero_count += 1
-			elif value[0] > 0:
+			elif value[0] > 0.5:
 				positive_count += 1
-			elif value[0] < 0:
+			elif value[0] < 0.5:
 				negative_count += 1
 
-		print("    +1 count:", one_count)
-		print("    -1 count:", neg_one_count)
-		print("     0 count:", zero_count)
-		print("    positive:", positive_count)
-		print("    negative:", negative_count)
+		avg_count = avg_count / value_data.shape[0]
+
+		#print("    >+1 count:", one_count)
+		#print("    <-1 count:", neg_one_count)
+		print("     =0.5 count:", zero_count)
+		print("     >0.5 count:", positive_count)
+		print("     <0.5 count:", negative_count)
+		print("    average :", avg_count)

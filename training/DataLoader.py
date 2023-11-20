@@ -7,6 +7,8 @@ class DataLoader:
 		self.samples = samples.cuda()
 		self.targets = targets.cuda()
 
+		print("[Samples Shape]:", self.samples.shape)
+
 		self.data_count = samples.shape[0]
 		self.episode_length = episode_length
 		self.horizon = horizon

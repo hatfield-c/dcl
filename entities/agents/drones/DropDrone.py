@@ -98,6 +98,9 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 			self.planner.SetWaypoints(waypoints)
 
+		if "start_position" in state_data:
+			self.planner.ResetStart()
+
 	def GetSensors(self):
 		return self.sensors
 
@@ -105,7 +108,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		return self.arm.package
 
 	def GetCameraPosition(self):
-		if self.IsPackageDropped():
-			return self.arm.package.GetPosition()
+		#if self.IsPackageDropped():
+		#	return self.arm.package.GetPosition()
 
 		return self.GetPosition()
