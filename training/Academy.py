@@ -31,7 +31,7 @@ def GenerateData():
 		max_episodes = CONFIG.episode_count,
 		simulation_episode_length = CONFIG.observer_episode_length,
 		observer_episode_length = CONFIG.observer_episode_length,
-		ai_type = "random_rotor",
+		ai_type = "random_bezier",
 		state_data_path = CONFIG.state_data_path,
 		max_data_path = CONFIG.max_data_path,
 		value_data_path = CONFIG.value_data_path,
@@ -56,6 +56,7 @@ def TrainDiffusion():
 	state_size = CONFIG.state_size
 	action_size = CONFIG.action_size
 	n_timesteps = CONFIG.n_timesteps
+	dim = CONFIG.diffusion_dim
 	dim_mults = CONFIG.diffusion_dim_mults
 	batch_size = CONFIG.diffusion_batch_size
 
@@ -85,7 +86,9 @@ def TrainDiffusion():
 		horizon = horizon,
 		transition_dim = total_size,
 		cond_dim = None,
-		dim_mults= dim_mults,
+		dim = dim,
+		dim_mults = dim_mults,
+		num_norm_groups = CONFIG.num_diffusion_norm_groups,
 		attention = True
 	)
 	temporal_model = temporal_model.cuda()
@@ -125,6 +128,7 @@ def TrainValue():
 	state_size = CONFIG.state_size
 	action_size = CONFIG.action_size
 	n_timesteps = CONFIG.n_timesteps
+	dim = CONFIG.value_dim
 	dim_mults = CONFIG.value_dim_mults
 	batch_size = CONFIG.value_batch_size
 
@@ -153,7 +157,9 @@ def TrainValue():
 	temporal_model = temporal.ValueFunction(
 		horizon = horizon,
 		transition_dim = total_size,
+		dim = dim,
 		dim_mults = dim_mults,
+		num_norm_groups = CONFIG.num_value_norm_groups,
 		cond_dim = None
 	)
 	temporal_model = temporal_model.cuda()
@@ -193,7 +199,7 @@ def DiffusionPlanning():
 		max_episodes = CONFIG.episode_count,
 		simulation_episode_length = CONFIG.simulation_episode_length,
 		observer_episode_length = CONFIG.observer_episode_length,
-		ai_type = "diffusion_rotor",
+		ai_type = "diffusion_bezier",
 		state_data_path = None,
 		max_data_path = None,
 		value_data_path = None,

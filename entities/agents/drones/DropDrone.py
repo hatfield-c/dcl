@@ -101,6 +101,11 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		if "start_position" in state_data:
 			self.planner.ResetStart()
 
+		if "bezier_path" in state_data:
+			bezier_path = state_data["bezier_path"]
+
+			self.planner.SetNewPath(bezier_path)
+
 	def GetSensors(self):
 		return self.sensors
 

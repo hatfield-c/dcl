@@ -47,7 +47,6 @@ class Conv1dBlock(nn.Module):
 
 	def __init__(self, inp_channels, out_channels, kernel_size, n_groups=8):
 		super().__init__()
-
 		self.block = nn.Sequential(
 			nn.Conv1d(inp_channels, out_channels, kernel_size, padding=kernel_size // 2),
 			Rearrange('batch channels horizon -> batch channels 1 horizon'),

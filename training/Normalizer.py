@@ -12,7 +12,7 @@ class Normalizer:
 		self.domain_high = torch.max(domain_high, dim = 0).values
 
 		self.means = torch.mean(data, dim = [0, 1])
-		self.std = torch.std(data, dim = [0, 1])
+		self.std = torch.std(data, dim = [0, 1]) + 1e-20
 
 		self.means_batch = self.means.view(1, 1, -1)
 		self.std_batch = self.std.view(1, 1, -1)

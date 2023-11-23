@@ -57,7 +57,9 @@ class DataStitcher:
 		print("    state shape:", state_data.shape)
 		print("    max shape  :", max_data.shape)
 		print("    value shape:", value_data.shape)
-		print(max_data)
+		print("")
+		print("    max data:")
+		print("        ", max_data)
 
 	def PrintMetaData(self, value_data):
 

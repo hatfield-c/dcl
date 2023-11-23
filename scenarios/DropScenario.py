@@ -20,8 +20,10 @@ import entities.SimpleEntity as SimpleEntity
 import planners.RandomDirectionPlanner as RandomDirectionPlanner
 import planners.RandomRotorPlanner as RandomRotorPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
+import planners.BezierPlanner as BezierPlanner
 import planners.DiffusionPidPlanner as DiffusionPidPlanner
 import planners.DiffusionRotorPlanner as DiffusionRotorPlanner
+import planners.DiffusionBezierPlanner as DiffusionBezierPlanner
 
 import controllers.PidForwardController as PidForwardController
 import controllers.RotorController as RotorController
@@ -33,6 +35,7 @@ import events.ChannelLogger as ChannelLogger
 
 import observers.DropScenarioObserver as DropScenarioObserver
 import observers.DistanceDiffusionObserver as DistanceDiffusionObserver
+import observers.BezierObserver as BezierObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -81,24 +84,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.event_queue = EventQueue.EventQueue()
 
-		#self.scenario_observer = None
-		#if state_data_path is not None:
-			#self.scenario_observer = DropScenarioObserver.DropScenarioObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.episode_length, True)
-		self.scenario_observer = DistanceDiffusionObserver.DistanceDiffusionObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.observer_episode_length, True, self.is_saved)
+		self.scenario_observer = BezierObserver.BezierObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.observer_episode_length, True, self.is_saved)
 
 		self.observers["scenario_observer"] = self.scenario_observer
 
 		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
 
 	def ResetScenario(self):
-
-		#if self.scenario_observer is not None and not self.scenario_observer.IsEmpty():
-		#	self.scenario_observer.EndEpisode()
-
-		#self.time_counter.Reset()
-		#self.episode_counter.Increment()
-
-		#return
 
 		for pb_id in self.unified_entities:
 			entity = self.unified_entities[pb_id]
@@ -125,6 +117,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			planner = RandomRotorPlanner.RandomRotorPlanner(self.client_id)
 			controller = RotorController.RotorController()
 
+		if ai_type == "random_bezier":
+			planner = BezierPlanner.BezierPlanner(self.client_id, control_points = np.zeros((3, 3)), episode_length = self.observer_episode_length, debug = False)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
 		if ai_type == "waypoint":
 			waypoints = [np.array([0, -1, 6.5])]
 
@@ -141,6 +137,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			planner = DiffusionRotorPlanner.DiffusionRotorPlanner(self.client_id, self.time_counter)
 			controller = DiffusionRotorController.DiffusionRotorController(1, 1)
 
+		if ai_type == "diffusion_bezier":
+			planner = DiffusionBezierPlanner.DiffusionBezierPlanner(self.client_id, episode_length = self.observer_episode_length)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
 		return planner, controller
 
 	def InstantiateDrone(self, start_pos, start_rotation, target):
@@ -149,32 +149,35 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		planner, controller = self.GetDroneAI(self.ai_type)
 
 		permuters = {
+			"bezier_path": BoxPermuter.BoxPermuter(
+				low_values = np.array([-5, -2, 0.4, -3, -3, 0, -3, -1, 2 ]),
+				high_values = np.array([5, -3, 3, 3, 3, 3, 3, 1, 3 ]),
+			),
 			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -5, 0.4]),
-				high_values = np.array([5, 5, 3])
+				low_values = np.array([-5, -3, 0.4]),
+				high_values = np.array([5, -4, 2.5])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
 				#low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
 				#high_values = np.array([math.pi / 3, math.pi / 3, 2 * math.pi])
-				low_values = np.array([-math.pi, -math.pi, -math.pi]),
-				high_values = np.array([math.pi, math.pi, math.pi])
-				#low_values = np.array([0, 0, 0]),
-				#high_values = np.array([0, 0, 0])
+				#low_values = np.array([-math.pi, -math.pi, -math.pi]),
+				#high_values = np.array([math.pi, math.pi, math.pi])
+				low_values = np.array([0, 0, 0]),
+				high_values = np.array([0, 0, 0])
 			),
 			"velocity": BoxPermuter.BoxPermuter(
-				low_values = np.array([4, -4, -4]),
-				high_values = np.array([4, 4, 4])
-				#low_values = np.array([0, 0, 0]),
-				#high_values = np.array([0, 0, 0])
+				#low_values = np.array([4, -4, -4]),
+				#high_values = np.array([4, 4, 4])
+				low_values = np.array([0, 0, 0]),
+				high_values = np.array([0, 0, 0])
 			),
 			"angular_velocity": BoxPermuter.BoxPermuter(
-				low_values = np.array([-8, -8, -8]),
-				high_values = np.array([8, 8, 8])
-				#low_values = np.array([0, 0, 0]),
-				#high_values = np.array([0, 0, 0])
+				#low_values = np.array([-8, -8, -8]),
+				#high_values = np.array([8, 8, 8])
+				low_values = np.array([0, 0, 0]),
+				high_values = np.array([0, 0, 0])
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ]),
-			"start_position": ListPermuter.ListPermuter(choices_list = [ True ])
 		}
 
 		drone = DropDrone.DropDrone(

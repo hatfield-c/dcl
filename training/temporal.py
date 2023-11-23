@@ -19,17 +19,18 @@ from training.helpers import (
 
 class ResidualTemporalBlock(nn.Module):
 
-	def __init__(self, inp_channels, out_channels, embed_dim, horizon, kernel_size=5):
+	def __init__(self, inp_channels, out_channels, embed_dim, horizon, kernel_size=5, n_groups = 8):
 		super().__init__()
 
 		self.blocks = nn.ModuleList([
-			Conv1dBlock(inp_channels, out_channels, kernel_size),
-			Conv1dBlock(out_channels, out_channels, kernel_size),
+			Conv1dBlock(inp_channels, out_channels, kernel_size, n_groups),
+			Conv1dBlock(out_channels, out_channels, kernel_size, n_groups),
 		])
 
 		self.time_mlp = nn.Sequential(
-			nn.Mish(),
+			#nn.Mish(),
 			nn.Linear(embed_dim, out_channels),
+			nn.Mish(),
 			Rearrange('batch t -> batch t 1'),
 		)
 
@@ -45,6 +46,7 @@ class ResidualTemporalBlock(nn.Module):
 		'''
 		out = self.blocks[0](x) + self.time_mlp(t)
 		out = self.blocks[1](out)
+
 		return out + self.residual_conv(x)
 
 
@@ -57,6 +59,7 @@ class TemporalUnet(nn.Module):
 		cond_dim,
 		dim=32,
 		dim_mults=(1, 2, 4, 8),
+		num_norm_groups = 8,
 		attention=False,
 	):
 		super().__init__()
@@ -82,8 +85,8 @@ class TemporalUnet(nn.Module):
 			is_last = ind >= (num_resolutions - 1)
 
 			self.downs.append(nn.ModuleList([
-				ResidualTemporalBlock(dim_in, dim_out, embed_dim=time_dim, horizon=horizon),
-				ResidualTemporalBlock(dim_out, dim_out, embed_dim=time_dim, horizon=horizon),
+				ResidualTemporalBlock(dim_in, dim_out, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
+				ResidualTemporalBlock(dim_out, dim_out, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
 				Residual(PreNorm(dim_out, LinearAttention(dim_out))) if attention else nn.Identity(),
 				Downsample1d(dim_out) if not is_last else nn.Identity()
 			]))
@@ -92,16 +95,16 @@ class TemporalUnet(nn.Module):
 				horizon = horizon // 2
 
 		mid_dim = dims[-1]
-		self.mid_block1 = ResidualTemporalBlock(mid_dim, mid_dim, embed_dim=time_dim, horizon=horizon)
+		self.mid_block1 = ResidualTemporalBlock(mid_dim, mid_dim, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups)
 		self.mid_attn = Residual(PreNorm(mid_dim, LinearAttention(mid_dim))) if attention else nn.Identity()
-		self.mid_block2 = ResidualTemporalBlock(mid_dim, mid_dim, embed_dim=time_dim, horizon=horizon)
+		self.mid_block2 = ResidualTemporalBlock(mid_dim, mid_dim, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups)
 
 		for ind, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
 			is_last = ind >= (num_resolutions - 1)
 
 			self.ups.append(nn.ModuleList([
-				ResidualTemporalBlock(dim_out * 2, dim_in, embed_dim=time_dim, horizon=horizon),
-				ResidualTemporalBlock(dim_in, dim_in, embed_dim=time_dim, horizon=horizon),
+				ResidualTemporalBlock(dim_out * 2, dim_in, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
+				ResidualTemporalBlock(dim_in, dim_in, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
 				Residual(PreNorm(dim_in, LinearAttention(dim_in))) if attention else nn.Identity(),
 				Upsample1d(dim_in) if not is_last else nn.Identity()
 			]))
@@ -110,11 +113,31 @@ class TemporalUnet(nn.Module):
 				horizon = horizon * 2
 
 		self.final_conv = nn.Sequential(
-			Conv1dBlock(dim, dim, kernel_size=5),
+			Conv1dBlock(dim, dim, kernel_size=5, n_groups = num_norm_groups),
 			nn.Conv1d(dim, transition_dim, 1),
 		)
 
+		self.dense = nn.ModuleList([
+			ResidualTemporalBlock(15, 30, embed_dim = 1, horizon = 3, n_groups = 5),
+			ResidualTemporalBlock(30, 45, embed_dim = 1, horizon = 3, n_groups = 5),
+			ResidualTemporalBlock(45, 30, embed_dim = 1, horizon = 3, n_groups = 5),
+			ResidualTemporalBlock(30, 15, embed_dim = 1, horizon = 3, n_groups = 5),
+		])
+
 	def forward(self, x, cond, t):
+
+		x = einops.rearrange(x, 'b h t -> b t h')
+		t = t / 1.0
+		t = t.view(-1, 1)
+
+		for resnet in self.dense:
+
+			x = resnet(x, t)
+
+		x = einops.rearrange(x, 'b t h -> b h t')
+
+		return x
+
 		'''
 			x : [ batch x horizon x transition ]
 		'''
@@ -163,6 +186,7 @@ class ValueFunction(nn.Module):
 		cond_dim,
 		dim=32,
 		dim_mults=(1, 2, 4, 8),
+		num_norm_groups = 1,
 		out_dim=1,
 	):
 		super().__init__()
@@ -187,8 +211,8 @@ class ValueFunction(nn.Module):
 			is_last = ind >= (num_resolutions - 1)
 
 			self.blocks.append(nn.ModuleList([
-				ResidualTemporalBlock(dim_in, dim_out, kernel_size=5, embed_dim=time_dim, horizon=horizon),
-				ResidualTemporalBlock(dim_out, dim_out, kernel_size=5, embed_dim=time_dim, horizon=horizon),
+				ResidualTemporalBlock(dim_in, dim_out, kernel_size=5, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
+				ResidualTemporalBlock(dim_out, dim_out, kernel_size=5, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups),
 				Downsample1d(dim_out)
 			]))
 
@@ -200,11 +224,11 @@ class ValueFunction(nn.Module):
 		mid_dim_3 = mid_dim // 4
 
 		##
-		self.mid_block1 = ResidualTemporalBlock(mid_dim, mid_dim_2, kernel_size=5, embed_dim=time_dim, horizon=horizon)
+		self.mid_block1 = ResidualTemporalBlock(mid_dim, mid_dim_2, kernel_size=5, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups)
 		self.mid_down1 = Downsample1d(mid_dim_2)
 		horizon = horizon // 2
 		##
-		self.mid_block2 = ResidualTemporalBlock(mid_dim_2, mid_dim_3, kernel_size=5, embed_dim=time_dim, horizon=horizon)
+		self.mid_block2 = ResidualTemporalBlock(mid_dim_2, mid_dim_3, kernel_size=5, embed_dim=time_dim, horizon=horizon, n_groups = num_norm_groups)
 		self.mid_down2 = Downsample1d(mid_dim_3)
 		horizon = horizon // 2
 
@@ -220,7 +244,40 @@ class ValueFunction(nn.Module):
 			nn.Linear(fc_dim // 2, out_dim),
 		)
 
-	def forward(self, x, cond, time, *args):
+		self.dense = nn.ModuleList([
+			ResidualTemporalBlock(15, 30, embed_dim = 1, horizon = 3, n_groups = 5),
+			ResidualTemporalBlock(30, 30, embed_dim = 1, horizon = 3, n_groups = 5),
+			ResidualTemporalBlock(30, 15, embed_dim = 1, horizon = 3, n_groups = 5),
+
+		])
+
+		self.final = nn.ModuleList([
+			nn.Flatten(),
+			nn.Linear(15 * 3, 15),
+			nn.Mish(),
+			nn.Linear(15, 1),
+		])
+
+
+
+	def forward(self, x, cond, t, *args):
+		x = einops.rearrange(x, 'b h t -> b t h')
+		t = t / 1.0
+		t = t.view(-1, 1)
+
+		#x = x.view(-1, 15 * 3)
+
+		for resnet in self.dense:
+			x = resnet(x, t)
+
+		for layer in self.final:
+			x = layer(x)
+
+		#x = einops.rearrange(x, 'b t h -> b h t')
+
+		return x
+
+
 		'''
 			x : [ batch x horizon x transition ]
 		'''

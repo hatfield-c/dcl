@@ -28,13 +28,13 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 		#else:
 		#	self.last_command = np.zeros(4)
 
-		self.last_command = np.array([
-			fr_rotor,
-			fl_rotor,
-			br_rotor,
-			bl_rotor,
-			torque
-		])
+		#self.last_command = np.array([
+		#	fr_rotor,
+		#	fl_rotor,
+		#	br_rotor,
+		#	bl_rotor,
+		#	torque
+		#])
 
 		fr_rotor = np.clip(fr_rotor, 0, self.rotor_max)
 		fl_rotor = np.clip(fl_rotor, 0, self.rotor_max)
@@ -46,7 +46,6 @@ class RotorActuator(ActuatorInterface.ActuatorInterface):
 		#self.last_command = np.array([
 		#	desired_direction[0],
 		#	desired_direction[1],
-		#	desired_direction[2],
 		#	control_data["desired_altitude"]
 		#])
 
