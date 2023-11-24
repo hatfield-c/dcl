@@ -145,7 +145,7 @@ class DiffusionBezierPlanner(PlannerInterface.PlannerInterface):
 			observation = observation.view(1, 1, -1)
 			observation = observation.repeat(batch_size, 1, 1)
 
-			conditions = {0: observation, 1: observation, 2: observation}
+			conditions = {0: observation}
 
 			action, samples, pred_reward = self.policy(conditions, batch_size = batch_size)
 

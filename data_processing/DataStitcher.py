@@ -63,6 +63,7 @@ class DataStitcher:
 
 	def PrintMetaData(self, value_data):
 
+		eight_count = 0
 		one_count = 0
 		neg_one_count = 0
 		zero_count = 0
@@ -90,6 +91,9 @@ class DataStitcher:
 			elif value[0] < 0.5:
 				negative_count += 1
 
+			if value[0] > 0.8:
+				eight_count += 1
+
 		avg_count = avg_count / value_data.shape[0]
 
 		#print("    >+1 count:", one_count)
@@ -97,4 +101,5 @@ class DataStitcher:
 		print("     =0.5 count:", zero_count)
 		print("     >0.5 count:", positive_count)
 		print("     <0.5 count:", negative_count)
+		print("     >0.8 count:", eight_count)
 		print("    average :", avg_count)

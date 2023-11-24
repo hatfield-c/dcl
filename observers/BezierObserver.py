@@ -32,7 +32,7 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.progress_reward_decay = 20
-		self.distance_reward_decay = 1.5
+		self.distance_reward_decay = 0.4#1.5
 
 		self.debug = debug
 
@@ -83,13 +83,17 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 
 		if self.is_saved:
 			control_points = torch.FloatTensor(self.drone.planner.control_points)
-			start_state = torch.FloatTensor(episode_states[0])
+
+			state_indices = [0, episode_states.shape[0] // 2, -1]
+			control_states = torch.FloatTensor(episode_states[state_indices])
 
 			horizon_states = []
 
 			for i in range(3):
 				control_point = control_points[i]
-				state = torch.cat((control_point, start_state))
+				control_state = control_states[i]
+
+				state = torch.cat((control_point, control_state))
 
 				horizon_states.append(state)
 
@@ -155,8 +159,8 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 
 		#progress_reward = progress * self.progress_reward_decay
 		#progress_reward = self.SigmoidReward(progress)
-		#distance_reward = self.LinearReward(distance_last)
-		distance_reward = self.ExponentialReward(distance_last)
+		distance_reward = self.LinearReward(distance_last)
+		#distance_reward = self.ExponentialReward(distance_last)
 
 		reward = distance_reward# + collision_reward
 		#reward = distance_reward + progress_reward
@@ -180,7 +184,8 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 			#print("    Collision           :", is_collision)
 			#print("    Dropped            :", is_dropped)
 			print("")
-			print("    Progress            :", "{:.2f}".format(progress))
+			print("    Distance            :", "{:.2f}".format(distance_last))
+			#print("    Progress            :", "{:.2f}".format(progress))
 			print("    Average Episode Time:", "{:.2f}".format(self.avg_episode_time))
 
 		if CONFIG.pause_every_episode and self.client_id == 0:

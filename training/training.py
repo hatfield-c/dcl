@@ -114,8 +114,8 @@ class Trainer(object):
 
 				first_observation = batch_data[:, 0, self.model.action_dim:]
 
-				#conditions = { 0: first_observation }
-				conditions = { 0: first_observation, 1: first_observation, 2: first_observation }
+				conditions = { 0: first_observation }
+				#conditions = { 0: first_observation, 1: first_observation, 2: first_observation }
 
 				loss, infos = self.model.loss(batch_data, batch_targets, conditions)
 				loss = loss / self.gradient_accumulate_every

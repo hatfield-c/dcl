@@ -150,8 +150,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			"bezier_path": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -2, 0.4, -3, -3, 0, -3, -1, 2 ]),
-				high_values = np.array([5, -3, 3, 3, 3, 3, 3, 1, 3 ]),
+				low_values = np.array([-5, -2, 0.4, -5, -5, 0, -3, -1, 2 ]),
+				high_values = np.array([5, -3, 3, 5, 5, 3, 3, 1, 3 ]),
 			),
 			"position": BoxPermuter.BoxPermuter(
 				low_values = np.array([-5, -3, 0.4]),

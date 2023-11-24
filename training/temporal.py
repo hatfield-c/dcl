@@ -28,9 +28,8 @@ class ResidualTemporalBlock(nn.Module):
 		])
 
 		self.time_mlp = nn.Sequential(
-			#nn.Mish(),
-			nn.Linear(embed_dim, out_channels),
 			nn.Mish(),
+			nn.Linear(embed_dim, out_channels),
 			Rearrange('batch t -> batch t 1'),
 		)
 
@@ -63,6 +62,8 @@ class TemporalUnet(nn.Module):
 		attention=False,
 	):
 		super().__init__()
+
+		self.horizon = horizon
 
 		dims = [transition_dim, *map(lambda m: dim * m, dim_mults)]
 		in_out = list(zip(dims[:-1], dims[1:]))
@@ -117,27 +118,7 @@ class TemporalUnet(nn.Module):
 			nn.Conv1d(dim, transition_dim, 1),
 		)
 
-		self.dense = nn.ModuleList([
-			ResidualTemporalBlock(15, 30, embed_dim = 1, horizon = 3, n_groups = 5),
-			ResidualTemporalBlock(30, 45, embed_dim = 1, horizon = 3, n_groups = 5),
-			ResidualTemporalBlock(45, 30, embed_dim = 1, horizon = 3, n_groups = 5),
-			ResidualTemporalBlock(30, 15, embed_dim = 1, horizon = 3, n_groups = 5),
-		])
-
 	def forward(self, x, cond, t):
-
-		x = einops.rearrange(x, 'b h t -> b t h')
-		t = t / 1.0
-		t = t.view(-1, 1)
-
-		for resnet in self.dense:
-
-			x = resnet(x, t)
-
-		x = einops.rearrange(x, 'b t h -> b h t')
-
-		return x
-
 		'''
 			x : [ batch x horizon x transition ]
 		'''
@@ -173,6 +154,7 @@ class TemporalUnet(nn.Module):
 		x = self.final_conv(x)
 
 		x = einops.rearrange(x, 'b t h -> b h t')
+		x = x[:, :self.horizon, :]
 
 		return x
 
@@ -190,7 +172,7 @@ class ValueFunction(nn.Module):
 		out_dim=1,
 	):
 		super().__init__()
-		horizon_orig = horizon
+		self.horizon = horizon
 
 		dims = [transition_dim, *map(lambda m: dim * m, dim_mults)]
 		in_out = list(zip(dims[:-1], dims[1:]))
@@ -244,40 +226,7 @@ class ValueFunction(nn.Module):
 			nn.Linear(fc_dim // 2, out_dim),
 		)
 
-		self.dense = nn.ModuleList([
-			ResidualTemporalBlock(15, 30, embed_dim = 1, horizon = 3, n_groups = 5),
-			ResidualTemporalBlock(30, 30, embed_dim = 1, horizon = 3, n_groups = 5),
-			ResidualTemporalBlock(30, 15, embed_dim = 1, horizon = 3, n_groups = 5),
-
-		])
-
-		self.final = nn.ModuleList([
-			nn.Flatten(),
-			nn.Linear(15 * 3, 15),
-			nn.Mish(),
-			nn.Linear(15, 1),
-		])
-
-
-
 	def forward(self, x, cond, t, *args):
-		x = einops.rearrange(x, 'b h t -> b t h')
-		t = t / 1.0
-		t = t.view(-1, 1)
-
-		#x = x.view(-1, 15 * 3)
-
-		for resnet in self.dense:
-			x = resnet(x, t)
-
-		for layer in self.final:
-			x = layer(x)
-
-		#x = einops.rearrange(x, 'b t h -> b h t')
-
-		return x
-
-
 		'''
 			x : [ batch x horizon x transition ]
 		'''
@@ -287,7 +236,7 @@ class ValueFunction(nn.Module):
 		## mask out first conditioning timestep, since this is not sampled by the model
 		# x[:, :, 0] = 0
 
-		t = self.time_mlp(time)
+		t = self.time_mlp(t)
 
 		for resnet, resnet2, downsample in self.blocks:
 			x = resnet(x, t)
