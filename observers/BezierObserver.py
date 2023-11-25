@@ -32,7 +32,7 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		self.distance_threshold = 0
 		self.episode_length = 1
 		self.progress_reward_decay = 20
-		self.distance_reward_decay = 0.4#1.5
+		self.distance_reward_decay = 2#1.5
 
 		self.debug = debug
 
@@ -108,15 +108,19 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 	def Observe(self, timestep):
 
 		drone_position = self.drone.GetPosition()
+		drone_rotation = self.drone.GetRotation()
+		drone_velocity = self.drone.GetVelocity()
+		drone_angular_velocity = self.drone.GetAngularVelocity()
 		target_position = self.target.GetPosition()
 
 		target_offset = target_position - drone_position
 
 		state_data = [
-			self.drone.GetPosition(),
+			#drone_position,
+			target_offset,
 			self.drone.GetRotation(),
-			self.drone.GetVelocity(),
-			self.drone.GetAngularVelocity(),
+			drone_velocity,
+			#self.drone.GetAngularVelocity(),
 		]
 
 		distance = np.linalg.norm(target_offset)
@@ -124,7 +128,11 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		episode_data = {
 			"collision": self.IsDroneCollision(),
 			"dropped": self.drone.IsPackageDropped(),
-			"distance": distance
+			"distance": distance,
+			"velocity": drone_velocity,
+			"angular_velocity": drone_angular_velocity,
+			"rotation": drone_rotation,
+			"target_offset": target_offset,
 		}
 
 		state_data = np.concatenate(state_data)
@@ -138,8 +146,13 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		is_collision = False
 		is_dropped = False
 		shortest_distance = 1e20
+
 		distance_first = episode_data[0]["distance"]
 		distance_last = episode_data[-1]["distance"]
+		velocity_last = episode_data[-1]["velocity"]
+		rotation_last = episode_data[-1]["rotation"]
+		angular_last = episode_data[-1]["angular_velocity"]
+		offset_last = episode_data[-1]["target_offset"]
 
 		progress = distance_first - distance_last
 
@@ -157,14 +170,30 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		#if is_collision:
 		#	collision_reward = -1
 
+		velocity_magnitude = np.linalg.norm(velocity_last)
+		offset_magnitude = np.linalg.norm(offset_last)
+
+		if velocity_magnitude == 0:
+			velocity_magnitude = 1
+		if offset_magnitude == 0:
+			offset_magnitude = 1
+
+		velocity_unit = velocity_last / velocity_magnitude
+		offset_unit = offset_last / offset_magnitude
+
+		alignment_reward = np.dot(velocity_unit, offset_unit)
+		#angular_reward = -np.sum(np.abs(angular_last))
+		#rotation_reward = -np.sum(np.abs())
+
 		#progress_reward = progress * self.progress_reward_decay
 		#progress_reward = self.SigmoidReward(progress)
-		distance_reward = self.LinearReward(distance_last)
+		distance_reward = self.LinearReward(shortest_distance)
 		#distance_reward = self.ExponentialReward(distance_last)
 
-		reward = distance_reward# + collision_reward
+		#reward = distance_reward# + collision_reward
 		#reward = distance_reward + progress_reward
 		#reward = progress_reward
+		reward = alignment_reward + distance_reward
 
 		#if not is_dropped:
 		#	reward = np.minimum(-0.5, collision_reward)
@@ -178,14 +207,15 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 			print("============================")
 			print("  Episode", self.episode_counter.GetCount() ,"- Client " + str(self.client_id))
 			print("============================")
-			#print("    Total Reward        :", reward)
-			print("    Distance Reward     :", distance_reward)
+			print("    Total Reward        :", reward)
+			#print("    Distance Reward     :", distance_reward)
 			#print("    Progress Reward     :", progress_reward)
 			#print("    Collision           :", is_collision)
 			#print("    Dropped            :", is_dropped)
 			print("")
-			print("    Distance            :", "{:.2f}".format(distance_last))
+			#print("    Distance            :", "{:.2f}".format(distance_last))
 			#print("    Progress            :", "{:.2f}".format(progress))
+			print("    Velocity Last       :", velocity_last)
 			print("    Average Episode Time:", "{:.2f}".format(self.avg_episode_time))
 
 		if CONFIG.pause_every_episode and self.client_id == 0:
@@ -198,7 +228,7 @@ class BezierObserver(ObserverInterface.ObserverInterface):
 		pseudo_distance = distance - self.distance_threshold
 		pseudo_distance = pseudo_distance * self.distance_reward_decay
 		pseudo_distance = 1 - np.maximum(0, pseudo_distance)
-		#pseudo_distance = np.maximum(0, pseudo_distance)
+		pseudo_distance = np.maximum(0, pseudo_distance)
 
 		distance_reward = pseudo_distance
 

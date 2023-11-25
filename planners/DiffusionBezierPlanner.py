@@ -28,6 +28,7 @@ class DiffusionBezierPlanner(PlannerInterface.PlannerInterface):
 		total_size = CONFIG.total_size
 		state_size = CONFIG.state_size
 		action_size = CONFIG.action_size
+
 		label_dif = CONFIG.diffusion_epochs
 		label_val = CONFIG.value_epochs
 
@@ -119,6 +120,9 @@ class DiffusionBezierPlanner(PlannerInterface.PlannerInterface):
 		self.plan = None
 		self.bezier_planner = BezierPlanner.BezierPlanner(self.client_id, control_points = np.zeros((3, 3)), episode_length = self.episode_length, debug = True)
 
+		self.interpolation = 0
+		self.step_size = 1 / self.episode_length
+
 	def GetPlan(self, sensors, metadata):
 		telemetry = sensors["telemetry"]
 		sensor_data = telemetry.ReadSensor(None)
@@ -136,7 +140,7 @@ class DiffusionBezierPlanner(PlannerInterface.PlannerInterface):
 		angular_velocity_torch = torch.FloatTensor(angular_velocity).cuda()
 
 		if self.plan is None:
-			observation = [ current_position_torch, rotation_torch, velocity_torch, angular_velocity_torch ]
+			observation = [ current_position_torch, rotation_torch, velocity_torch ]#, angular_velocity_torch ]
 			observation = torch.cat(observation)
 
 			batch_size = 1
@@ -169,7 +173,14 @@ class DiffusionBezierPlanner(PlannerInterface.PlannerInterface):
 			"drop_package": drop_package
 		}
 
+		self.interpolation += self.step_size
+
+		if self.interpolation >= 1:
+			self.interpolation = 0
+			self.plan = None
+
 		return plan
 
 	def SetNewPath(self, external_path):
-		self.plan = None
+		#self.plan = None
+		pass

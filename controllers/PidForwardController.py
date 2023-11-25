@@ -27,8 +27,8 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		)
 		self.pitch_pid = Pid.Pid(
 			p_scale = 1,
-			i_scale = 0.1,
-			d_scale = 20,
+			i_scale = 0,#0.1,
+			d_scale = 10,
 			#debug = True
 		)
 		self.roll_pid = Pid.Pid(
@@ -40,7 +40,7 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		self.yaw_pid = Pid.Pid(
 			p_scale = 0.8,
 			i_scale = 0,
-			d_scale = 5,
+			d_scale = 10,
 			#debug = True
 		)
 

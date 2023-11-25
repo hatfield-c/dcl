@@ -84,11 +84,11 @@ class DataStitcher:
 			#	one_count += 1
 			#elif value[0] <= -1:
 			#	neg_one_count += 1
-			if value[0] == 0.5:
+			if value[0] == 0:
 				zero_count += 1
-			elif value[0] > 0.5:
+			elif value[0] > 0:
 				positive_count += 1
-			elif value[0] < 0.5:
+			elif value[0] < 0:
 				negative_count += 1
 
 			if value[0] > 0.8:
@@ -98,8 +98,8 @@ class DataStitcher:
 
 		#print("    >+1 count:", one_count)
 		#print("    <-1 count:", neg_one_count)
-		print("     =0.5 count:", zero_count)
-		print("     >0.5 count:", positive_count)
-		print("     <0.5 count:", negative_count)
+		print("     =0 count:", zero_count)
+		print("     >0 count:", positive_count)
+		print("     <0 count:", negative_count)
 		print("     >0.8 count:", eight_count)
-		print("    average :", avg_count)
+		print("     average :", avg_count)

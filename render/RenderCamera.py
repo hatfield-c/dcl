@@ -1,5 +1,6 @@
 
 import pybullet as pb
+import numpy as np
 import math
 
 class RenderCamera:
@@ -40,7 +41,21 @@ class RenderCamera:
 		pitch = self.pitch
 
 		if yaw is None:
-			yaw = rotation[2] * (180 / math.pi)
+			position_magnitude = np.linalg.norm(position)
+
+			if position_magnitude == 0:
+				yaw = 0
+			else:
+				ratio = position[0] / position[1]
+
+				yaw = math.atan(ratio)
+				yaw = yaw * (180 / math.pi)
+
+				if position[1] > 0:
+					yaw = 180 - yaw
+
+				if position[1] < 0:
+					yaw = -yaw
 
 		if pitch is None:
 			pitch = rotation[0] * (180 / math.pi)

@@ -60,6 +60,9 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		self.save_render = save_render
 		self.is_saved = is_saved
 
+		if client_id != 0:
+			self.render_scenario = False
+
 		self.max_episodes = max_episodes
 		self.simulation_episode_length = simulation_episode_length
 		self.observer_episode_length = observer_episode_length
@@ -150,12 +153,18 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			"bezier_path": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -2, 0.4, -5, -5, 0, -3, -1, 2 ]),
-				high_values = np.array([5, -3, 3, 5, 5, 3, 3, 1, 3 ]),
+				#low_values = np.array([-1, -1, -1, -2, -2, -2, -1, -1, -1 ]),
+				#high_values = np.array([1, 1, 1, 2, 2, 2, 1, 1, 1 ]),
+				low_values = np.array([-5, -5, 0.1, -5, -5, -2, -5, -5, 0.1 ]),
+				high_values = np.array([5, 5, 3, 5, 5, 4, 5, 5, 3 ]),
 			),
 			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-5, -3, 0.4]),
-				high_values = np.array([5, -4, 2.5])
+				#low_values = np.array([-2, -4, 0.4]),
+				#high_values = np.array([2, -3, 2.5])
+				low_values = np.array([-5, 5, 0.4]),
+				high_values = np.array([5, 5, 2.5])
+				#low_values = np.array([-5, -5, 0.4]),
+				#high_values = np.array([5, 5, 2.5])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
 				#low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
@@ -163,11 +172,11 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 				#low_values = np.array([-math.pi, -math.pi, -math.pi]),
 				#high_values = np.array([math.pi, math.pi, math.pi])
 				low_values = np.array([0, 0, 0]),
-				high_values = np.array([0, 0, 0])
+				high_values = np.array([0, 0, 2 * math.pi])
 			),
 			"velocity": BoxPermuter.BoxPermuter(
-				#low_values = np.array([4, -4, -4]),
-				#high_values = np.array([4, 4, 4])
+				#low_values = np.array([4, -4, -2]),
+				#high_values = np.array([4, 4, 2])
 				low_values = np.array([0, 0, 0]),
 				high_values = np.array([0, 0, 0])
 			),
@@ -272,16 +281,35 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			self.camera.FollowTarget()
 
 		if self.save_render:
+			lens_distance = 1.3
 
-			target_position = self.agents["simple_drone"].GetCameraPosition()
+			marker_position = self.static_objects["pole"].target.GetPosition()
+			drone_position = self.agents["simple_drone"].GetCameraPosition()
+			rotation = self.agents["simple_drone"].GetRotation()
+
+			offset_direction = drone_position - marker_position
+			offset_magnitude = np.linalg.norm(offset_direction)
+
+			if offset_magnitude == 0:
+				offset_magnitude = 1
+
+			offset_direction = offset_direction / offset_magnitude
+			offset_direction = offset_direction[:2] * lens_distance
+
+			#x_offset = math.cos(-math.pi / 2) * lens_distance
+			#y_offset = math.sin(-math.pi / 2) * lens_distance
+
+			x_offset = offset_direction[0]
+			y_offset = offset_direction[1]
+
 			eye_position = np.array([
-				target_position[0],
-				target_position[1] - 1.3,
-				target_position[2] + 0.5
+				drone_position[0] + x_offset,
+				drone_position[1] + y_offset,# - 1.3,
+				drone_position[2] + 0.5
 			])
 			up = np.array([0, 0, 1])
 
-			view_matrix = pb.computeViewMatrix(eye_position, target_position, up)
+			view_matrix = pb.computeViewMatrix(eye_position, drone_position, up)
 
 			projection_matrix = pb.computeProjectionMatrixFOV(100, 1, 0.1, 12)
 
