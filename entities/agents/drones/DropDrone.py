@@ -106,6 +106,21 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 			self.planner.SetNewPath(bezier_path)
 
+	def ApplyDrag(self):
+		drag_coefficient = 0.001
+		velocity = self.GetVelocity()
+		drag_force = drag_coefficient * velocity
+
+		pb.applyExternalForce(
+			self.GetBulletId(),
+			-1,
+			forceObj = drag_force,
+			posObj = [0, 0, 0],
+			flags = pb.LINK_FRAME,
+			physicsClientId = self.client_id
+		)
+
+
 	def GetSensors(self):
 		return self.sensors
 

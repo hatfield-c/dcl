@@ -266,6 +266,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
 
+			agent.ApplyDrag()
 			agent.TakeAction()
 
 	def UpdateObservers(self):
