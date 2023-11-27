@@ -1,12 +1,12 @@
 
 timestep = 0.00001
 
-client_count = 37
+client_count = 1#37
 render_scenario = True#False
 
-episode_count = 1200
-episode_length = 256
-print_every_episode_generated = 100
+episode_count = 300
+episode_length = 700
+print_every_episode_generated = 1#0#0
 pause_every_episode = False
 
 state_data_path = "data/v2/state_data"
@@ -15,15 +15,15 @@ value_data_path = "data/v2/value_data"
 
 gravity_strength = 9.8
 
-action = "generate_data"
+#action = "generate_data"
 #action = "stitch_data"
 #action = "train_diffusion"
 #action = "train_value"
-#action = "diffusion_planning"
-#action = "build_video"
+action = "diffusion_planning"
+action = "build_video"
 
-simulation_episode_length = 256
-observer_episode_length = 256
+simulation_episode_length = 700
+observer_episode_length = 700
 
 ############################
 #	DIFFUSION PARAMETERS
@@ -36,10 +36,10 @@ value_path = value_data_path + ".pt"
 diffusion_model_path = "models/diffusion/v2/"
 value_model_path = "models/value/v2/"
 
-horizon = 3
+horizon = 4
 horizon_scale = 1
-state_size = 9#12
-action_size = 3
+state_size = 9
+action_size = 1
 total_size = state_size + action_size
 n_timesteps = 100
 

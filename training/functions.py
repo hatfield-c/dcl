@@ -8,7 +8,7 @@ from training.helpers import (
 
 @torch.no_grad()
 def n_step_guided_p_sample(
-	model, x, cond, t, guide, t_stopgrad=0, n_guide_steps=1, scale_grad_by_std=True,
+	model, x, cond, t, guide, t_stopgrad=0, n_guide_steps=10, scale_grad_by_std=True,
 ):
 	model_log_variance = extract(model.posterior_log_variance_clipped, t, x.shape)
 	model_std = torch.exp(0.5 * model_log_variance)

@@ -10,7 +10,7 @@ class Pid:
 		i_scale,
 		d_scale,
 		integral_max = 2,
-		d_target = 0.5,
+		d_limit = None,
 		debug = False
 	):
 		self.p_scale = p_scale
@@ -18,7 +18,7 @@ class Pid:
 		self.d_scale = d_scale
 
 		self.integral_max = integral_max
-		self.d_target = d_target
+		self.d_limit = d_limit
 
 		self.debug = debug
 
@@ -42,6 +42,9 @@ class Pid:
 		i = self.memory["integral"] * self.i_scale
 
 		d = current_velocity * self.d_scale
+
+		if self.d_limit is not None:
+			d = np.clip(d, self.d_limit[0], self.d_limit[1])
 
 		pid = p + i + -d
 

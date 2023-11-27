@@ -107,16 +107,21 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 			self.planner.SetNewPath(bezier_path)
 
 	def ApplyDrag(self):
-		drag_coefficient = 0.001
+		drag_coefficient = 0.01
 		velocity = self.GetVelocity()
-		drag_force = drag_coefficient * velocity
+		drag_force = -velocity * drag_coefficient
+		drone_position = self.GetPosition()
+
+		#print(drag_force)
+		#print(velocity)
+		#input()
 
 		pb.applyExternalForce(
 			self.GetBulletId(),
 			-1,
 			forceObj = drag_force,
-			posObj = [0, 0, 0],
-			flags = pb.LINK_FRAME,
+			posObj = drone_position,#[0, 0, 0],
+			flags = pb.WORLD_FRAME,#pb.LINK_FRAME,
 			physicsClientId = self.client_id
 		)
 
@@ -128,7 +133,7 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 		return self.arm.package
 
 	def GetCameraPosition(self):
-		#if self.IsPackageDropped():
-		#	return self.arm.package.GetPosition()
+		if self.IsPackageDropped():
+			return self.arm.package.GetPosition()
 
 		return self.GetPosition()

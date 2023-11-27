@@ -34,7 +34,7 @@ class RenderCamera:
 		#if self.target_entity is None:
 		#	return
 
-		position = self.target_entity.GetPosition()
+		position = self.target_entity.GetCameraPosition()
 		rotation = self.target_entity.GetRotation()
 
 		yaw = self.yaw

@@ -20,10 +20,13 @@ import entities.SimpleEntity as SimpleEntity
 import planners.RandomDirectionPlanner as RandomDirectionPlanner
 import planners.RandomRotorPlanner as RandomRotorPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
+import planners.PidAlignmentPlanner as PidAlignmentPlanner
 import planners.BezierPlanner as BezierPlanner
+import planners.BezierAlignmentPlanner as BezierAlignmentPlanner
 import planners.DiffusionPidPlanner as DiffusionPidPlanner
 import planners.DiffusionRotorPlanner as DiffusionRotorPlanner
 import planners.DiffusionBezierPlanner as DiffusionBezierPlanner
+import planners.DiffusionBezierAlignmentPlanner as DiffusionBezierAlignmentPlanner
 
 import controllers.PidForwardController as PidForwardController
 import controllers.RotorController as RotorController
@@ -36,6 +39,7 @@ import events.ChannelLogger as ChannelLogger
 import observers.DropScenarioObserver as DropScenarioObserver
 import observers.DistanceDiffusionObserver as DistanceDiffusionObserver
 import observers.BezierObserver as BezierObserver
+import observers.BezierAlignmentObserver as BezierAlignmentObserver
 
 class DropScenario(ScenarioInterface.ScenarioInterface):
 	def __init__(
@@ -87,14 +91,13 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		self.event_queue = EventQueue.EventQueue()
 
-		self.scenario_observer = BezierObserver.BezierObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.observer_episode_length, True, self.is_saved)
+		self.scenario_observer = BezierAlignmentObserver.BezierAlignmentObserver(self.client_id, episode_print_count, self.time_counter, self.episode_counter, self.observer_episode_length, True, self.is_saved)
 
 		self.observers["scenario_observer"] = self.scenario_observer
 
-		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20)
+		self.camera = RenderCamera.RenderCamera(self.client_id, pitch = -20, yaw = 0)
 
 	def ResetScenario(self):
-
 		for pb_id in self.unified_entities:
 			entity = self.unified_entities[pb_id]
 			permutation_data = entity.GetStatePermutation()
@@ -112,6 +115,11 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		planner = None
 		controller = None
 
+		if ai_type == "pid_align":
+
+			planner = PidAlignmentPlanner.PidAlignmentPlanner(self.client_id, episode_length = self.observer_episode_length, debug = True)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
 		if ai_type == "random_pid":
 			planner = RandomDirectionPlanner.RandomDirectionPlanner(self.client_id, distance_scale = 2, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
@@ -122,6 +130,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		if ai_type == "random_bezier":
 			planner = BezierPlanner.BezierPlanner(self.client_id, control_points = np.zeros((3, 3)), episode_length = self.observer_episode_length, debug = False)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
+		if ai_type == "random_bezier_alignment":
+			planner = BezierAlignmentPlanner.BezierAlignmentPlanner(self.client_id, control_points = np.zeros((4, 3)), episode_length = self.observer_episode_length, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		if ai_type == "waypoint":
@@ -144,6 +156,10 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			planner = DiffusionBezierPlanner.DiffusionBezierPlanner(self.client_id, episode_length = self.observer_episode_length)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
+		if ai_type == "diffusion_bezier_alignment":
+			planner = DiffusionBezierAlignmentPlanner.DiffusionBezierAlignmentPlanner(self.client_id, episode_length = self.observer_episode_length)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
 		return planner, controller
 
 	def InstantiateDrone(self, start_pos, start_rotation, target):
@@ -153,38 +169,48 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		permuters = {
 			"bezier_path": BoxPermuter.BoxPermuter(
-				#low_values = np.array([-1, -1, -1, -2, -2, -2, -1, -1, -1 ]),
-				#high_values = np.array([1, 1, 1, 2, 2, 2, 1, 1, 1 ]),
-				low_values = np.array([-5, -5, 0.1, -5, -5, -2, -5, -5, 0.1 ]),
-				high_values = np.array([5, 5, 3, 5, 5, 4, 5, 5, 3 ]),
+				low_values = np.array([
+					0, 0, 1.5,
+					0, 3.33, 1.5,
+					-.1, 6.66, 1.5,
+					-.01, 10, 1.5
+				]),
+				high_values = np.array([
+					.2, 0, 1.5,
+					.2, 3.33, 1.5,
+					0, 6.66, 1.5,
+					0, 10, 1.5
+				]),
+				#low_values = np.array([-5, -5, 0.1, -5, -5, -2, -5, -5, 0.1 ]),
+				#high_values = np.array([5, 5, 3, 5, 5, 4, 5, 5, 3 ]),
 			),
 			"position": BoxPermuter.BoxPermuter(
 				#low_values = np.array([-2, -4, 0.4]),
 				#high_values = np.array([2, -3, 2.5])
-				low_values = np.array([-5, 5, 0.4]),
-				high_values = np.array([5, 5, 2.5])
-				#low_values = np.array([-5, -5, 0.4]),
-				#high_values = np.array([5, 5, 2.5])
+				#low_values = np.array([-1, 0, 1.5]),
+				#high_values = np.array([1, 0, 1.5])
+				low_values = np.array([-5, -5, 1]),
+				high_values = np.array([5, -5, 3])
 			),
 			"rotation": BoxPermuter.BoxPermuter(
-				#low_values = np.array([-math.pi / 3, -math.pi / 3, 0]),
-				#high_values = np.array([math.pi / 3, math.pi / 3, 2 * math.pi])
+				low_values = np.array([-math.pi / 8, -math.pi / 8, -math.pi]),
+				high_values = np.array([math.pi / 8, math.pi / 8, math.pi])
 				#low_values = np.array([-math.pi, -math.pi, -math.pi]),
 				#high_values = np.array([math.pi, math.pi, math.pi])
-				low_values = np.array([0, 0, 0]),
-				high_values = np.array([0, 0, 2 * math.pi])
+				#low_values = np.array([-math.pi / 4, 0, 0]),
+				#high_values = np.array([-math.pi / 4, 0, 0])
 			),
 			"velocity": BoxPermuter.BoxPermuter(
-				#low_values = np.array([4, -4, -2]),
-				#high_values = np.array([4, 4, 2])
-				low_values = np.array([0, 0, 0]),
-				high_values = np.array([0, 0, 0])
+				low_values = np.array([-3, -5, -1]),
+				high_values = np.array([3, 5, 1])
+				#low_values = np.array([0, 0, 0]),
+				#high_values = np.array([0, 0, 0])
 			),
 			"angular_velocity": BoxPermuter.BoxPermuter(
-				#low_values = np.array([-8, -8, -8]),
-				#high_values = np.array([8, 8, 8])
-				low_values = np.array([0, 0, 0]),
-				high_values = np.array([0, 0, 0])
+				low_values = np.array([-5, -5, -5]),
+				high_values = np.array([5, 5, 5])
+				#low_values = np.array([0, 0, 0]),
+				#high_values = np.array([0, 0, 0])
 			),
 			"reset_package": ListPermuter.ListPermuter(choices_list = [ True ]),
 		}
@@ -208,17 +234,24 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 		pole = TargetPole.TargetPole(
 			client_id = self.client_id,
-			pole_urdf = None,#"entity_files/drop_scenario/target_pole.urdf",
-			target_urdf = "entity_files/markers/blue_diamond.urdf",#"entity_files/drop_scenario/hoop_large.urdf",
-			target_width = 0,#0.52,
-			target_height = 0,#1.5,
-			position = [0, 0, 1.5],
+			pole_urdf = "entity_files/drop_scenario/target_pole.urdf",
+			target_urdf = "entity_files/drop_scenario/hoop_large.urdf",
+			target_width = 0.52,
+			target_height = 2,
+			position = [-0.55, 10, -.7],
 			is_static = True
 		)
 
-		start_pos = [0, -5, 2.5]
+		start_pos = [0, 0, 2.5]
 		start_rot = [0, 0, 0.785398 * 2]
 		drone = self.InstantiateDrone(start_pos, start_rot, pole.target)
+
+		#self.static_objects["alignment_visualizer"] = SimpleEntity.SimpleEntity(
+		#	urdf_name = "entity_files/drop_scenario/alignment_line.urdf",
+		#	client_id = self.client_id,
+		#	is_static = True,
+		#	position = [0, 0, 2.5]
+		#)
 
 		self.agents["simple_drone"] = drone
 		self.dynamic_objects[drone.GetPackageEntity().GetBulletId()] = drone.GetPackageEntity()
@@ -226,7 +259,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 			urdf_name = "entity_files/20m_floor.urdf",
 			client_id = self.client_id,
 			is_static = True,
-			texture_path = "entity_files/floor_material.png"
+			texture_path = "entity_files/floor_material.png",
+			position = [0, 10, 0]
 		)
 		self.static_objects["pole"] = pole
 
@@ -284,7 +318,7 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		if self.save_render:
 			lens_distance = 1.3
 
-			marker_position = self.static_objects["pole"].target.GetPosition()
+			marker_position = np.array([0, 100, 1.5])#self.static_objects["pole"].target.GetPosition()
 			drone_position = self.agents["simple_drone"].GetCameraPosition()
 			rotation = self.agents["simple_drone"].GetRotation()
 
@@ -312,11 +346,11 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 
 			view_matrix = pb.computeViewMatrix(eye_position, drone_position, up)
 
-			projection_matrix = pb.computeProjectionMatrixFOV(100, 1, 0.1, 12)
+			projection_matrix = pb.computeProjectionMatrixFOV(100, 1, 0.1, 30)
 
 			result = pb.getCameraImage(
-				width = 256,
-				height = 256,
+				width = 512,#256,
+				height = 512,#256,
 				viewMatrix = view_matrix,
 				projectionMatrix = projection_matrix,
 				shadow = 1,
@@ -345,7 +379,8 @@ class DropScenario(ScenarioInterface.ScenarioInterface):
 		if self.time_counter.GetCount() % self.observer_episode_length == 0:
 			self.ResetObservers()
 
-		if self.time_counter.GetCount() == self.simulation_episode_length:
+		#if self.time_counter.GetCount() == self.simulation_episode_length:
+		if self.agents["simple_drone"].GetPosition()[1] > 15:
 			self.ResetScenario()
 
 		return True

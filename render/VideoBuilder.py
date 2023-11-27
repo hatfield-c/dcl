@@ -9,7 +9,7 @@ class config_class:
 
 		self.vid_path = "data/render/out.mp4"
 		self.fps = 60
-		self.img_size = (368,288)
+		self.img_size = (256,256)
 
 		self.frame_path = "data/render/frames/"
 
