@@ -86,9 +86,9 @@ class DataStitcher:
 			#	neg_one_count += 1
 			if value[0] == 0:
 				zero_count += 1
-			elif value[0] > 0:
+			elif value > 0:
 				positive_count += 1
-			elif value[0] < 0:
+			elif value < 0:
 				negative_count += 1
 
 			if value[0] > 0.8:

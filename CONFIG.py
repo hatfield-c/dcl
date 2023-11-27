@@ -9,18 +9,23 @@ episode_length = 700
 print_every_episode_generated = 1#0#0
 pause_every_episode = False
 
+scenario = 0
+#scenario 0 - drop scenario ML training
+#scenario 1 - teleoperation
+
+
 state_data_path = "data/v2/state_data"
 max_data_path = "data/v2/max_data"
 value_data_path = "data/v2/value_data"
 
 gravity_strength = 9.8
 
-#action = "generate_data"
+action = "generate_data"
 #action = "stitch_data"
 #action = "train_diffusion"
 #action = "train_value"
-action = "diffusion_planning"
-action = "build_video"
+#action = "diffusion_planning"
+#action = "build_video"
 
 simulation_episode_length = 700
 observer_episode_length = 700

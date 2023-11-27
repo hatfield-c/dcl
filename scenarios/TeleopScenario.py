@@ -1,4 +1,4 @@
-
+import time
 import math
 import pybullet as pb
 import numpy as np
@@ -6,13 +6,17 @@ import numpy as np
 import scenarios.ScenarioInterface as ScenarioInterface
 import scenarios.permuters.BoxPermuter as BoxPermuter
 import scenarios.permuters.ListPermuter as ListPermuter
+
+import physics.SimpleCounter as SimpleCounter
 import render.RenderCamera as RenderCamera
 
 import entities.agents.drones.TeleopDrone as TeleopDrone
 import entities.SimpleEntity as SimpleEntity
 
-import controllers.TeleopController as TeleopController
+import planners.TeleopPlanner as TeleopPlanner
 import planners.PidWaypointPlanner as PidWaypointPlanner
+import controllers.PidForwardController as PidForwardController
+
 import controllers.SimpleController as SimpleController
 import planners.SimplePlanner as SimplePlanner
 
@@ -32,6 +36,7 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 		self.static_objects = {}
 		self.unified_entities = {}
 		self.observers = {}
+		self.time_counter = SimpleCounter.SimpleCounter(0)
 
 		self.entity_logger = ChannelLogger.ChannelLogger("data/entity_data.txt", "entity_observer")
 
@@ -50,17 +55,18 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 			permutation_data = entity.GetStatePermutation()
 
 			entity.SetState(permutation_data)
+			self.time_counter.Reset()
 
 	def InstantiateDrone(self, start_pos, start_rotation):
 		drone_urdf = "entity_files/drone_simple.urdf"
 
 		waypoints = [
-			np.array([0, 10, 3]),
-			np.array([10, 4, 3]),
+			np.array([0, 0, 0]),
+			np.array([0, 0, 0]),
 		]
 
-		planner = PidWaypointPlanner.PidWaypointPlanner(self.pb_client, waypoints, turn_strength = 1.1)
-		controller = TeleopController.TeleopController(force_scale = 1, torque_scale = 1)
+		planner = TeleopPlanner.TeleopPlanner(self.pb_client, waypoints, turn_strength = 1.1, time_counter=self.time_counter)
+		controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		drone = TeleopDrone.TeleopDrone (
 			urdf_name = drone_urdf,
@@ -83,40 +89,6 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 		drone = self.InstantiateDrone(start_pos, start_rot)
 
 		self.agents["teleop_drone"] = drone
-		'''
-		box_permuter = {
-			"position": BoxPermuter.BoxPermuter(
-				low_values = np.array([-2, -2, 4]),
-				high_values = np.array([2, 2, 1])
-			)
-		}
-
-		list_permuter = {
-			"position": ListPermuter.ListPermuter(
-				choices_list = [ np.array([-1, -1, 5]), np.array([1, -1, 5]), np.array([-1, 1, 5]) ]
-			)
-		}
-
-		cube1 = SimpleEntity.SimpleEntity(
-			urdf_name = "entity_files/debug_cube.urdf",
-			position = [-2, 2, 3],
-			rotation = [0.79, 0.79, 0],
-			permuters = box_permuter
-		)
-
-		cube2 = SimpleEntity.SimpleEntity(
-			urdf_name = "entity_files/debug_cube.urdf",
-			position = [2, 2, 3],
-			rotation = [0.79, 0.79, 0],
-			permuters = list_permuter
-		)
-
-		self.dynamic_objects[cube1.GetBulletId()] = cube1
-		self.dynamic_objects[cube2.GetBulletId()] = cube2
-
-
-		self.entity_observer.RegisterEntities([cube1])
-		'''
 		self.static_objects["floor"] = SimpleEntity.SimpleEntity(urdf_name = "entity_files/20m_floor.urdf", client_id = self.pb_client, is_static = True)
 		for agent_id in self.agents:
 			agent = self.agents[agent_id]
@@ -150,7 +122,7 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 	def UpdateObservers(self):
 		for observer_name in self.observers:
 			observer = self.observers[observer_name]
-			observer.Observe(self.time_step)
+			observer.Observe(self.time_counter.GetCount())
 
 	def ProcessEvents(self):
 		self.event_queue.ProcessQueue()
@@ -159,6 +131,6 @@ class TeleopScenario(ScenarioInterface.ScenarioInterface):
 		self.camera.FollowTarget()
 
 	def UpdateTime(self):
-		self.time_step = self.time_step + 1
+		self.time_counter.Increment()
 
 		return True
