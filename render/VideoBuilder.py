@@ -8,8 +8,8 @@ class config_class:
 	def __init__(self):
 
 		self.vid_path = "data/render/out.mp4"
-		self.fps = 60
-		self.img_size = (256,256)
+		self.fps = 10
+		self.img_size = (640,480)
 
 		self.frame_path = "data/render/frames/"
 

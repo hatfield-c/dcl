@@ -106,6 +106,11 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 
 			self.planner.SetNewPath(bezier_path)
 
+		if "hit_poly" in state_data:
+			new_state = state_data["hit_poly"]
+
+			super().SetState(new_state)
+
 	def ApplyDrag(self):
 		drag_coefficient = 0.01
 		velocity = self.GetVelocity()

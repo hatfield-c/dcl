@@ -11,7 +11,7 @@ import entities.SimpleEntity as SimpleEntity
 
 class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 
-	def __init__(self, client_id, episode_length, debug = False):
+	def __init__(self, client_id, episode_length, release_planner, debug = False):
 		self.client_id = client_id
 		self.episode_length = episode_length
 		self.step_size = 1 / episode_length
@@ -26,7 +26,7 @@ class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 			d_scale = 0.6,
 		)
 
-		self.drop_distance = 6
+		self.release_planner = release_planner
 
 		if debug:
 			self.direction_marker = SimpleEntity.SimpleEntity(
@@ -69,9 +69,7 @@ class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 			self.direction_marker.SetState({"position": direction_marker_position})
 			self.velocity_marker.SetState({"position": velocity_marker_position})
 
-		drop_package = False
-		if current_position[1] >= self.drop_distance:
-			drop_package = True
+		drop_package = self.release_planner.GetPlan(sensors, metadata)
 
 		plan = {
 			"move_action": "move",

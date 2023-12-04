@@ -4,22 +4,31 @@ import time
 import CONFIG
 import training.Academy as Academy
 import render.VideoBuilder as VideoBuilder
+import hitpoly.PolyAnalysis as PolyAnalysis
 
 def Main():
 	start_time = time.time()
 
-	actions = [ "help", "generate_data", "stitch_data", "train_diffusion", "train_value", "diffusion_planning", "build_video" ]
+	actions = {
+		"help": "help",
+		"generate_data": "generate_data",
+		"stitch_data": "stitch_data",
+		"build_video": "build_video",
+		"train_hitpoly": "train_hitpoly",
+		"query_hitpoly": "query_hitpoly",
+		"render_hitpoly": "render_hitpoly"
+	}
 
 	action = CONFIG.action
 
 	if action not in actions:
-		action = actions[0]
+		action = actions["help"]
 
-	if action == actions[1]:
+	if action == actions["generate_data"]:
 
 		Academy.GenerateData()
 
-	if action == actions[2]:
+	if action == actions["stitch_data"]:
 		import data_processing.DataStitcher as DataStitcher
 
 		stitcher = DataStitcher.DataStitcher()
@@ -30,20 +39,18 @@ def Main():
 			client_count = CONFIG.client_count,
 		)
 
-	if action == actions[3]:
-
-		Academy.TrainDiffusion()
-
-	if action == actions[4]:
-
-		Academy.TrainValue()
-
-	if action == actions[5]:
-		Academy.DiffusionPlanning()
-
-	if action == actions[6]:
+	if action == actions["build_video"]:
 		builder = VideoBuilder.VideoBuilder()
 		builder.write_video()
+
+	if action == actions["train_hitpoly"]:
+		Academy.TrainHitPoly()
+
+	if action == actions["render_hitpoly"]:
+		Academy.RenderHitPoly()
+
+	if action == actions["query_hitpoly"]:
+		PolyAnalysis.QueryPolySpace()
 
 	if action == "help":
 		print("[write help message]")

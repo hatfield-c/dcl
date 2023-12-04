@@ -41,7 +41,8 @@ class ScenarioSimulator:
 			if not is_simulating:
 				break
 
-			time.sleep(timestep)
+			if timestep > 0:
+				time.sleep(timestep)
 
 		for i in range(client_count):
 			client_id = client_ids[i]

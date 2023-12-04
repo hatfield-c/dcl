@@ -13,6 +13,7 @@ class SimpleEntity(EntityInterface.EntityInterface):
 		quaternion = None,
 		velocity = [0, 0, 0],
 		angular_velocity = [0, 0 ,0],
+		scaling = 1,
 		is_static = False,
 		permuters = None,
 		texture_path = None
@@ -36,8 +37,9 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			self.urdf_name,
 			position,
 			quaternion,
+			globalScaling = scaling,
 			useFixedBase = is_static,
-			physicsClientId = self.client_id
+			physicsClientId = self.client_id,
 		)
 
 		self.texture_path = texture_path
@@ -52,7 +54,8 @@ class SimpleEntity(EntityInterface.EntityInterface):
 			"rotation": rotation,
 			"quaternion": quaternion,
 			"velocity": velocity,
-			"angular_velocity": angular_velocity
+			"angular_velocity": angular_velocity,
+			"scaling": scaling
 		}
 
 		velocity_data = {

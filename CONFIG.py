@@ -1,27 +1,33 @@
 
-timestep = 0.00001
+timestep = 0#1 / 240
 
 client_count = 1#37
-render_scenario = True#False
+render_scenario = False
 
-episode_count = 300
-episode_length = 700
-print_every_episode_generated = 1#0#0
+episode_count = 100000
+episode_length = 164
+print_every_episode_generated = 500
 pause_every_episode = False
 
-scenario = 0
+scenario = 2
 #scenario 0 - drop scenario ML training
 #scenario 1 - teleoperation
+#scenario 2 - hitpoly data generation
 
 
-state_data_path = "data/v2/state_data"
-max_data_path = "data/v2/max_data"
-value_data_path = "data/v2/value_data"
+state_data_path = "data/v3/state_data"
+max_data_path = "data/v3/max_data"
+value_data_path = "data/v3/value_data"
 
 gravity_strength = 9.8
 
-action = "generate_data"
+#action = "generate_data"
 #action = "stitch_data"
+#action = "train_hitpoly"
+#action = "query_hitpoly"
+#action = "render_hitpoly"
+action = "build_video"
+
 #action = "train_diffusion"
 #action = "train_value"
 #action = "diffusion_planning"
@@ -31,6 +37,18 @@ simulation_episode_length = 700
 observer_episode_length = 700
 
 ############################
+#	HITPOLY PARAMETERS
+############################
+epochs = 50000
+learning_rate = 5e-4
+dimensionality = 12
+batch_size = 1024
+
+print_every_epoch = 1000
+
+model_path = "data/models/hitpoly/"
+
+############################
 #	DIFFUSION PARAMETERS
 ############################
 
@@ -38,8 +56,8 @@ seed_path = state_data_path + ".pt"
 seed_maxes_path = max_data_path + ".pt"
 value_path = value_data_path + ".pt"
 
-diffusion_model_path = "models/diffusion/v2/"
-value_model_path = "models/value/v2/"
+diffusion_model_path = "data/models/diffusion/v2/"
+value_model_path = "data/models/value/v2/"
 
 horizon = 4
 horizon_scale = 1

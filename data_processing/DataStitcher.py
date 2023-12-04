@@ -14,7 +14,7 @@ class DataStitcher:
 		file_type = ".pt"
 	):
 		state_data = None
-		max_data = None
+		max_data = 0
 		value_data = None
 
 		for i in range(client_count):
@@ -25,6 +25,7 @@ class DataStitcher:
 			client_state_data = torch.load(state_path)
 			client_max_data = torch.load(max_path)
 			client_value_data = torch.load(value_path)
+
 
 			if state_data is None:
 				state_data = client_state_data
@@ -40,6 +41,10 @@ class DataStitcher:
 		state_path = state_data_path + file_type
 		max_path = max_data_path + file_type
 		value_path = value_data_path + file_type
+
+		#print(state_data[0])
+		min_data = torch.min(state_data, dim = 0).values
+		print(min_data)
 
 		torch.save(state_data, state_path)
 		torch.save(value_data, value_path)
@@ -63,13 +68,8 @@ class DataStitcher:
 
 	def PrintMetaData(self, value_data):
 
-		eight_count = 0
 		one_count = 0
-		neg_one_count = 0
 		zero_count = 0
-		positive_count = 0
-		negative_count = 0
-
 		avg_count = 0
 
 		for i in range(value_data.shape[0]):
@@ -80,26 +80,15 @@ class DataStitcher:
 
 			avg_count += value[0]
 
-			#if value[0] >= 1:
-			#	one_count += 1
-			#elif value[0] <= -1:
-			#	neg_one_count += 1
 			if value[0] == 0:
 				zero_count += 1
-			elif value > 0:
-				positive_count += 1
-			elif value < 0:
-				negative_count += 1
-
-			if value[0] > 0.8:
-				eight_count += 1
+			elif value == 1:
+				one_count += 1
 
 		avg_count = avg_count / value_data.shape[0]
 
 		#print("    >+1 count:", one_count)
 		#print("    <-1 count:", neg_one_count)
-		print("     =0 count:", zero_count)
-		print("     >0 count:", positive_count)
-		print("     <0 count:", negative_count)
-		print("     >0.8 count:", eight_count)
+		print("     0 count:", zero_count)
+		print("     1 count:", one_count)
 		print("     average :", avg_count)
