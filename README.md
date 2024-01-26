@@ -10,7 +10,7 @@ demo gifs go here
 ---
 
 ## Installation
-We use [Anaconda](https://docs.anaconda.com/free/anaconda/getting-started/index.html) CLI for running and package management. 
+We use [Anaconda](https://docs.anaconda.com/free/anaconda/getting-started/index.html) CLI for running and package management. This simulator requires a GPU for use.
 
 ### Dependencies Quick Guide
 | Library     										 |  Command     					  	|
