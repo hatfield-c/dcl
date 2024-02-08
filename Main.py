@@ -1,4 +1,4 @@
-
+import argparse
 import time
 
 import CONFIG
@@ -6,20 +6,26 @@ import training.Academy as Academy
 import render.VideoBuilder as VideoBuilder
 import hitpoly.PolyAnalysis as PolyAnalysis
 
+def GetCliAction():
+	print("")
+	arg_parser = argparse.ArgumentParser()
+	arg_parser.add_argument("-a", "--action", type = str, help = "what action to take. Must be one of the following: " + str(CONFIG.possible_actions_list))
+
+	args = arg_parser.parse_args()
+
+	action = args.action
+
+	if action is None:
+		print("    [Error]: You need to specify an action with the --action argument, i.e. --action 'help' or --action 'generate_data'")
+		exit()
+
+	return action
+
 def Main():
 	start_time = time.time()
 
-	actions = {
-		"help": "help",
-		"generate_data": "generate_data",
-		"stitch_data": "stitch_data",
-		"build_video": "build_video",
-		"train_hitpoly": "train_hitpoly",
-		"query_hitpoly": "query_hitpoly",
-		"render_hitpoly": "render_hitpoly"
-	}
-
-	action = CONFIG.action
+	actions = CONFIG.possible_actions
+	action = GetCliAction()
 
 	if action not in actions:
 		action = actions["help"]

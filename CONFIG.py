@@ -9,29 +9,30 @@ episode_length = 164
 print_every_episode_generated = 500
 pause_every_episode = False
 
-scenario = 2
-#scenario 0 - drop scenario ML training
-#scenario 1 - teleoperation
-#scenario 2 - hitpoly data generation
-
-
 state_data_path = "data/v3/state_data"
 max_data_path = "data/v3/max_data"
 value_data_path = "data/v3/value_data"
 
 gravity_strength = 9.8
 
+action = None
 #action = "generate_data"
 #action = "stitch_data"
 #action = "train_hitpoly"
 #action = "query_hitpoly"
 #action = "render_hitpoly"
-action = "build_video"
-
-#action = "train_diffusion"
-#action = "train_value"
-#action = "diffusion_planning"
 #action = "build_video"
+
+possible_actions = {
+	"help": "help",
+	"generate_data": "generate_data",
+	"stitch_data": "stitch_data",
+	"build_video": "build_video",
+	"train_hitpoly": "train_hitpoly",
+	"query_hitpoly": "query_hitpoly",
+	"render_hitpoly": "render_hitpoly"
+}
+possible_actions_list = list(possible_actions.keys())
 
 simulation_episode_length = 700
 observer_episode_length = 700
