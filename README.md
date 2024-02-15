@@ -45,77 +45,58 @@ demo gifs go here
 ---
 
 ## Quick Start
-#### Cloning the Repository for VSCode
-- Open VSCode > View > Command Palette > select Git:Clone and enter the below repository url in the searchbar,
-  ```
-  https://github.com/hatfield-c/dcl.git
-  ```
--  Select your desired directory location and then open in VSCode. 
-
-[Video guide](https://www.youtube.com/watch?v=ILJ4dfOL7zs&ab_channel=CodingWithMeet) for the unfamiliar. Further information on cloning directories can be found [here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
 ### How to Run
-- In the Anconda Prompt, Navigate to your new cloned directory location. Replace ```<C:\Users\directory address\>``` with the actual address on your machine.
-  ```
-  cd <C:\Users\directory address\>
-  ```
-
-- Edit your desired changes to CONFIG.py in VSCode/IDE of choice. 
-  - There, you can edit the episode count, hitpoly and diffusion parameters, and define action flags. You can also change the scenario by changing the value of `scenario = 2`.
-  - Then run ```Main.py``` with your desired specifications.
+- Edit your desired changes to CONFIG.py in VSCode/IDE of  choice.
+  - There, you can edit episode and hitpoly parameters, as well as any other configurations.
+- Run Main.py with your desired specifications and appropriate action flag.
     ```
-    python Main.py
+    python Main.py --action [FLAG]
     ```
 
-#### Action Flags
-- ###### Generate Data
-  - First, create these empty folders for the generated data to be housed in:
-    -  data/v3
-    - data/models/hitpoly
-    - data/render/frames
-  - In CONFIG.py, activate one flag at a time, running `python Main.py` each:
-    ```
-    actions = "generate_data"
-    ``` 
-  - And then stitch the tensors by activating `stitch_data`:
-    ```
-    actions = "stitch_data"
-    ``` 
+#### Action Flag Options
+###### General
+- ***help***
+&emsp;Output a usage message and exit.
+- ***build_video***
+&emsp;Creates an ```.mp4``` video visualizing the change in hitpoly for the drone based on its position and direction after completion of data generation and training.
+###### Data Generation
+- ***generate_data***
+&emsp;Generates initial data for training. Attributes such as ```episode_count``` and ```episode_length``` may be modified.
+- ***stitch_data***
+&emsp;Stitches together tensors generated from ```generate_data```. 
+###### Hitpoly Training
+- ***train_hitpoly***
+&emsp;Trains the hitpoly model in batches. Hitpoly parameters such as ```epochs```, ```learning rate```, and ```batch size``` may be modified.
+- ***query_hitpoly***
+&emsp;Loads the model output from raw pixel array values to be rendered as color images.
+- ***render_hitpoly***
+&emsp;Generates the hitpoly simulator starting from episode 1. Hold the ```enter``` key to progress each frame.
 
-- ###### Training Hitpoly Model
-  - `train_hitpoly` trains the hitpoly model in batches. Hotpoly parameters such as epochs, leaerning rate, and batch size may be modified.
-    ```
-    actions = "train_hitpoly"
-    ``` 
-  - `query_hitpoly` loads the model output to image rendering.
-    ```
-    actions = "query_hitpoly"
-    ``` 
-  - `render_hitpoly` generates the hitpoly simulator starting from episode 1. Hold the `enter` key to progress each frame.   
-    ```
-    actions = "render_hitpoly"
-    ``` 
-  - ```build_video``` creates a `.mp4` video visualizing the change in hitpoly for the drone based on its potsition and direction:
-    ```
-    actions = "build_video"
-    ``` 
- - For more information, ```actions = "help"``` is available.
+
 
 
 ---
 
 ## FAQ
+##### It says a GPU is required. Can I run this without a GPU?
+No. If you were to attempt to run the simulator anyway, you would receive a runtime error. A dedicated GPU is necessary for the high loads of data and processing.
+
+
 ##### Do I need Mamba? I've never seen this library before.
 If this is your first time installing Mamba, you may choose to not install it and instead stick with Conda commands instead. Mamba may take some time to install, so if you'd like to jump in ASAP, you can choose to forego it.
 
-##### Why am I getting a "Torch not compiled with CUDA enabled" error?
+##### Error: "Torch not compiled with CUDA enabled."
 You may have a CPU-only Pytorch version previously installed. In that event, installing a new Pytorch would not fix the issue as it continues to use the cached CPU-only version -- you will need to uninstall and reinstall.
   ```
     pip uninstall torch
     pip cache purge
     pip install torch -f https://download.pytorch.org/whl/torch_stable.html
   ```
-##### It says a GPU is required. Can I run this without a GPU?
-No. If you were to attempt to run the simulator anyway, you would receive a runtime error. A dedicated GPU is necessary for the high loads of data and processing.
+
+##### Error: "Initializing libiomp5md.dll, but found libiomp5md.dll already initialized."
+This can be fixed by deleting the libiomp5md.dll file located in anaconda3/envs/dcl/Library/bin/, as is described in [this stack overflow post](https://stackoverflow.com/questions/20554074/sklearn-omp-error-15-initializing-libiomp5md-dll-but-found-mk2iomp5md-dll-a
+).
+
 
 
 
