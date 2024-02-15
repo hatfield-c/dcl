@@ -1,5 +1,5 @@
 # DCL Custom Rules
-
+data/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
