@@ -18,7 +18,7 @@ demo gifs go here
 ## Installation
 ### Requirements
 - We use Anaconda CLI for virtual environment and package management. You can install Anaconda for your device [here](https://docs.anaconda.com/free/anaconda/getting-started/index.html) or continue with your venv of choice.
-- Git and your IDE of choice is required for cloning/modifying the project onto your local computer. You can download Git [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and VSCode [here](https://code.visualstudio.com/download).
+- Git and your IDE of choice is required for cloning/modifying the project onto your local computer. You can download Git [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 - *IMPORTANT NOTE*: This simulator requires an NVIDIA GPU for use.
 
 #### Setting the Stage
@@ -27,22 +27,20 @@ demo gifs go here
   conda create --name dcl python=3.8
   conda activate dcl
   ```
-#### Installing Dependencies
-- Mamba library is optional, but recommended to speed up Conda runtime and installations. If you choose to not use Mamba, just run `conda` instead of   `mamba` commands.
-  ```
-  conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'
-  ```
-- Next we install Pytorch. This is downloaded separately to ensure the CUDA-enabled version, rather than the CPU-only version. 
-  ```
-  pip install torch -f https://download.pytorch.org/whl/torch_stable.html
-  ```
-- Install the rest of the dependencies. Here we use `mamba`/`conda` instead of `pip` since pip installs libraries globally rather than  locally.
-  ```
-  conda config --add channels conda-forge
-  conda config --add channels anaconda
-  mamba install --file requirements.txt
-  ```
-For any issues or conflicts, consult the table below FAQ for individual downloads. If needed, use pip instead.
+#### Install Dependencies 
+
+  - | Library     										 |  Command     					  	|
+    | -------------------------------------------------- | ------------------------------------ |
+    | python3.8  | |	
+    | [mamba*](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)      					| ```conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' ``` |
+    | [torch](https://pytorch.org/docs/stable/index.html)	      									| ```mamba install pytorch=*=*cuda* cudatoolkit -c pytorch```	|
+    | [opencv](https://docs.opencv.org/4.x/)      											| ``` mamba install opencv ```				|					|
+    | [matplotlib](https://matplotlib.org/stable/index.html) 									| ``` mamba install matplotlib ```				|
+    | [pybullet](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3)    	| ``` mamba install -c conda-forge pybullet ``` 	|
+    | [pynput](https://pynput.readthedocs.io/en/latest/) 										| ``` mamba install conda-forge::pynput ```			|
+    | [einops](https://einops.rocks/#Installation) 											| ``` mamba install conda-forge::einops ```			|
+    | [gstreamer](https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c)                                                         | ```mamba install anaconda::gstreamer``` |
+    - *mamba library is optional, but recommended to speed up Conda runtime and installations. If you choose to not use Mamba, just run `conda` instead of   `mamba` commands.
 
 ---
 
@@ -106,21 +104,6 @@ For any issues or conflicts, consult the table below FAQ for individual download
 ---
 
 ## FAQ
-##### Can I install the libraries individually? I'm running into some issues with installation.
-Absolutely! Below is the dependencies table with all the relevant commands and information links.
-- | Library     										 |  Command     					  	|
-    | -------------------------------------------------- | ------------------------------------ |
-    | python3.8  | |	
-    | [pip](https://pip.pypa.io/en/stable/)         														| ``` mamba install pip ``` |
-    | [mamba*](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)      					| ``` conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*' ``` |
-    | [torch](https://pytorch.org/docs/stable/index.html)	      									| ``` pip install torch -f https://download.pytorch.org/whl/torch_stable.htmll ```	|
-    | [opencv](https://docs.opencv.org/4.x/)      											| ``` mamba install opencv ```				|					|
-    | [matplotlib](https://matplotlib.org/stable/index.html) 									| ``` mamba install matplotlib ```				|
-    | [pybullet](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3)    	| ``` mamba install -c conda-forge pybullet ``` 	|
-    | [pynput](https://pynput.readthedocs.io/en/latest/) 										| ``` mamba install conda-forge::pynput ```			|
-    | [einops](https://einops.rocks/#Installation) 											| ``` mamba install conda-forge::einops ```			|
-    | [gstreamer](https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c)                                                         | ```mamba install anaconda::gstreamer``` |
-
 ##### Do I need Mamba? I've never seen this library before.
 If this is your first time installing Mamba, you may choose to not install it and instead stick with Conda commands instead. Mamba may take some time to install, so if you'd like to jump in ASAP, you can choose to forego it.
 

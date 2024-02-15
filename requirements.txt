@@ -1,9 +1,0 @@
-einops==0.7.0
-matplotlib==3.7.2
-numpy==1.24.4
-pybullet==3.25
-pynput==1.7.6
-pytorch==2.1.2
-opencv==4.0.1
-gstreamer==1.22.3
-
