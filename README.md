@@ -47,30 +47,33 @@ demo gifs go here
 ## Quick Start
 ### How to Run
 - Edit your desired changes to CONFIG.py in VSCode/IDE of  choice.
-  - There, you can edit episode and hitpoly parameters, as well as any other configurations.
+  - There, you can change episode and hitpoly parameters, as well as any other configurations.
 - Run Main.py with your desired specifications and appropriate action flag.
-    ```
-    python Main.py --action [FLAG]
-    ```
+  ``` 
+  python Main.py --action generate_data
+  ```
+
+#### Usage
+python Main.py --action [OPTIONS]
+python Main.py -a [OPTIONS]
 
 #### Action Flag Options
-###### General
-- ***help***
-&emsp;Output a usage message and exit.
-- ***build_video***
-&emsp;Creates an ```.mp4``` video visualizing the change in hitpoly for the drone based on its position and direction after completion of data generation and training.
-###### Data Generation
-- ***generate_data***
-&emsp;Generates initial data for training. Attributes such as ```episode_count``` and ```episode_length``` may be modified.
-- ***stitch_data***
-&emsp;Stitches together tensors generated from ```generate_data```. 
-###### Hitpoly Training
-- ***train_hitpoly***
-&emsp;Trains the hitpoly model in batches. Hitpoly parameters such as ```epochs```, ```learning rate```, and ```batch size``` may be modified.
-- ***query_hitpoly***
-&emsp;Loads the model output from raw pixel array values to be rendered as color images.
-- ***render_hitpoly***
-&emsp;Generates the hitpoly simulator starting from episode 1. Hold the ```enter``` key to progress each frame.
+  - ***help***
+  &emsp;Output a usage message and exit.
+  - ***build_video***
+  &emsp;Creates an ```.mp4``` video visualizing the change in hitpoly for the drone based on its position and direction after completion of data generation and training.
+  ###### Data Generation
+  - ***generate_data***
+  &emsp;Generates initial data for training. Attributes such as ```episode_count``` and ```episode_length``` may be modified.
+  - ***stitch_data***
+  &emsp;Stitches together tensors generated from ```generate_data```. 
+  ###### Hitpoly Training
+  - ***train_hitpoly***
+  &emsp;Trains the hitpoly model in batches. Hitpoly parameters such as ```epochs```, ```learning rate```, and ```batch size``` may be modified.
+  - ***query_hitpoly***
+  &emsp;Loads the model output from raw pixel array values to be rendered as color images.
+  - ***render_hitpoly***
+  &emsp;Generates the hitpoly simulator starting from episode 1. Hold the ```enter``` key to progress each frame.
 
 
 
