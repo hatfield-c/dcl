@@ -16,7 +16,8 @@ def GetCliAction():
 	action = args.action
 
 	if action is None:
-		print("    [Error]: You need to specify an action with the --action argument, i.e. --action 'help' or --action 'generate_data'")
+		print("	[Error]: You need to specify an action with the --action argument, i.e. --action [flag].") 
+		print("	For more information, try: --action help")
 		exit()
 
 	return action
@@ -59,7 +60,25 @@ def Main():
 		PolyAnalysis.QueryPolySpace()
 
 	if action == "help":
-		print("[write help message]")
+		print("	[DCL] Drone Calibartion Lab")
+		print("	The DCL is built on top of the PyBullet engine and serves to simulate and calibrate AI drone controllers.")
+
+		print("	Usage:")
+		print("		python Main.py --action [OPTIONS]")
+		print("		python Main.py --a [OPTIONS]")
+
+		print("	Options:")
+		print("		help			Show this screen.")
+		print("		build_video		Creates an .mp4 video visualizing the change in hitpoly for ")
+		print("					the drone based on its position and direction.")
+		print("		generate_data		Generates initial data for training.")
+		print("		stitch_data		Stitches together tensors generated from generate_data.")
+		print("		train_hitpoly		Trains the hitpoly model.")
+		print("		query_hitpoly		Loads the model output to be rendered into images.")
+		print("		render_hitpoly		Generates the hitpoly simulator starting from episode 1.")
+		print("					Hold the enter key to progress each frame.")
+
+
 
 	runtime = time.time() - start_time
 	runtime = "{:.2f}".format(runtime)
