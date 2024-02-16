@@ -60,12 +60,12 @@ def Main():
 		PolyAnalysis.QueryPolySpace()
 
 	if action == "help":
-		print("	[DCL] Drone Calibartion Lab")
+		print("	[DCL] Drone Calibration Lab")
 		print("	The DCL is built on top of the PyBullet engine and serves to simulate and calibrate AI drone controllers.")
 
 		print("	Usage:")
 		print("		python Main.py --action [OPTIONS]")
-		print("		python Main.py --a [OPTIONS]")
+		print("		python Main.py -a [OPTIONS]")
 
 		print("	Options:")
 		print("		help			Show this screen.")
