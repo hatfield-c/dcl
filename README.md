@@ -23,12 +23,12 @@ demo gifs go here
 - *IMPORTANT NOTE*: The AI model trained by the simulator requires an NVIDIA GPU for use.
 
 #### Create an Environment
-- Open MiniForge Prompt and create your virtual environment. Our code was built using Python version 3.8, so we recommend this version. 
+- Open MiniForge Prompt and create your virtual environment. Our code was built using Python 3.8, so we recommend this version. 
   ```
   mamba create --name dcl "python=3.8"
   mamba activate dcl
   ```
-#### Install Dependencies 
+#### Install Required Libraries 
 
   - | Library     										 |  Command     					  	|
     | -------------------------------------------------- | ------------------------------------ |
