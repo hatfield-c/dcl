@@ -17,13 +17,13 @@ demo gifs go here
 
 ## Installation
 ### Requirements
-- We recommend the MiniForge CLI for virtual environment and package management. MiniForge is a much more efficient version of Anaconda, and dramatically improves speed and overall performance. MiniForge is also pre-configured to work with the popular conda-forge channel. You can download the Miniforge installer for your device [here](https://github.com/conda-forge/miniforge). Simply scroll down to the "Download" section, and choose a version that's right for you.
-    - If you still wish to use Anaconda simply replace the "mamba" command with the "conda" command and everything should still work the same, only slower.
+- We recommend the MiniForge CLI for virtual environment and package management. MiniForge is a much more efficient version of Anaconda, and dramatically improves speed and overall performance. MiniForge is also pre-configured to work with the popular conda-forge channel. You can download the Miniforge installer for your device [here](https://github.com/conda-forge/miniforge). Scroll down to the "Download" section, and choose a version that's right for you.
+    - If you still wish to use anaconda, simply replace the "mamba" command with the "conda" command and everything should still work the same, only slower.
 - Git and your IDE of choice is required for cloning/modifying the project onto your local computer. You can download Git [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 - *IMPORTANT NOTE*: The AI model trained by the simulator requires an NVIDIA GPU for use.
 
 #### Create an Environment
-- Open Miniforge Prompt and create your virtual environment. We use Python version 3.8.
+- Open MiniForge Prompt and create your virtual environment. Our code was built using Python version 3.8, so we recommend this version. 
   ```
   mamba create --name dcl "python=3.8"
   mamba activate dcl
