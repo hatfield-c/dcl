@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<robot name="building_tall">
-	<material name="gray">
-		<color rgba="130 130 130 1"/>
+<robot name="1m_cube">
+	<material name="grey">
+		<color rgba="0.5 0.5 0.5 1"/>
 	</material>
 
-	<link name="building">
+	<link name="cube_obj">
 		<contact>
 			<lateral_friction value="1"/>
 		</contact>
@@ -19,17 +19,17 @@
 			<origin rpy="0 0 0" xyz="0 0 0"/>
 
 			<geometry>
-				<box size="1 1 5" />
+				<box size="0.1 0.1 0.1" />
 			</geometry>
 
-			<material name="gray"/>
+			<material name="grey"/>
 		</visual>
 
 		<collision>
 			<origin rpy="0 0 0" xyz="0 0 0"/>
 
 			<geometry>
-				<box size="1 1 5" />
+				<box size="0.1 0.1 0.1" />
 			</geometry>
 		</collision>
 	</link>

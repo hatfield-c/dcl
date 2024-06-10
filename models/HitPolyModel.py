@@ -15,8 +15,8 @@ class HitPolyModel(torch.nn.Module):
 		self.layer2 = torch.nn.Linear(128, 64).cuda()
 		self.layer3 = torch.nn.Linear(64, 16).cuda()
 		self.layer4 = torch.nn.Linear(16, 1).cuda()
-		#self.activation = torch.nn.ReLU()
-		self.activation = torch.nn.Mish()
+		self.activation = torch.nn.ReLU()
+		#self.activation = torch.nn.Mish()
 		self.sigmoid = torch.nn.Sigmoid()
 
 	def forward(self, data):

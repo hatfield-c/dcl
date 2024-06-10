@@ -59,6 +59,9 @@ def Main():
 	if action == actions["query_hitpoly"]:
 		PolyAnalysis.QueryPolySpace()
 
+	if action == actions["playground"]:
+		Academy.Playground()
+
 	if action == "help":
 		print("	[DCL] Drone Calibration Lab")
 		print("	The DCL is built on top of the PyBullet engine and serves to simulate and calibrate AI drone controllers.")

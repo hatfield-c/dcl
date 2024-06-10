@@ -2,10 +2,6 @@ import pybullet as pb
 
 import time
 
-import scenarios.SimpleScenario as SimpleScenario
-import scenarios.DropScenario as DropScenario
-import scenarios.TeleopScenario as TeleopScenario
-
 class ScenarioSimulator:
 	def __init__(self, scenario_factory):
 		self.scenario_factory = scenario_factory

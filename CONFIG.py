@@ -1,8 +1,8 @@
 
-timestep = 0#1 / 240
+timestep = 1 / 240
 
 client_count = 1#37
-render_scenario = False
+render_scenario = True
 
 episode_count = 100000
 episode_length = 164
@@ -30,7 +30,8 @@ possible_actions = {
 	"build_video": "build_video",
 	"train_hitpoly": "train_hitpoly",
 	"query_hitpoly": "query_hitpoly",
-	"render_hitpoly": "render_hitpoly"
+	"render_hitpoly": "render_hitpoly",
+	"playground": "playground"
 }
 possible_actions_list = list(possible_actions.keys())
 

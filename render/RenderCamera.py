@@ -24,16 +24,22 @@ class RenderCamera:
 		self.yaw = yaw
 		self.pitch = pitch
 
-	def SetTarget(
-		self,
-		target_entity
-	):
+	def SetTarget(self, target_entity):
 		self.target_entity = target_entity
 
-	def FollowTarget(self):
-		#if self.target_entity is None:
-		#	return
+	def SetCamera(self, position):
+		pb.resetDebugVisualizerCamera(
+			cameraDistance = self.distance,
+			cameraYaw = self.yaw,
+			cameraPitch = self.pitch,
+			cameraTargetPosition = position,
+			physicsClientId = self.client_id
+		)
 
+	def FollowTarget(self):
+		if self.target_entity is None:
+			return
+		
 		position = self.target_entity.GetCameraPosition()
 		rotation = self.target_entity.GetRotation()
 

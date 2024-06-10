@@ -4,7 +4,7 @@ import scenarios.ScenarioSimulator as ScenarioSimulator
 import scenarios.factories.DropScenarioFactory as DropScenarioFactory
 import scenarios.factories.GenericScenarioFactory as GenericScenarioFactory
 import scenarios.factories.HitPolyScenarioFactory as HitPolyScenarioFactory
-import scenarios.TeleopScenario as TeleopScenario
+import scenarios.factories.DroneMazeScenarioFactory as DroneMazeScenarioFactory
 
 import training.Trainer as Trainer
 import training.training as training
@@ -19,6 +19,27 @@ import models.HitPolyModel as HitPolyModel
 
 import torch
 import numpy as np
+
+def Playground():
+
+	import pybullet as pb
+
+	client_count = CONFIG.client_count
+	render_scenario = CONFIG.render_scenario
+	timestep = CONFIG.timestep
+
+	factory = DroneMazeScenarioFactory.DroneMazeScenarioFactory(
+		gravity_strength = CONFIG.gravity_strength,
+		max_episodes = 1,
+		episode_length = 10000000,
+	)
+
+	simulator = ScenarioSimulator.ScenarioSimulator(factory)
+	simulator.Run(
+		client_count = client_count,
+		render_scenario = render_scenario,
+		timestep = timestep
+	)
 
 def GenerateData():
 
