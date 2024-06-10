@@ -30,18 +30,17 @@ demo gifs go here
   mamba activate dcl
   ```
 #### Install Required Libraries 
-
-  - | Library     										 |  Command     					  	|
-    | -------------------------------------------------- | ------------------------------------ |
-    | python3.8  | |	
-    | [mamba*](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)      					| Comes pre-installed in MiniForge |
-    | [torch](https://pytorch.org/docs/stable/index.html)	      									| ``` mamba install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia ```	|
-    | [opencv](https://docs.opencv.org/4.x/)      											| ``` mamba install opencv ```				|					|
-    | [matplotlib](https://matplotlib.org/stable/index.html) 									| ``` mamba install matplotlib ```				|
-    | [pybullet](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3)    	| ``` mamba install pybullet ``` 	|
-    | [pynput](https://pynput.readthedocs.io/en/latest/) 										| ``` mamba install pynput ```			|
-    | [einops](https://einops.rocks/#Installation) 											| ``` mamba install einops ```			|
-    | [gstreamer](https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c)                                                         | ``` mamba install gstreamer ``` |
+  - | Library     										 |  Command     					  	| Stable Version|
+    | -------------------------------------------------- | ------------------------------------ |---------------|
+    | [python](https://www.python.org/downloads/)  | |	3.8.18 |
+    | [mamba*](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)      					| Comes pre-installed in MiniForge | 22.3.1 | 
+    | [pytorch](https://pytorch.org/docs/stable/index.html)	      									| ``` mamba install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia ```	| 2.2.1 |
+    | [opencv](https://docs.opencv.org/4.x/)      											| ``` mamba install opencv ```				|	4.0.1 | 
+    | [matplotlib](https://matplotlib.org/stable/index.html) 									| ``` mamba install matplotlib ```				| 3.7.2 |
+    | [pybullet](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3)    	| ``` mamba install pybullet ``` 	| 3.25 |
+    | [pynput](https://pynput.readthedocs.io/en/latest/) 										| ``` mamba install pynput ```			| 1.7.6 |
+    | [einops](https://einops.rocks/#Installation) 											| ``` mamba install einops ```			| 0.7.0 |
+    | [gstreamer](https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c)                                                         | ``` mamba install gstreamer ``` | 1.18.5|
     
 ---
 
@@ -55,9 +54,12 @@ demo gifs go here
   ```
 
 #### Usage
+```
 python Main.py --action [OPTIONS]
+```
+```
 python Main.py -a [OPTIONS]
-
+```
 #### Action Flag Options
   - ***help***
   &emsp;Output a usage message and exit.
