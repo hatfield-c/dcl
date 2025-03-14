@@ -10,6 +10,7 @@ import scenarios.permuters.BoxPermuter as BoxPermuter
 import scenarios.permuters.ListPermuter as ListPermuter
 import scenarios.permuters.WaypointPermuter as WaypointPermuter
 import scenarios.permuters.HitPolyPermuter as HitPolyPermuter
+import scenarios.permuters.DemoPermuter as DemoPermuter
 
 import physics.SimpleCounter as SimpleCounter
 import render.RenderCamera as RenderCamera
@@ -124,8 +125,12 @@ class HitPolyScenario(ScenarioInterface.ScenarioInterface):
 	def GetDronePermuters(self, ai_type, planner, controller):
 		permuters = {}
 
-		if ai_type == "pid_align_data" or ai_type == "pid_align_poly":
+		if ai_type == "pid_align_data":
 			permuters["hit_poly"] = HitPolyPermuter.HitPolyPermuter()
+			permuters["reset_package"] = ListPermuter.ListPermuter(choices_list = [ True ])
+
+		if ai_type == "pid_align_poly":
+			permuters["hit_poly"] = DemoPermuter.DemoPermuter()
 			permuters["reset_package"] = ListPermuter.ListPermuter(choices_list = [ True ])
 
 		return permuters

@@ -69,8 +69,8 @@ class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 			self.direction_marker.SetState({"position": direction_marker_position})
 			self.velocity_marker.SetState({"position": velocity_marker_position})
 
-		drop_package = self.release_planner.GetPlan(sensors, metadata)
-
+		release_plan = self.release_planner.GetPlan(sensors, metadata)
+		
 		plan = {
 			"move_action": "move",
 			"current_quat": current_quat,
@@ -78,7 +78,7 @@ class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 			"desired_direction": desired_direction[[0, 1]],
 			"desired_altitude": desired_altitude,
 			"velocity": velocity,
-			"drop_package": drop_package
+			"drop_package": release_plan["is_dropped"]
 		}
 
 		return plan

@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import math
 
@@ -74,11 +75,33 @@ class HitPolyPlanner(PlannerInterface.PlannerInterface):
 			self.RenderHitPoly()
 
 	def GetPlan(self, sensors, metadata):
+		telemetry = sensors["telemetry"]
+		sensor_data = telemetry.ReadSensor(None)
+		
+		position = sensor_data["position"]
+		rotation = sensor_data["rotation"]
+		velocity = sensor_data["velocity"]
+		angular_velocity = sensor_data["angular_velocity"]
+		
+		state_data = [
+			position,
+			rotation,
+			velocity,
+			angular_velocity
+		]
 
-		input("Press enter to continue...")
-
+		state_data = np.concatenate(state_data).reshape((1, -1))
+		state_data = torch.FloatTensor(state_data).cuda()
+		
+		predictions = self.model(state_data)
+		predictions = predictions.cpu()
+		
+		is_drop = False
+		if predictions[0, 0] > 0.5:
+			is_drop = True
+		
 		plan = {
-			"drop_package": True
+			"is_dropped": is_drop
 		}
 
 		return plan
@@ -170,3 +193,4 @@ class HitPolyPlanner(PlannerInterface.PlannerInterface):
 				)
 
 				self.hit_markers.append(marker)
+

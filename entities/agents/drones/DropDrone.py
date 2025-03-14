@@ -57,11 +57,10 @@ class DropDrone(SimpleEntity.SimpleEntity, AgentInterface.AgentInterface):
 	def TakeAction(self):
 		plan = self.planner.GetPlan(self.sensors, self.metadata)
 		control_data = self.controller.GetControlSignal(plan, self.metadata)
-
+		
 		control_data["pb_id"] = self.pb_id
 
 		if control_data["drop_package"]:
-
 			drop_data = {
 				"position": self.GetPosition(),
 				"velocity": self.GetVelocity(),

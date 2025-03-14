@@ -35,7 +35,7 @@ possible_actions = {
 }
 possible_actions_list = list(possible_actions.keys())
 
-simulation_episode_length = 700
+simulation_episode_length = 1400
 observer_episode_length = 700
 
 ############################

@@ -102,7 +102,7 @@ class PidForwardController(ControllerInterface.ControllerInterface):
 		#control_data["pitch_signal"] = pitch_rpm
 		#control_data["roll_signal"] = roll_rpm
 		#control_data["yaw_signal"] = yaw_rpm
-
+		
 		return control_data
 
 	def MotorMixer(self, thrust, yaw, pitch, roll):

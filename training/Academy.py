@@ -111,9 +111,9 @@ def RenderHitPoly():
 	factory = HitPolyScenarioFactory.HitPolyScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
-		episode_length = CONFIG.episode_length,
+		episode_length = CONFIG.simulation_episode_length,
 		ai_type = "pid_align_poly",
-		render_poly = True,
+		render_poly = False,
 		state_data_path = None,
 		max_data_path = None,
 		value_data_path = None,
