@@ -8,7 +8,7 @@ class ImmediateReleasePlanner(PlannerInterface.PlannerInterface):
 	def GetPlan(self, sensors, metadata):
 
 		plan = {
-			"drop_package": True
+			"is_dropped": True
 		}
 
 		return plan

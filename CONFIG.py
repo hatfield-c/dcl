@@ -1,17 +1,18 @@
-
+# set to 0 for data generation
+#timestep = 0
 timestep = 1 / 240
 
 client_count = 1#37
-render_scenario = True
+render_scenario = False
 
 episode_count = 100000
 episode_length = 164
 print_every_episode_generated = 500
 pause_every_episode = False
 
-state_data_path = "data/v3/state_data"
-max_data_path = "data/v3/max_data"
-value_data_path = "data/v3/value_data"
+state_data_path = "data/v4/state_data"
+max_data_path = "data/v4/max_data"
+value_data_path = "data/v4/value_data"
 
 gravity_strength = 9.8
 

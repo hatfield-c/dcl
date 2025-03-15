@@ -46,7 +46,7 @@ class HitPolyPermuter(PermuterInterface.PermuterInterface):
 		#)
 		permutation["position"] = np.random.uniform(
 			[-6, -6, 0.5],
-			[6, 6, 3.5]
+			[6, 6, 5.5]
 		)
 		permutation["velocity"] = np.random.uniform(
 			[-15, -15, -1],
@@ -68,7 +68,7 @@ class HitPolyPermuter(PermuterInterface.PermuterInterface):
 
 		position = self.GetConcavePosition(
 			min_offset = [1, 1, 0],
-			max_offset = [5, 5, 1],
+			max_offset = [5, 5, 3],
 			#min_offset = [0, 4, 0],
 			#max_offset = [0, 5, 1],
 			center = [0, 0, 2.5]

@@ -75,8 +75,6 @@ class HitPolyObserver(ObserverInterface.ObserverInterface):
 		torch.save(max_data, max_path)
 		torch.save(value_data, value_path)
 
-
-
 		if flush_memory:
 			self.state_data = []
 			self.value_data = []
