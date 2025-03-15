@@ -97,7 +97,7 @@ class HitPolyPlanner(PlannerInterface.PlannerInterface):
 		predictions = predictions.cpu()
 		
 		is_drop = False
-		if predictions[0, 0] > 0.8:
+		if predictions[0, 0] > 0.95:
 			is_drop = True
 		
 		plan = {

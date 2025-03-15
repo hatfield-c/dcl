@@ -12,6 +12,31 @@ import training.DataLoader as DataLoader
 import training.Trainer as Trainer
 import models.HitPolyModel as HitPolyModel
 
+def ExtractHitpoly():
+	model = HitPolyModel.HitPolyModel(CONFIG.dimensionality)
+	model = model.cuda()
+	
+	seed_path = CONFIG.seed_path
+	value_path = CONFIG.value_path
+	
+	seed_data = torch.load(seed_path).cuda()
+	seed_values = torch.load(value_path).cuda()
+	
+	data_loader = DataLoader.DataLoader(seed_data, seed_values)
+
+	trainer = Trainer.Trainer(
+		model = model,
+		data_loader = data_loader,
+		learning_rate = CONFIG.learning_rate,
+		batch_size = CONFIG.batch_size,
+		print_every_epoch = CONFIG.print_every_epoch,
+		save_path = CONFIG.model_path
+	)
+
+	trainer.Load(CONFIG.epochs)
+	
+	model.SaveParameters(CONFIG.param_path)
+
 def QueryPolySpace():
 	#dimensionalities = torch.FloatTensor([3, 3, 3, 3])
 

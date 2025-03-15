@@ -32,6 +32,7 @@ possible_actions = {
 	"train_hitpoly": "train_hitpoly",
 	"query_hitpoly": "query_hitpoly",
 	"render_hitpoly": "render_hitpoly",
+	"extract_hitpoly": "extract_hitpoly",
 	"playground": "playground"
 }
 possible_actions_list = list(possible_actions.keys())
@@ -42,14 +43,15 @@ observer_episode_length = 700
 ############################
 #	HITPOLY PARAMETERS
 ############################
-epochs = 50000
-learning_rate = 5e-4
+epochs = 80000
+learning_rate = 4.5e-4
 dimensionality = 12
-batch_size = 1024
+batch_size = 2048
 
 print_every_epoch = 1000
 
 model_path = "data/models/hitpoly/"
+param_path = "data/models/hitpoly/parameters/"
 
 ############################
 #	DIFFUSION PARAMETERS

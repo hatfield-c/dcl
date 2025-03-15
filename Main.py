@@ -59,6 +59,9 @@ def Main():
 	if action == actions["query_hitpoly"]:
 		PolyAnalysis.QueryPolySpace()
 
+	if action == actions["extract_hitpoly"]:
+		PolyAnalysis.ExtractHitpoly()
+
 	if action == actions["playground"]:
 		Academy.Playground()
 
