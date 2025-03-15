@@ -7,7 +7,7 @@ class HitPolyModel(torch.nn.Module):
 	def __init__(self, dimensionality):
 		super().__init__()
 
-		self.dimensionality = dimensionality
+		self.dimensionality = 6#dimensionality
 
 		self.layer0 = torch.nn.Linear(self.dimensionality, 256).cuda()
 		self.layer1 = torch.nn.Linear(256, 1).cuda()
@@ -35,14 +35,14 @@ class HitPolyModel(torch.nn.Module):
 		
 		print(s0)
 		for j in range(2):
-			for i in range(12):			
+			for i in range(6):			
 				print("{:.2f}".format(w0[j, i].item()) + ", ", end = "")
 			
 			print("")		
 		print("")
 		
 		for j in range(254, 256):
-			for i in range(12):
+			for i in range(6):
 				print("{:.2f}".format(w0[j, i].item()) + ", ", end = "")
 				
 			print("")		
@@ -70,17 +70,17 @@ class HitPolyModel(torch.nn.Module):
 		b1.tofile(save_path + "b1.float")
 		
 		print(s0)
-		for i in range(24):
+		for i in range(12):
 			print("{:.2f}".format(w0[i]) + ", ", end = "")
 			
-			if i == 11:
+			if i == 5:
 				print("")		
 		print("\n")
 		
-		for i in range(24):
-			index = (12 * 256) - (24 - i)
+		for i in range(12):
+			index = (6 * 256) - (12 - i)
 			print("{:.2f}".format(w0[index]) + ", ", end = "")
 			
-			if i == 11:
+			if i == 5:
 				print("")		
 		print("")

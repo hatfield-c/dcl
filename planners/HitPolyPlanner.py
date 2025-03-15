@@ -85,9 +85,9 @@ class HitPolyPlanner(PlannerInterface.PlannerInterface):
 		
 		state_data = [
 			position,
-			rotation,
+			#rotation,
 			velocity,
-			angular_velocity
+			#angular_velocity
 		]
 
 		state_data = np.concatenate(state_data).reshape((1, -1))

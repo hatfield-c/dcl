@@ -83,6 +83,8 @@ def TrainHitPoly():
 	seed_data = torch.load(seed_path).cuda()
 	seed_values = torch.load(value_path).cuda()
 
+	seed_data = seed_data[:, [0, 1, 2, 6, 7, 8]]
+
 	normalizer = Normalizer.Normalizer(seed_data, dimensionality)
 	#normalizer.GoToCuda()
 
