@@ -60,12 +60,12 @@ class HitPolyObserver(ObserverInterface.ObserverInterface):
 		max_data = torch.max(max_data, dim = 0)
 		max_data = max_data.values
 
-		state_path = state_path + "-" + str(self.client_id) + file_type
-		max_path = max_path + "-" + str(self.client_id) + file_type
-		value_path = value_path + "-" + str(self.client_id) + file_type
+		state_path = state_path + "-" + str(self.client_id) + "_" + str(CONFIG.app_index) + file_type
+		max_path = max_path + "-" + str(self.client_id) + "_" + str(CONFIG.app_index) + file_type
+		value_path = value_path + "-" + str(self.client_id) + "_" + str(CONFIG.app_index) + file_type
 
 		if self.client_id == 0:
-			print("\nClient ", self.client_id, "- Saving at " + state_path)
+			print("App ", CONFIG.app_index, "- Saving at " + state_path)
 			print("    State Data Shape:", state_data.shape)
 			print("    Max Data Shape :", max_data.shape)
 			print("    Value Data Shape:", value_data.shape)
@@ -111,20 +111,12 @@ class HitPolyObserver(ObserverInterface.ObserverInterface):
 		package_position = self.drone.arm.package.GetPosition()
 		target_position = self.target.GetPosition()
 
-		package_offset = package_position - target_position
-		package_offset = np.abs(package_offset)
-		success_offset = [ 0.45, 0.025, 0.45 ]
-		error_offset = success_offset - package_offset
+		xy_dist = np.linalg.norm(package_position[[0, 1]])
 
-		zeros = np.zeros(3)
-		is_in_bounds = np.greater(error_offset, zeros)
-		is_success = np.all(is_in_bounds)
-
-		if drone_position[0] > -1 and drone_position[0] < 1 and drone_position[1] > 0.5 and drone_position[1] < 0.5 and drone_position[2] < 2.3:
-			is_success = False
-
-		if is_success:
+		is_success = False
+		if xy_dist < 1.5 and package_position[2] > 0.5 and package_position[2] < 1:
 			self.is_episode_success = True
+			is_success = True
 
 		target_offset = target_position - drone_position
 
@@ -166,7 +158,7 @@ class HitPolyObserver(ObserverInterface.ObserverInterface):
 		if self.debug and self.client_id == 0 and self.episode_counter.GetCount() % self.episode_print_count == 0:
 
 			print("============================")
-			print("  Episode", self.episode_counter.GetCount() ,"- Client " + str(self.client_id))
+			print("  Episode", self.episode_counter.GetCount() ,"- App " + str(CONFIG.app_index))
 			print("============================")
 			print("    Is Success          :", self.is_episode_success)
 			print("    Success Count       :", self.success_count)

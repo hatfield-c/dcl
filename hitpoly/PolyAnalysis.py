@@ -12,6 +12,34 @@ import training.DataLoader as DataLoader
 import training.Trainer as Trainer
 import models.HitPolyModel as HitPolyModel
 
+import scenarios.factories.HitPolyScenarioFactory as HitPolyScenarioFactory
+import scenarios.ScenarioSimulator as ScenarioSimulator
+
+def TestPositiveDb():
+	timestep = CONFIG.timestep
+
+	factory = HitPolyScenarioFactory.HitPolyScenarioFactory(
+		gravity_strength = CONFIG.gravity_strength,
+		max_episodes = CONFIG.episode_count,
+		episode_length = CONFIG.simulation_episode_length,
+		ai_type = "pid_align_pdb",
+		render_poly = False,
+		state_data_path = None,
+		max_data_path = None,
+		value_data_path = None,
+		episode_print_count = 1,
+		render_scenario = True,
+		save_render = False,
+		save_data = False
+	)
+
+	simulator = ScenarioSimulator.ScenarioSimulator(factory)
+	simulator.Run(
+		client_count = 1,
+		render_scenario = True,
+		timestep = timestep
+	)
+
 def ExtractHitpoly():
 	model = HitPolyModel.HitPolyModel(CONFIG.dimensionality)
 	model = model.cuda()

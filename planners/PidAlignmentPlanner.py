@@ -57,7 +57,7 @@ class PidAlignmentPlanner(PlannerInterface.PlannerInterface):
 
 		desired_direction = np.array([lateral_signal, forward_signal])
 
-		desired_altitude = 2.5
+		desired_altitude = 4.5
 
 		if self.debug:
 			desired_dir_debug = np.array([lateral_signal, forward_signal, 0])

@@ -9,7 +9,7 @@ import scenarios.permuters.BoxPermuter as BoxPermuter
 
 class HitPolyPermuter(PermuterInterface.PermuterInterface):
 	def __init__(self):
-		self.directed_ratio = 0.25
+		self.directed_ratio = 0
 
 	def GetPermutation(self, permutation_data = None):
 
@@ -45,8 +45,8 @@ class HitPolyPermuter(PermuterInterface.PermuterInterface):
 		#	center = [0, 0, 2]
 		#)
 		permutation["position"] = np.random.uniform(
-			[-6, -6, 0.5],
-			[6, 6, 5.5]
+			[-8, 0, 0.5],
+			[8, 8, 8]
 		)
 		permutation["velocity"] = np.random.uniform(
 			[-15, -15, -1],
@@ -66,12 +66,15 @@ class HitPolyPermuter(PermuterInterface.PermuterInterface):
 	def GetDirectedPermutation(self):
 		permutation = {}
 
-		position = self.GetConcavePosition(
-			min_offset = [1, 1, 0],
-			max_offset = [5, 5, 3],
-			#min_offset = [0, 4, 0],
-			#max_offset = [0, 5, 1],
-			center = [0, 0, 2.5]
+		#position = self.GetConcavePosition(
+		#	min_offset = [1, 1, 0],
+		#	max_offset = [5, 5, 3],
+		#	center = [0, 0, 2.5]
+		#)
+
+		position = np.random.uniform(
+			[-3, -1, 0.5],
+			[3, 8, 8]
 		)
 
 		pos_2d = -position[:2]

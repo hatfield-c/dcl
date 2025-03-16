@@ -2,17 +2,18 @@
 #timestep = 0
 timestep = 1 / 240
 
+app_index = 0
 client_count = 1#37
 render_scenario = False
 
-episode_count = 100000
-episode_length = 164
+episode_count = 10000
+episode_length = 300
 print_every_episode_generated = 500
 pause_every_episode = False
 
-state_data_path = "data/v4/state_data"
-max_data_path = "data/v4/max_data"
-value_data_path = "data/v4/value_data"
+state_data_path = "data/v5/state_data"
+max_data_path = "data/v5/max_data"
+value_data_path = "data/v5/value_data"
 
 gravity_strength = 9.8
 
@@ -33,6 +34,7 @@ possible_actions = {
 	"query_hitpoly": "query_hitpoly",
 	"render_hitpoly": "render_hitpoly",
 	"extract_hitpoly": "extract_hitpoly",
+	"test_pdb": "test_pdb",
 	"playground": "playground"
 }
 possible_actions_list = list(possible_actions.keys())
@@ -43,8 +45,8 @@ observer_episode_length = 700
 ############################
 #	HITPOLY PARAMETERS
 ############################
-epochs = 80000
-learning_rate = 4.5e-4
+epochs = 100000
+learning_rate = 1e-3
 dimensionality = 12
 batch_size = 2048
 
@@ -52,6 +54,12 @@ print_every_epoch = 1000
 
 model_path = "data/models/hitpoly/"
 param_path = "data/models/hitpoly/parameters/"
+
+############################
+#	PDB PARAMETERS
+############################
+
+pdb_path = "data/pdb/state_positive.float"
 
 ############################
 #	DIFFUSION PARAMETERS

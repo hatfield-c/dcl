@@ -23,6 +23,7 @@ import planners.DiffusionBezierAlignmentPlanner as DiffusionBezierAlignmentPlann
 import planners.PidAlignmentPlanner as PidAlignmentPlanner
 import planners.ImmediateReleasePlanner as ImmediateReleasePlanner
 import planners.HitPolyPlanner as HitPolyPlanner
+import planners.PositiveDbPlanner as PositiveDbPlanner
 
 import controllers.PidForwardController as PidForwardController
 
@@ -120,6 +121,11 @@ class HitPolyScenario(ScenarioInterface.ScenarioInterface):
 			planner = PidAlignmentPlanner.PidAlignmentPlanner(self.client_id, episode_length = self.episode_length, release_planner = release_planner, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
+		if ai_type == "pid_align_pdb":
+			release_planner = PositiveDbPlanner.PositiveDbPlanner()
+			planner = PidAlignmentPlanner.PidAlignmentPlanner(self.client_id, episode_length = self.episode_length, release_planner = release_planner, debug = True)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
 		return planner, controller
 
 	def GetDronePermuters(self, ai_type, planner, controller):
@@ -128,8 +134,7 @@ class HitPolyScenario(ScenarioInterface.ScenarioInterface):
 		if ai_type == "pid_align_data":
 			permuters["hit_poly"] = HitPolyPermuter.HitPolyPermuter()
 			permuters["reset_package"] = ListPermuter.ListPermuter(choices_list = [ True ])
-
-		if ai_type == "pid_align_poly":
+		else:
 			permuters["hit_poly"] = DemoPermuter.DemoPermuter()
 			permuters["reset_package"] = ListPermuter.ListPermuter(choices_list = [ True ])
 

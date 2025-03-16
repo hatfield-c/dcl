@@ -95,9 +95,9 @@ class HitPolyPlanner(PlannerInterface.PlannerInterface):
 		
 		predictions = self.model(state_data)
 		predictions = predictions.cpu()
-		
+		print(predictions[0, 0].item())
 		is_drop = False
-		if predictions[0, 0] > 0.95:
+		if predictions[0, 0] > 0.85:
 			is_drop = True
 		
 		plan = {
