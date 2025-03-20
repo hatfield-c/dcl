@@ -10,7 +10,7 @@ class PositiveDbPlanner(PlannerInterface.PlannerInterface):
 	def __init__(self):
 		pdb_raw = np.fromfile(CONFIG.pdb_path, np.float32)
 		pdb_raw = pdb_raw.astype(np.float32)
-		pdb_raw = pdb_raw.reshape(14093, 6)
+		pdb_raw = pdb_raw.reshape(-1, 6)
 		self.pdb = pdb_raw[:, [ 0, 2, 1, 3, 5, 4 ]]
 
 	def GetPlan(self, sensors, metadata):
@@ -26,7 +26,7 @@ class PositiveDbPlanner(PlannerInterface.PlannerInterface):
 		query = np.round(query)
 		
 		is_drop = False
-		for i in range(14093):
+		for i in range(self.pdb.shape[0]):
 			entry = self.pdb[i]
 			
 			error = np.linalg.norm(entry - query)

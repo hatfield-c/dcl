@@ -24,6 +24,7 @@ import planners.PidAlignmentPlanner as PidAlignmentPlanner
 import planners.ImmediateReleasePlanner as ImmediateReleasePlanner
 import planners.HitPolyPlanner as HitPolyPlanner
 import planners.PositiveDbPlanner as PositiveDbPlanner
+import planners.NeuralGridPlanner as NeuralGridPlanner
 
 import controllers.PidForwardController as PidForwardController
 
@@ -122,7 +123,12 @@ class HitPolyScenario(ScenarioInterface.ScenarioInterface):
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 
 		if ai_type == "pid_align_pdb":
-			release_planner = PositiveDbPlanner.PositiveDbPlanner()
+			release_planner = PositiveDbPlanner.PositiveDbPlanner(self.client_id)
+			planner = PidAlignmentPlanner.PidAlignmentPlanner(self.client_id, episode_length = self.episode_length, release_planner = release_planner, debug = True)
+			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
+
+		if ai_type == "pid_align_ng" or ai_type == "pid_align_ngn":
+			release_planner = NeuralGridPlanner.NeuralGridPlanner(self.client_id)
 			planner = PidAlignmentPlanner.PidAlignmentPlanner(self.client_id, episode_length = self.episode_length, release_planner = release_planner, debug = True)
 			controller = PidForwardController.PidForwardController(force_scale = 1, torque_scale = 1)
 

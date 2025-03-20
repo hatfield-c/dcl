@@ -16,6 +16,7 @@ import training.DataLoader as DataLoader
 import training.Normalizer as Normalizer
 
 import models.HitPolyModel as HitPolyModel
+import models.NeuralGridModel as NeuralGridModel
 
 import torch
 import numpy as np
@@ -77,22 +78,14 @@ def TrainHitPoly():
 	batch_size = CONFIG.batch_size
 	dimensionality = CONFIG.dimensionality
 
-	seed_path = CONFIG.seed_path
-	value_path = CONFIG.value_path
+	data_loader = DataLoader.DataLoader()
 
-	seed_data = torch.load(seed_path).cuda()
-	seed_values = torch.load(value_path).cuda()
-
-	seed_data = seed_data[:, [0, 1, 2, 6, 7, 8]]
-
-	normalizer = Normalizer.Normalizer(seed_data, dimensionality)
-	#normalizer.GoToCuda()
-
-	#seed_data = normalizer.normalize(seed_data)
-
-	data_loader = DataLoader.DataLoader(seed_data, seed_values)
-
-	model = HitPolyModel.HitPolyModel(dimensionality)
+	model = None
+	if(CONFIG.ai_type == "pid_align_ng"):
+		model = NeuralGridModel.NeuralGridModel(dimensionality)
+	else:
+		model = NeuralGridModel.NeuralGridModel(dimensionality)
+		
 	model = model.cuda()
 
 	trainer = Trainer.Trainer(

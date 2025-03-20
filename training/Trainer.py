@@ -24,15 +24,13 @@ class Trainer:
 		self.print_every_epoch = print_every_epoch
 		self.save_path = save_path
 
-		self.bce_loss = torch.nn.BCELoss()
-
 	def Train(self, epochs):
 
 		model = self.model
 		data_loader = self.data_loader
 		learning_rate = self.learning_rate
 		batch_size = self.batch_size
-		loss_func = self.bce_loss
+		loss_func = torch.nn.BCELoss()
 
 		optimizer = optim.Adam(
 			model.parameters(),

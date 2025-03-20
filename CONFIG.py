@@ -34,7 +34,7 @@ possible_actions = {
 	"query_hitpoly": "query_hitpoly",
 	"render_hitpoly": "render_hitpoly",
 	"extract_hitpoly": "extract_hitpoly",
-	"test_pdb": "test_pdb",
+	"test_hitpoly": "test_hitpoly",
 	"playground": "playground"
 }
 possible_actions_list = list(possible_actions.keys())
@@ -45,15 +45,28 @@ observer_episode_length = 700
 ############################
 #	HITPOLY PARAMETERS
 ############################
+
+#ai_type = "pid_align_pdb"
+#ai_type = "pid_align_ng"
+ai_type = "pid_align_ngn"
+
+############################
+#	NEURAL PARAMETERS
+############################
+state_data_path = "data/v6/state_data.float"
+value_data_path = "data/v6/value_data.float"
+
 epochs = 100000
 learning_rate = 1e-3
-dimensionality = 12
-batch_size = 2048
+dimensionality = 6
+batch_size = 1024
 
 print_every_epoch = 1000
 
-model_path = "data/models/hitpoly/"
-param_path = "data/models/hitpoly/parameters/"
+#model_path = "data/models/hitpoly/ng/"
+model_path = "data/models/hitpoly/ngn/"
+#param_path = "data/models/hitpoly/ng/parameters/"
+param_path = "data/models/hitpoly/ngn/parameters/"
 
 ############################
 #	PDB PARAMETERS

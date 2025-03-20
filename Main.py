@@ -62,8 +62,8 @@ def Main():
 	if action == actions["extract_hitpoly"]:
 		PolyAnalysis.ExtractHitpoly()
 
-	if action == actions["test_pdb"]:
-		PolyAnalysis.TestPositiveDb()()
+	if action == actions["test_hitpoly"]:
+		PolyAnalysis.TestHitpoly()()
 
 	if action == actions["playground"]:
 		Academy.Playground()

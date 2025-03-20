@@ -15,14 +15,14 @@ import models.HitPolyModel as HitPolyModel
 import scenarios.factories.HitPolyScenarioFactory as HitPolyScenarioFactory
 import scenarios.ScenarioSimulator as ScenarioSimulator
 
-def TestPositiveDb():
+def TestHitpoly():
 	timestep = CONFIG.timestep
 
 	factory = HitPolyScenarioFactory.HitPolyScenarioFactory(
 		gravity_strength = CONFIG.gravity_strength,
 		max_episodes = CONFIG.episode_count,
 		episode_length = CONFIG.simulation_episode_length,
-		ai_type = "pid_align_pdb",
+		ai_type = CONFIG.ai_type,
 		render_poly = False,
 		state_data_path = None,
 		max_data_path = None,
