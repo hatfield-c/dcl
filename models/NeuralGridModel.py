@@ -9,8 +9,8 @@ class NeuralGridModel(torch.nn.Module):
 
 		self.dimensionality = 6#dimensionality
 
-		self.layer0 = torch.nn.Linear(self.dimensionality, 2048).cuda()
-		self.layer1 = torch.nn.Linear(2048, 1).cuda()
+		self.layer0 = torch.nn.Linear(self.dimensionality, 256).cuda()
+		self.layer1 = torch.nn.Linear(256, 1).cuda()
 		self.activation = torch.nn.ReLU()
 
 		self.sigmoid = torch.nn.Sigmoid()

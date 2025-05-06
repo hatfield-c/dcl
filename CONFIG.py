@@ -47,8 +47,8 @@ observer_episode_length = 700
 ############################
 
 #ai_type = "pid_align_pdb"
-#ai_type = "pid_align_ng"
-ai_type = "pid_align_ngn"
+ai_type = "pid_align_ng"
+#ai_type = "pid_align_ngn"
 
 ############################
 #	NEURAL PARAMETERS
@@ -63,10 +63,10 @@ batch_size = 1024
 
 print_every_epoch = 1000
 
-#model_path = "data/models/hitpoly/ng/"
-model_path = "data/models/hitpoly/ngn/"
-#param_path = "data/models/hitpoly/ng/parameters/"
-param_path = "data/models/hitpoly/ngn/parameters/"
+model_path = "data/models/hitpoly/ng/"
+param_path = "data/models/hitpoly/ng/parameters/"
+#model_path = "data/models/hitpoly/ngn/"
+#param_path = "data/models/hitpoly/ngn/parameters/"
 
 ############################
 #	PDB PARAMETERS

@@ -44,13 +44,7 @@ def ExtractHitpoly():
 	model = HitPolyModel.HitPolyModel(CONFIG.dimensionality)
 	model = model.cuda()
 	
-	seed_path = CONFIG.seed_path
-	value_path = CONFIG.value_path
-	
-	seed_data = torch.load(seed_path).cuda()
-	seed_values = torch.load(value_path).cuda()
-	
-	data_loader = DataLoader.DataLoader(seed_data, seed_values)
+	data_loader = DataLoader.DataLoader()
 
 	trainer = Trainer.Trainer(
 		model = model,
